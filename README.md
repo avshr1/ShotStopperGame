@@ -13,5 +13,5 @@
 - JavaScript
 - HTML Canvas API
 
-### Live Site
+## Live Site
 https://avshr1.github.io/ShotStopperGame/
