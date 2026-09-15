@@ -1,0 +1,268 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #2d5a1b;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* ── OVERLAYS ── */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.overlay-content {
+    background: #fff;
+    border-radius: 20px;
+    padding: 48px 56px;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+}
+
+.logo-wrap {
+    margin-bottom: 28px;
+}
+
+.logo-sub {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    line-height: 0.9;
+    color: #1a1a1a;
+    letter-spacing: 2px;
+}
+
+.tagline {
+    font-size: 14px;
+    color: #888;
+    margin-top: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.instructions {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    text-align: left;
+}
+
+.instructions p {
+    font-size: 13px;
+    color: #555;
+    padding: 4px 0;
+    line-height: 1.6;
+}
+
+.btn-main {
+    background: #2d8a3e;
+    color: white;
+    border: none;
+    padding: 16px 48px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-main:hover {
+    background: #236e30;
+}
+
+.btn-main:active {
+    transform: scale(0.97);
+}
+
+/* ── GAME OVER ── */
+#gameover-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+
+#gameover-subtitle {
+    color: #888;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+}
+
+.final-score-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.final-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.final-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    color: #2d8a3e;
+    line-height: 1;
+}
+
+.final-label {
+    font-size: 11px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.final-divider {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: #ddd;
+}
+
+#final-message {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 28px;
+}
+
+/* ── SCOREBOARD ── */
+#game-ui {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.scoreboard {
+    display: flex;
+    gap: 0;
+    background: rgba(0,0,0,0.35);
+    border-radius: 12px;
+    overflow: hidden;
+    min-width: 320px;
+}
+
+.score-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 20px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.score-item:last-child {
+    border-right: none;
+}
+
+.center-score {
+    background: rgba(255,255,255,0.05);
+}
+
+.score-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.score-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: #fff;
+    line-height: 1;
+}
+
+/* ── CANVAS ── */
+.canvas-wrap {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+#gameCanvas {
+    display: block;
+    cursor: none;
+}
+
+/* ── RESULT MESSAGE ── */
+.result-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    letter-spacing: 4px;
+    pointer-events: none;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    animation: popIn 0.2s ease-out;
+}
+
+@keyframes popIn {
+    from { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+    to   { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+}
+
+/* ── WIND BAR ── */
+.wind-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 8px 20px;
+    min-width: 200px;
+    justify-content: center;
+}
+
+.wind-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.wind-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#wind-arrow {
+    font-size: 18px;
+}
+

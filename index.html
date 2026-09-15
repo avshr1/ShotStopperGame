@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shot Stopper</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="overlay">
+        <div class="overlay-content">
+            <div class="logo-wrap">
+                <span class="logo-sub">⚽</span>
+                <h1 class="logo">SHOT<br>STOPPER</h1>
+                <p class="tagline">Can you keep a clean sheet?</p>
+            </div>
+            <div class="instructions">
+                <p>🖱️ Move your mouse to control the goalkeeper</p>
+                <p>🥅 Save 10 shots to win</p>
+                <p>💨 Watch out for the curve!</p>
+            </div>
+            <button id="start-btn" class="btn-main">KICK OFF</button>
+        </div>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="gameover-screen" class="overlay" style="display:none">
+        <div class="overlay-content">
+            <h2 id="gameover-title">FULL TIME</h2>
+            <p id="gameover-subtitle">Here's how you did</p>
+            <div class="final-score-wrap">
+                <div class="final-stat">
+                    <span class="final-num" id="final-saves">0</span>
+                    <span class="final-label">Saves</span>
+                </div>
+                <div class="final-divider">/</div>
+                <div class="final-stat">
+                    <span class="final-num" id="final-total">10</span>
+                    <span class="final-label">Shots</span>
+                </div>
+            </div>
+            <p id="final-message">Good effort!</p>
+            <button id="restart-btn" class="btn-main">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <!-- GAME UI -->
+    <div id="game-ui" style="display:none">
+        <div class="scoreboard">
+            <div class="score-item">
+                <span class="score-label">SAVES</span>
+                <span class="score-num" id="saves-count">0</span>
+            </div>
+            <div class="score-item center-score">
+                <span class="score-label">SHOT</span>
+                <span class="score-num" id="shot-count">1/10</span>
+            </div>
+            <div class="score-item">
+                <span class="score-label">GOALS</span>
+                <span class="score-num" id="goals-count">0</span>
+            </div>
+        </div>
+
+        <div class="canvas-wrap">
+            <canvas id="gameCanvas" width="700" height="500"></canvas>
+            <div id="result-msg" class="result-msg" style="display:none"></div>
+        </div>
+
+        <div class="wind-bar">
+            <span class="wind-label">WIND</span>
+            <div class="wind-indicator">
+                <span id="wind-arrow">→</span>
+                <span id="wind-strength">Light</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
