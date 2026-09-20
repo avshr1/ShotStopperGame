@@ -26,20 +26,20 @@ body{
 .stage{width:min(880px,100%);display:flex;flex-direction:column;gap:9px}
 
 .hud{
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
   background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.09);
-  border-radius:11px;padding:9px 16px;
+  border-radius:11px;padding:8px 16px;
 }
 .cell{display:flex;flex-direction:column;line-height:1}
-.cell span{font-size:9px;letter-spacing:.17em;color:rgba(255,255,255,.45);margin-bottom:3px}
-.cell b{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px}
-#saves b{color:var(--save)}
-#combo b{color:var(--gold)}
-#mult{font-size:13px;font-weight:700;margin-left:5px;color:var(--gold);opacity:0;transition:opacity .2s}
-#mult.on{opacity:1}
+.cell span{font-size:9px;letter-spacing:.17em;color:rgba(255,255,255,.45);margin-bottom:4px}
+.cell b{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
+.cell.big b{font-size:46px;color:var(--save);line-height:.92}
+#best b{color:var(--gold)}
+#best.beaten b{animation:pulseBest 1s ease-out}
+@keyframes pulseBest{0%{transform:scale(1.35);filter:brightness(1.8)}100%{transform:scale(1)}}
 .grow{flex:1}
 
-.stam-wrap{display:flex;flex-direction:column;gap:4px;min-width:132px}
+.stam-wrap{display:flex;flex-direction:column;gap:5px;min-width:126px}
 .stam-wrap span{font-size:9px;letter-spacing:.17em;color:rgba(255,255,255,.45)}
 .stam-track{height:9px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden}
 .stam-fill{height:100%;width:100%;border-radius:5px;background:var(--stam);
@@ -78,7 +78,7 @@ canvas{display:block;width:100%;height:auto;aspect-ratio:40/27;touch-action:none
   background:rgba(4,12,5,.9);backdrop-filter:blur(4px);overflow-y:auto;
 }
 .sheet.hidden{display:none}
-.card{max-width:480px;width:100%}
+.card{max-width:470px;width:100%}
 .title{font-family:'Bebas Neue',sans-serif;line-height:.85;letter-spacing:2px;font-size:clamp(44px,8.5vw,74px)}
 .title em{font-style:normal;display:block;color:var(--save)}
 .sub{margin-top:9px;color:rgba(255,255,255,.62);font-size:13px;line-height:1.5}
@@ -87,6 +87,12 @@ canvas{display:block;width:100%;height:auto;aspect-ratio:40/27;touch-action:none
 .rules i{font-style:normal;min-width:66px;flex:none}
 .rules kbd{background:rgba(255,255,255,.14);border-radius:4px;padding:2px 7px;font-size:11px;
   font-family:inherit;color:#fff;font-weight:600}
+.scoring{
+  border:1px solid rgba(61,220,132,.3);background:rgba(61,220,132,.07);
+  border-radius:10px;padding:11px 14px;font-size:13px;text-align:left;
+  color:rgba(255,255,255,.88);line-height:1.55;margin-bottom:18px;
+}
+.scoring b{color:var(--save)}
 button.go{
   font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px;
   background:var(--save);color:#06200f;border:none;border-radius:40px;
@@ -94,16 +100,20 @@ button.go{
 }
 button.go:hover{filter:brightness(1.08)}
 button.go:active{transform:scale(.96)}
-button.go:focus-visible,.chip:focus-visible,.seg button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+button.go:focus-visible,.chip:focus-visible{outline:3px solid #fff;outline-offset:3px}
 
-.final{display:flex;justify-content:center;gap:24px;margin:16px 0 6px}
-.final div{display:flex;flex-direction:column;gap:3px}
-.final b{font-family:'Bebas Neue',sans-serif;font-size:50px;line-height:1;color:var(--save)}
-.final span{font-size:10px;letter-spacing:.15em;color:rgba(255,255,255,.45)}
+.bigscore{font-family:'Bebas Neue',sans-serif;font-size:104px;line-height:.9;color:var(--save);margin-top:6px}
+.bigscore-label{font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.45)}
+.newbest{
+  display:inline-block;margin-top:8px;padding:4px 14px;border-radius:20px;
+  background:var(--gold);color:#241c00;font-family:'Bebas Neue',sans-serif;
+  font-size:17px;letter-spacing:2px;
+}
+.beatline{font-size:12px;color:rgba(255,255,255,.5);margin-top:8px}
 .breakdown{
   display:grid;grid-template-columns:1fr 1fr;gap:5px 18px;
   font-size:12px;color:rgba(255,255,255,.7);
-  border-top:1px solid rgba(255,255,255,.12);padding-top:12px;margin:12px 0 14px;
+  border-top:1px solid rgba(255,255,255,.12);padding-top:12px;margin:16px 0 14px;
 }
 .breakdown div{display:flex;justify-content:space-between;gap:10px}
 .breakdown b{color:#fff;font-weight:600}
@@ -117,10 +127,6 @@ button.go:focus-visible,.chip:focus-visible,.seg button:focus-visible{outline:3p
 .chip{background:none;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);
   border-radius:20px;padding:5px 14px;cursor:pointer;font-size:11px;font-family:inherit}
 .chip:hover{border-color:rgba(255,255,255,.45);color:#fff}
-.seg{display:flex;background:rgba(255,255,255,.07);border-radius:20px;padding:3px;gap:2px}
-.seg button{border:none;background:none;color:rgba(255,255,255,.55);font-family:inherit;
-  font-size:11px;padding:4px 13px;border-radius:16px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:#fff;color:#0f2410;font-weight:700}
 kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:11px;color:#fff}
 @media (max-width:700px){.keys{display:none}}
 </style>
@@ -130,16 +136,14 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 <div class="stage">
 
   <div class="hud">
-    <div class="cell" id="saves"><span>SAVES</span><b>0</b></div>
-    <div class="cell" id="score"><span>SCORE</span><b>0</b></div>
-    <div class="cell" id="combo"><span>STREAK</span><b>0<i id="mult">x1</i></b></div>
-    <div class="cell" id="wave"><span>ROUND</span><b>1</b></div>
+    <div class="cell big" id="score"><span>SCORE</span><b>0</b></div>
+    <div class="cell" id="best"><span>BEST</span><b>0</b></div>
+    <div class="cell" id="time"><span>TIME</span><b>0:00</b></div>
     <div class="stam-wrap">
       <span>STAMINA</span>
       <div class="stam-track"><div class="stam-fill" id="stam-fill"></div></div>
     </div>
     <div class="grow"></div>
-    <div class="cell"><span>BEST</span><b id="best">0</b></div>
     <div class="lives" id="lives" aria-label="Goals you can still concede">
       <i class="ball-pip"></i><i class="ball-pip"></i><i class="ball-pip"></i>
     </div>
@@ -163,13 +167,16 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
     <div id="start-screen" class="sheet">
       <div class="card">
         <h1 class="title">SHOT<em>STOPPER</em></h1>
-        <p class="sub">Shooting drill. They keep firing until you've let three in.</p>
+        <p class="sub">One goalkeeper. They shoot until you've let three in. It only gets faster.</p>
         <div class="rules">
-          <p><i><kbd>A</kbd> <kbd>D</kbd></i><div>Move along your line.</div></p>
-          <p><i><kbd>W</kbd></i><div>Jump. Tap for a short hop, hold for a full leap — the only way to reach the top of the goal.</div></p>
-          <p><i><kbd>S</kbd></i><div>Drop into the splits — wide and low, but you give up all your height.</div></p>
-          <p><i><kbd>SPACE</kbd></i><div>Dive at a corner you can't get to on your feet.</div></p>
-          <p><i>Catch it</i><div>Ball in the middle of your reach and you hold it. Clip the edge and you only parry — and they'll follow up.</div></p>
+          <p><i><kbd>A</kbd> <kbd>D</kbd></i><span>Move along your line.</span></p>
+          <p><i><kbd>W</kbd></i><span>Jump. Tap for a hop, hold for a full leap — the only way to the top of the goal.</span></p>
+          <p><i><kbd>S</kbd></i><span>The splits. Wide and low, but you give up all your height.</span></p>
+          <p><i><kbd>SPACE</kbd></i><span>Dive at a corner you can't get to on your feet.</span></p>
+        </div>
+        <div class="scoring">
+          Save it on your feet: <b>1 point</b>.<br>
+          Save it with a leap, a dive or the splits: <b>2 points</b>.
         </div>
         <button id="start-btn" class="go">KICK OFF</button>
       </div>
@@ -177,12 +184,10 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
     <div id="over-screen" class="sheet hidden">
       <div class="card">
-        <h2 id="over-title" class="title" style="font-size:48px">FULL TIME</h2>
-        <div class="final">
-          <div><b id="f-saves">0</b><span>SAVES</span></div>
-          <div><b id="f-score">0</b><span>SCORE</span></div>
-          <div><b id="f-streak">0</b><span>BEST RUN</span></div>
-        </div>
+        <h2 id="over-title" class="title" style="font-size:42px">FULL TIME</h2>
+        <div class="bigscore" id="f-score">0</div>
+        <div class="bigscore-label">POINTS</div>
+        <div id="best-row"></div>
         <div class="breakdown" id="breakdown"></div>
         <p id="verdict"></p>
         <button id="again-btn" class="go">GO AGAIN</button>
@@ -201,14 +206,10 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
     <div class="keys">
       <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> splits · <kbd>SPACE</kbd> dive · <kbd>P</kbd> pause
     </div>
-    <div class="seg" id="difficulty" role="group" aria-label="Difficulty">
-      <button data-level="amateur" aria-pressed="true">Amateur</button>
-      <button data-level="pro" aria-pressed="false">Pro</button>
-      <button data-level="world" aria-pressed="false">World Class</button>
-    </div>
     <div style="display:flex;gap:8px">
       <button id="motion-btn" class="chip">Motion: full</button>
       <button id="mute-btn" class="chip">Sound on</button>
+      <button id="reset-btn" class="chip">Clear best</button>
     </div>
   </div>
 
@@ -218,17 +219,25 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 "use strict";
 
 /* ═══════════════════════════════════════════════════════
-   SHOT STOPPER — goalkeeper shooting drill
+   SHOT STOPPER
 
-   Four things you can do, and the game is choosing between them:
-     standing    balanced oval, full speed, covers the bottom 60% of the goal
-     jump   (W)  a real leap — impulse, gravity, landing. Variable height,
-                 with a float at the apex so the top corners are reachable.
-     splits (S)  oval goes wide and flat. Covers the ground, gives up height.
+   One mode. No difficulty menu. It opens gently and tightens
+   the whole time you survive, so the only question is how long
+   you last and how many points you pile up before three go in.
+
+   Scoring is deliberately blunt so it's easy to brag about:
+     save it standing              1 point
+     leap, dive or splits save     2 points
+
+   Four things you can do:
+     standing    balanced oval, full speed, covers the bottom of the goal
+     jump   (W)  a real leap — impulse, gravity, landing, with a float
+                 at the apex so the top corners are actually reachable
+     splits (S)  oval goes wide and flat. Owns the ground, gives up height.
      dive (SPC)  the escape hatch for corners. Costs stamina, leaves you down.
 
-   Nothing hovers. Every vertical position the keeper occupies is the
-   result of an impulse and gravity, so what you see is what's happening.
+   Nothing hovers. Every vertical position comes from an impulse
+   and gravity, so what you see is what's happening.
    ═══════════════════════════════════════════════════════ */
 
 const CV = document.getElementById("game");
@@ -243,25 +252,21 @@ const GROUND_Y = 470;
 /* ── keeper ── */
 const REACH_X = 60, REACH_Y = 68;
 const SPREAD_X = 1.62, SPREAD_Y = .50;
-const CATCH_ZONE = .58;                    // inside this fraction of the oval you hold it
-const STAND_Y = LINE_Y - 34;               // hips when on his feet
-const CEIL_Y = GOAL.y + 30;                // he can't go through the roof of the world
-
+const CATCH_ZONE = .58;
+const STAND_Y = LINE_Y - 34;
+const CEIL_Y = GOAL.y + 30;
 const MOVE_SPEED = 700, MOVE_TAU = 70;
 
-/* ── the jump ──
-   Tuned so a full leap tops out around the crossbar and hangs there for
-   about four tenths of a second: long enough to actually make the save,
-   short enough that a mistimed jump is a real mistake.            */
-const JUMP_V = 600;                        // takeoff speed, full hold
-const JUMP_CUT = 380;                      // release W early and the rise is cut to this
+/* ── the jump ── */
+const JUMP_V = 600;
+const JUMP_CUT = 380;
 const GRAVITY = 1500;
-const HANG_BAND = 135;                     // |vy| below this counts as "near the apex"
-const HANG_G = .46;                        // gravity is softer there — that's the float
-const AIR_CONTROL = .62, AIR_TAU = 150;    // you can still steer, just not as sharply
-const AIR_REACH = .17;                     // arms overhead stretch the oval this much
-const JUMP_BUFFER_MS = 130;                // press just before landing and it still counts
-const LAND_LOCK_MS = 90;                   // a beat on the floor before you can go again
+const HANG_BAND = 135;
+const HANG_G = .46;
+const AIR_CONTROL = .62, AIR_TAU = 150;
+const AIR_REACH = .17;
+const JUMP_BUFFER_MS = 130;
+const LAND_LOCK_MS = 90;
 
 /* ── the dive ── */
 const DIVE_PUSH = 720, DIVE_LEAP = 230;
@@ -273,22 +278,31 @@ const SPLIT_DRAIN = 33, DIVE_COST = 27, JUMP_COST = 12, REGEN = 27;
 const REGEN_DELAY = 320, EXHAUST_RECOVER = 32;
 const CATCH_REFUND = 10, PARRY_REFUND = 3;
 
-const ROUND_MS = 16000;
-const BREATHER_MS = 1700;
+/* ── the ramp ──
+   One smooth curve from opening pace to full pace. Smoothstep, so the
+   first half-minute is a warm-up, the middle two minutes are the real
+   climb, and it levels off rather than running away from you.        */
+const RAMP_MS = 180000;
+const BEST_KEY = "shotstopper-best";
 
-const LEVELS = {
-  amateur: { gap: 1.3, flight: 1.28, bend: .6,  label: "Amateur" },
-  pro:     { gap: 1.0, flight: 1.0,  bend: 1.0, label: "Pro" },
-  world:   { gap: .82, flight: .84,  bend: 1.35, label: "World Class" }
+const PACE = {
+  gap:   [2050, 540],    // ms between shots
+  flight:[2100, 700],    // ms of flight time
+  bend:  [.45, 1.32],    // how hard curlers curl
+  corner:[.16, .72],     // how often they pick a corner over the middle
+  spill: [.24, .6]       // how often a parry comes back at you
 };
-let level = "amateur";
+
+// When each new kind of shot turns up, in seconds.
+const UNLOCK = { curl: 18, chip: 26, rocket: 55, doubles: 92 };
+
 let reducedMotion = false;
 
 const G = {
   phase: "menu", countT: 0, elapsed: 0, nextShot: 0,
-  saves: 0, score: 0, combo: 0, bestStreak: 0, best: 0,
-  lives: 3, round: 0, paused: false,
-  stats: { faced: 0, catches: 0, parries: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0 }
+  score: 0, best: 0, saves: 0, run: 0, bestRun: 0,
+  lives: 3, paused: false, announced: {}, milestone: 0,
+  stats: { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0 }
 };
 
 const keeper = {
@@ -304,7 +318,8 @@ const keeper = {
 
 const keys = new Set();
 let shots = [], particles = [], pops = [], crowdSeed = [], netHits = [];
-let shake = 0, hurt = 0, roundBanner = null, hintBanner = null;
+let lastArrival = null;                 // where the last on-target shot landed, and when
+let shake = 0, hurt = 0, banner = null, hintBanner = null;
 let timeScale = 1, slowLeft = 0;
 let themeNow = 0;
 
@@ -313,6 +328,14 @@ const hintsShown = { low: false, high: false, dive: false, stam: false, rebound:
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rnd = (a, b) => a + Math.random() * (b - a);
 const L = (a, b, t) => a + (b - a) * t;
+
+/* How hard it is right now: 0 at kick-off, 1 at full pace. */
+function heat() {
+  const raw = clamp(G.elapsed / RAMP_MS, 0, 1);
+  return raw * raw * (3 - 2 * raw);
+}
+const pace = (k, h) => L(PACE[k][0], PACE[k][1], h);
+const secs = () => G.elapsed / 1000;
 
 /* ═════════ sound ═════════ */
 let AC = null, muted = false;
@@ -349,19 +372,22 @@ const sfx = {
   dive()  { noise(.18, { gain: .08, freq: 780, sweepTo: 1800 }); },
   split() { noise(.22, { gain: .1, freq: 420, sweepTo: 200 }); },
   land()  { tone(85, .2, { type: "sine", gain: .2, to: 42 }); noise(.16, { gain: .15, freq: 300, q: .5 }); },
-  catchIt(c) {
-    const f = 460 * Math.pow(2, Math.min(12, c) * 1.3 / 12);
+  catchIt(run) {
+    const f = 460 * Math.pow(2, Math.min(12, run) * 1.3 / 12);
     tone(f, .12, { type: "triangle", gain: .15, to: f * 1.4 });
     noise(.14, { gain: .1, freq: 900, q: .7 });
-    noise(.55, { gain: .07 + Math.min(.09, c * .008), freq: 700, q: .3, sweepTo: 1500, delay: .05 });
+    noise(.55, { gain: .07 + Math.min(.09, run * .008), freq: 700, q: .3, sweepTo: 1500, delay: .05 });
   },
+  bigSave() { tone(620, .14, { type: "triangle", gain: .16, to: 930 }); noise(.5, { gain: .14, freq: 900, q: .3, sweepTo: 1900, delay: .04 }); },
   parry() { tone(320, .09, { type: "square", gain: .13, to: 620 }); noise(.22, { gain: .16, freq: 1900, q: .6 }); },
   scramble(){ noise(.35, { gain: .12, freq: 500, q: .5, sweepTo: 1300 }); tone(220, .2, { type: "square", gain: .07, to: 340 }); },
   goal()  { noise(.9, { gain: .28, freq: 340, q: .35, sweepTo: 820 }); tone(150, .55, { type: "sawtooth", gain: .07, to: 82 }); },
   post()  { tone(1350, .45, { type: "square", gain: .15, to: 880 }); },
   wide()  { noise(.3, { gain: .1, freq: 480, sweepTo: 200 }); },
   spent() { tone(150, .1, { type: "square", gain: .08, to: 100 }); },
-  round() { [392, 523, 659].forEach((f, i) => tone(f, .28, { type: "triangle", gain: .1, delay: i * .08 })); },
+  unlock(){ [392, 523, 659].forEach((f, i) => tone(f, .28, { type: "triangle", gain: .1, delay: i * .08 })); },
+  milestone(){ [659, 880].forEach((f, i) => tone(f, .3, { type: "triangle", gain: .12, delay: i * .1 })); },
+  record(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .35, { type: "triangle", gain: .13, delay: i * .1 })); },
   whistle(){ tone(1750, .18, { type: "square", gain: .12 }); tone(1750, .3, { type: "square", gain: .12, delay: .24 }); },
   tick(n) { tone(n === 0 ? 900 : 540, .14, { type: "square", gain: .1 }); }
 };
@@ -386,18 +412,19 @@ function currentTheme() {
   };
 }
 
-/* ═════════ drill director ═════════ */
-function roundNo() { return Math.floor(G.elapsed / ROUND_MS); }
-
+/* ═════════ the drill ═════════ */
 function shotGap() {
-  const base = Math.max(620, 1560 - G.round * 105) * LEVELS[level].gap;
-  const into = G.elapsed % ROUND_MS;
-  const burst = (G.round >= 2 && into > ROUND_MS - 4200) ? .6 : 1;
-  return base * burst * rnd(.82, 1.2);
+  const h = heat();
+  // A slow wave on top of the ramp, so there are lulls and flurries
+  // instead of a metronome.
+  const wave = 1 + .2 * Math.sin(G.elapsed / 5200);
+  return pace("gap", h) * wave * rnd(.84, 1.18);
 }
 
+function maxShots() { return secs() > UNLOCK.doubles ? 3 : 2; }
+
 function pickTarget() {
-  const bias = Math.min(.7, .22 + G.round * .085);
+  const bias = pace("corner", heat());
   const along = (lo, hi) => {
     if (Math.random() < bias) {
       const band = (hi - lo) * .22;
@@ -406,41 +433,177 @@ function pickTarget() {
     return rnd(lo, hi);
   };
   const x = along(GOAL.x + 34, GOAL.x + GOAL.w - 34);
-  // A healthy share stays on the deck, so the splits always have work to do.
+  // A steady share stays on the deck so the splits always have work to do.
   const y = Math.random() < .36 ? rnd(LINE_Y - 46, LINE_Y - 14) : along(GOAL.y + 38, LINE_Y - 18);
   return { x, y };
 }
 
+/* ═════════ fairness: can he actually get there? ═════════
+   Shots used to be placed independently, which meant the generator could
+   ask for the top-left corner and then the bottom-right 400ms later — a
+   goal no keeper could stop, however well you played. Every target is now
+   checked against the ones already in the air: the time between arrivals
+   has to cover the stance change AND the run, or the target is re-rolled.  */
+
+const HIGH_Y = GOAL.y + 120;        // above this you have to leave your feet
+const LOW_Y  = LINE_Y - 60;         // below this the splits earn their keep
+const REACH_SLACK = REACH_X * 1.7;  // you can be off-centre at both ends
+const MIN_ARRIVAL_GAP = 260;        // ms — nothing arrives on top of something else
+
+function band(y) { return y < HIGH_Y ? 2 : y > LOW_Y ? 0 : 1; }   // 2 high, 1 mid, 0 low
+
+// Seconds of the gap eaten by changing stance, before any running happens.
+function stanceCost(fromY, toY) {
+  const a = band(fromY), b = band(toY);
+  if (a === b) return .12;
+  if (a === 2 && b === 0) return .70;   // land out of a leap, then get down into the splits
+  if (a === 0 && b === 2) return .60;   // stand up out of the splits, then leap
+  if (a === 2 || b === 2) return .45;   // anything involving the air
+  return .18;
+}
+
+// Could a keeper who just dealt with A be in position for B?
+function travelOK(ax, ay, at, bx, by, bt) {
+  const dt = Math.abs(bt - at);
+  if (dt < MIN_ARRIVAL_GAP) return false;
+  const earlierY = at < bt ? ay : by, laterY = at < bt ? by : ay;
+  const budget = dt / 1000 - stanceCost(earlierY, laterY);
+  if (budget <= 0) return false;
+  const need = Math.max(0, Math.abs(bx - ax) - REACH_SLACK);
+  return need <= MOVE_SPEED * budget;
+}
+
+// Everything already committed that he'll have to deal with.
+function pendingArrivals() {
+  const out = [];
+  if (lastArrival) out.push(lastArrival);
+  for (const s of shots) if (!s.offTarget) out.push({ x: s.tx, y: s.ty, t: s.arriveAt });
+  return out;
+}
+
+function arrivalOK(x, y, at) {
+  return pendingArrivals().every(c => travelOK(c.x, c.y, c.t, x, y, at));
+}
+
+// Build a target inside the window the pending shots leave open, so a
+// crowded moment produces a tight cluster rather than an impossible split.
+function buildTarget(arriveAt) {
+  const pend = pendingArrivals();
+  if (!pend.length) return pickTarget();
+
+  let ref = pend[0], tightest = Infinity;
+  for (const c of pend) {
+    const d = Math.abs(arriveAt - c.t);
+    if (d < tightest) { tightest = d; ref = c; }
+  }
+
+  const dt = tightest / 1000;
+  const options = [
+    { lo: GOAL.y + 38, hi: HIGH_Y - 10, cost: stanceCost(ref.y, GOAL.y + 70) },
+    { lo: HIGH_Y + 8,  hi: LOW_Y - 8,   cost: stanceCost(ref.y, (HIGH_Y + LOW_Y) / 2) },
+    { lo: LOW_Y + 8,   hi: LINE_Y - 14, cost: stanceCost(ref.y, LINE_Y - 30) }
+  ].filter(o => dt - o.cost > .04);
+
+  const pick = options.length
+    ? options[Math.floor(Math.random() * options.length)]
+    : { lo: ref.y - 14, hi: ref.y + 14, cost: .12 };
+
+  const span = REACH_SLACK + MOVE_SPEED * Math.max(0, dt - pick.cost);
+  const lo = clamp(ref.x - span, GOAL.x + 32, GOAL.x + GOAL.w - 32);
+  const hi = clamp(ref.x + span, GOAL.x + 32, GOAL.x + GOAL.w - 32);
+  return {
+    x: rnd(Math.min(lo, hi), Math.max(lo, hi)),
+    y: clamp(rnd(pick.lo, pick.hi), GOAL.y + 30, LINE_Y - 14)
+  };
+}
+
+/* Pick where it goes AND when it gets there.
+   Shot types have different flight times, so a rocket struck after a chip
+   can overtake it and the two land on top of each other. Rather than
+   forbid that, the striker's run-up absorbs the slack: the shot is simply
+   struck a little later until it lands with room around it. If even that
+   can't make it fair, the shot isn't taken at all and the next one tries. */
+function planShot(earliestAt, forceY) {
+  const whenFits = (x, y) => {
+    for (let d = 0; d <= 900; d += 70) {
+      const at = earliestAt + d;
+      if (arrivalOK(x, y, at)) return at;
+    }
+    return null;
+  };
+
+  for (let i = 0; i < 18; i++) {
+    const t = pickTarget();
+    const y = forceY ? forceY() : t.y;
+    const at = whenFits(t.x, y);
+    if (at !== null) return { x: t.x, y, at };
+  }
+
+  for (let i = 0; i < 6; i++) {
+    const t = buildTarget(earliestAt);
+    const y = forceY ? forceY() : t.y;
+    const at = whenFits(t.x, y);
+    if (at !== null) return { x: t.x, y, at };
+  }
+  return null;
+}
+
+function pickKind() {
+  const t = secs(), r = Math.random();
+  if (t > UNLOCK.rocket && r < .16) return "rocket";
+  if (t > UNLOCK.chip && r < .3) return "chip";
+  if (t > UNLOCK.curl && r < .58) return "curl";
+  return "drive";
+}
+
 function spawnShot() {
-  if (shots.length >= 3) return;
-  const cfg = LEVELS[level], r = G.round;
+  if (shots.length >= maxShots()) return;
+  const h = heat();
 
   const sx = rnd(190, 610), sy = rnd(GROUND_Y - 34, GROUND_Y + 24);
   const runFrom = Math.random() < .5 ? -1 : 1;
 
-  let t = pickTarget();
-  if (Math.random() < .09) {
+  // Work out how long it's in the air before deciding where it goes, so
+  // the reachability check has a real arrival time to measure against.
+  let kind = pickKind();
+  const baseRunup = L(760, 430, h);
+  const base = pace("flight", h);
+  let flight = kind === "chip" ? base * 1.45 : kind === "rocket" ? base * .68 : base;
+
+  const offTarget = Math.random() < .09;           // the odd one sprayed wide
+  let tx, ty, arriveAt, runup = baseRunup;
+
+  if (offTarget) {
+    // Misses don't have to be fair — nobody has to save them.
+    const t = pickTarget();
     const side = Math.random() < .5 ? -1 : 1;
-    t.x = (side < 0 ? GOAL.x : GOAL.x + GOAL.w) + side * rnd(14, 46);
+    tx = (side < 0 ? GOAL.x : GOAL.x + GOAL.w) + side * rnd(14, 46);
+    ty = t.y;
+    arriveAt = G.elapsed + runup + flight;
+  } else {
+    const wantHigh = kind === "chip";
+    let plan = planShot(G.elapsed + baseRunup + flight,
+                        wantHigh ? () => rnd(GOAL.y + 26, GOAL.y + 78) : null);
+
+    // A chip that can't be reached in time isn't a chip — hit it flat.
+    if (!plan && wantHigh) {
+      kind = "drive";
+      flight = base;
+      plan = planShot(G.elapsed + baseRunup + flight, null);
+    }
+    if (!plan) return;                             // hold fire, try again next gap
+
+    tx = plan.x; ty = plan.y; arriveAt = plan.at;
+    runup = arriveAt - flight - G.elapsed;
   }
 
-  const roll = Math.random();
-  let kind = "drive";
-  if (r >= 1 && roll < .2) kind = "chip";
-  else if (r >= 1 && roll < .48) kind = "curl";
-  else if (r >= 3 && roll < .62) kind = "rocket";
-  if (kind === "chip") t.y = rnd(GOAL.y + 26, GOAL.y + 78);
-
-  const base = Math.max(760, 1620 - r * 92) * cfg.flight;
-  const flight = kind === "chip" ? base * 1.5 : kind === "rocket" ? base * .68 : base;
   const bendCap = kind === "curl" ? 130 : kind === "rocket" ? 22 : 54;
 
   const s = {
     phase: "runup", t: 0,
-    runup: Math.max(430, 760 - r * 26),
-    flight, kind,
-    bend: (Math.random() - .5) * 2 * bendCap * cfg.bend,
-    sx, sy, runFrom, tx: t.x, ty: t.y,
+    runup, flight, kind, arriveAt, offTarget,
+    bend: (Math.random() - .5) * 2 * bendCap * pace("bend", h),
+    sx, sy, runFrom, tx, ty,
     bx: sx, by: sy, br: 15, shadowY: sy,
     trail: [], spin: Math.random() * 6.28, rebound: false
   };
@@ -448,15 +611,16 @@ function spawnShot() {
   maybeHint(s);
 }
 
-function reboundChance() { return Math.min(.62, .3 + G.round * .055); }
-
 function spawnRebound(from) {
   if (shots.some(s => s.rebound)) return;
   const sx = clamp(from.bx + rnd(-70, 70), 210, 590);
-  const t = pickTarget();
+  const flight = L(900, 600, heat());
+  const plan = planShot(G.elapsed + 400 + flight, null);
+  if (!plan) return;                               // no fair way to follow up
+  const arriveAt = plan.at, runup = arriveAt - flight - G.elapsed;
+  const t = { x: plan.x, y: plan.y };
   shots.push({
-    phase: "runup", t: 0, runup: 400,
-    flight: Math.max(560, 880 - G.round * 26) * LEVELS[level].flight,
+    phase: "runup", t: 0, runup, flight, arriveAt, offTarget: false,
     kind: "rebound",
     bend: rnd(-26, 26),
     sx, sy: LINE_Y + 118, runFrom: Math.sign(from.bx - sx) || 1,
@@ -468,7 +632,7 @@ function spawnRebound(from) {
   sfx.scramble();
   if (!hintsShown.rebound) {
     hintsShown.rebound = true;
-    showHint("CATCH IT CLEANLY TO STOP THE FOLLOW-UP");
+    showHint("CATCH IT CLEANLY AND THERE'S NO FOLLOW-UP");
   }
 }
 
@@ -503,10 +667,23 @@ function updateShots(dt) {
   }
 }
 
-/* ═════════ the save oval ═════════
-   One shape, drawn on screen, and it is exactly what stops the ball.
-   The splits flatten and widen it; a leap raises it and stretches it
-   upward, because his arms are over his head.                       */
+/* Announce each new kind of shot once, so nothing arrives unexplained. */
+function checkUnlocks() {
+  const t = secs();
+  const note = (key, title, sub) => {
+    if (t > UNLOCK[key] && !G.announced[key]) {
+      G.announced[key] = true;
+      banner = { title, sub, life: 1, color: "#ffd23f" };
+      sfx.unlock();
+    }
+  };
+  note("curl", "CURLERS", "they bend late — watch the corkscrew trail");
+  note("chip", "CHIPS", "floated high, slow enough to leap at");
+  note("rocket", "ROCKETS", "orange streak, half the time to react");
+  note("doubles", "PILING ON", "three shots in the air at once now");
+}
+
+/* ═════════ the save oval ═════════ */
 function reachOval() {
   const sp = keeper.spread, up = keeper.reachUp;
   return {
@@ -558,7 +735,7 @@ function requestJump() {
 }
 
 function doJump() {
-  if (keeper.spread > .3) return;                 // you can't leap out of the splits
+  if (keeper.spread > .3) return;
   if (!canSpend(JUMP_COST)) { keeper.denied = 1; sfx.spent(); return; }
   keeper.airborne = true;
   keeper.vy = -JUMP_V;
@@ -606,7 +783,6 @@ function launchDive() {
   const d = Math.hypot(dx, dy) || 1;
   const ux = dx / d, uy = dy / d;
 
-  // A dive takes over from a jump — you commit, mid-air or not.
   keeper.airborne = false; keeper.jumpBuffer = 0;
   keeper.spread = 0; keeper.holding = 0;
   keeper.diving = true; keeper.grounded = false; keeper.getup = false;
@@ -673,7 +849,6 @@ function updateKeeper(dt) {
       }
     }
   } else {
-    /* ── splits: only from your feet ── */
     const wantSplit = keys.has("s") && !keeper.airborne && !keeper.exhausted && keeper.stamina > 0;
     if (wantSplit) {
       if (keeper.spread < .05) sfx.split();
@@ -685,7 +860,6 @@ function updateKeeper(dt) {
     }
     if (keeper.spread < .02) keeper.spread = 0;
 
-    /* ── along the line ── */
     let dir = 0;
     if (keys.has("a")) dir -= 1;
     if (keys.has("d")) dir += 1;
@@ -694,12 +868,9 @@ function updateKeeper(dt) {
     keeper.vx += (dir * MOVE_SPEED * authority - keeper.vx) * (1 - Math.exp(-dt / tau));
     keeper.x += keeper.vx * s;
 
-    /* ── vertical: a jump, and nothing but a jump ── */
     if (keeper.airborne) {
       keeper.airT += dt;
-      // Let go of W on the way up and the leap is cut short. Hold it for the full one.
       if (!keys.has("w") && keeper.vy < -JUMP_CUT) keeper.vy = -JUMP_CUT;
-      // Softer gravity near the apex. This float is what makes a top-corner save possible.
       const g = Math.abs(keeper.vy) < HANG_BAND ? GRAVITY * HANG_G : GRAVITY;
       keeper.vy += g * s;
       keeper.y += keeper.vy * s;
@@ -727,7 +898,7 @@ function updateKeeper(dt) {
 function showHint(text) { hintBanner = { text, life: 1 }; }
 
 function maybeHint(s) {
-  if (G.round > 1) return;
+  if (secs() > 40) return;
   if (!hintsShown.high && s.ty < GOAL.y + 100) {
     hintsShown.high = true; showHint("HIGH ONE — HOLD W TO LEAP");
   } else if (!hintsShown.low && s.ty > LINE_Y - 50) {
@@ -738,8 +909,6 @@ function maybeHint(s) {
 }
 
 /* ═════════ resolving ═════════ */
-function multiplier() { return Math.min(4, 1 + Math.floor(G.combo / 4) * .5); }
-
 function slowmo(strength) {
   if (reducedMotion) return;
   slowLeft = 420; timeScale = strength;
@@ -748,6 +917,10 @@ function slowmo(strength) {
 function resolve(s) {
   const br = s.br;
   const depth = ovalDepth(s.bx, s.by, br);
+
+  // Where he had to be, and when. Everything spawned after this is
+  // checked against it, including a rebound off this very shot.
+  if (!s.offTarget) lastArrival = { x: s.bx, y: s.by, t: G.elapsed };
 
   const insideX = s.bx > GOAL.x + GOAL.post && s.bx < GOAL.x + GOAL.w - GOAL.post;
   const insideY = s.by > GOAL.y + GOAL.post && s.by < LINE_Y;
@@ -771,8 +944,8 @@ function resolve(s) {
 }
 
 function onSave(s, depth) {
-  G.saves++; G.combo++;
-  G.bestStreak = Math.max(G.bestStreak, G.combo);
+  G.saves++; G.run++;
+  G.bestRun = Math.max(G.bestRun, G.run);
 
   const clean = depth < CATCH_ZONE;
   const diving = keeper.diving && !keeper.getup;
@@ -780,14 +953,11 @@ function onSave(s, depth) {
   const split = keeper.spread > .5;
   const whisker = depth > .88;
 
-  let pts = s.kind === "rocket" ? 180 : s.kind === "curl" ? 140 : s.kind === "chip" ? 90 :
-            s.kind === "rebound" ? 160 : 120;
-  if (clean) pts += 40;
-  if (diving) pts = Math.round(pts * 1.7);
-  else if (leaping) pts = Math.round(pts * 1.45);
-  else if (split) pts = Math.round(pts * 1.3);
-  pts = Math.round(pts * multiplier());
+  // The whole scoring system: one point on your feet, two if you earned it.
+  const hard = diving || leaping || split;
+  const pts = hard ? 2 : 1;
   G.score += pts;
+  if (hard) G.stats.hard++;
 
   if (clean) { G.stats.catches++; refund(CATCH_REFUND); }
   else { G.stats.parries++; refund(PARRY_REFUND); }
@@ -799,26 +969,43 @@ function onSave(s, depth) {
              : leaping ? (clean ? "UP AND CLAIMS IT!" : "TIPPED OVER!")
              : split ? (clean ? "BIG SPREAD!" : "STRONG LEG!")
              : clean ? "CAUGHT IT!" : "SAVED!";
-  pops.push({ text, x: s.bx, y: s.by - 14, color: "#3ddc84", size: diving ? 32 : 26, life: 1 });
-  pops.push({ text: "+" + pts, x: s.bx, y: s.by + 16, color: "#ffffff", size: 18, life: 1 });
-  burst(s.bx, s.by, clean ? 14 : 22, ["#ffffff", "#3ddc84", "#d9fbe6"]);
+  pops.push({ text, x: s.bx, y: s.by - 14, color: hard ? "#ffd23f" : "#3ddc84", size: hard ? 30 : 24, life: 1 });
+  pops.push({ text: "+" + pts, x: s.bx, y: s.by + 18, color: "#ffffff", size: hard ? 24 : 18, life: 1 });
+  burst(s.bx, s.by, clean ? 14 : 22, hard ? ["#ffffff", "#ffd23f", "#fff4c4"] : ["#ffffff", "#3ddc84", "#d9fbe6"]);
   keeper.reachPulse = 1;
   shake = Math.max(shake, diving ? 7 : 3.5);
 
-  if (diving || leaping || whisker) slowmo((diving || leaping) && whisker ? .28 : .42);
-  if (clean) { keeper.holding = 620; sfx.catchIt(G.combo); }
+  if (hard || whisker) slowmo(hard && whisker ? .28 : .42);
+  if (clean) { keeper.holding = 620; hard ? sfx.bigSave() : sfx.catchIt(G.run); }
   else {
     sfx.parry();
     for (let i = 0; i < 8; i++) {
       particles.push({ x: s.bx, y: s.by, vx: rnd(-5, 5), vy: rnd(-4, 1), life: .7, size: rnd(2, 3.5), color: "#fff" });
     }
-    if (!s.rebound && Math.random() < reboundChance()) spawnRebound(s);
+    if (!s.rebound && Math.random() < pace("spill", heat())) spawnRebound(s);
   }
+
+  checkMilestone();
   updateHUD();
 }
 
+// Every 25 points gets a shout, and passing your own record gets a bigger one.
+function checkMilestone() {
+  const step = Math.floor(G.score / 25);
+  if (step > G.milestone) {
+    G.milestone = step;
+    banner = { title: G.score + " POINTS", sub: "", life: 1, color: "#3ddc84" };
+    sfx.milestone();
+  }
+  if (G.best > 0 && G.score === G.best + 1) {
+    banner = { title: "NEW BEST", sub: "everything from here is gravy", life: 1, color: "#ffd23f" };
+    sfx.record();
+    document.getElementById("best").classList.add("beaten");
+  }
+}
+
 function onConcede(s) {
-  G.lives--; G.combo = 0; G.stats.conceded++;
+  G.lives--; G.run = 0; G.stats.conceded++;
   hurt = 1; shake = Math.max(shake, 13);
   netHits.push({ x: s.bx, y: s.by, life: 1 });
   pops.push({ text: "GOAL", x: s.bx, y: s.by, color: "#ff5a5f", size: 40, life: 1 });
@@ -857,10 +1044,11 @@ function updateEffects(dt) {
   shake *= Math.pow(.003, dt / 1000);
   if (reducedMotion) shake = 0;
   hurt = Math.max(0, hurt - dt / 520);
-  if (roundBanner) { roundBanner.life -= dt / 1700; if (roundBanner.life <= 0) roundBanner = null; }
+  if (banner) { banner.life -= dt / 1700; if (banner.life <= 0) banner = null; }
   if (hintBanner) { hintBanner.life -= dt / 2600; if (hintBanner.life <= 0) hintBanner = null; }
 
-  const wantTheme = clamp(G.round / 2.2, 0, 2);
+  // Afternoon slides into a floodlit night as the ramp climbs.
+  const wantTheme = clamp(G.elapsed / 70000, 0, 2);
   themeNow += (wantTheme - themeNow) * (1 - Math.exp(-dt / 900));
 }
 
@@ -988,8 +1176,6 @@ function drawGoalFrame() {
   ctx.restore();
 }
 
-/* the reach glow — your hitbox, made visible.
-   Inner ring is the catch zone: ball in there and you hold it. */
 function drawReach() {
   const o = reachOval();
   let near = 0;
@@ -997,7 +1183,7 @@ function drawReach() {
     if (s.phase !== "flight") continue;
     near = Math.max(near, clamp(2.4 - ovalDepth(s.bx, s.by, s.br), 0, 1));
   }
-  const heat = Math.max(near, keeper.reachPulse);
+  const heatGlow = Math.max(near, keeper.reachPulse);
   const tint = keeper.spread > .4 ? "255,210,63"
              : keeper.reachUp > .4 ? "180,232,255"
              : "226,255,235";
@@ -1006,7 +1192,7 @@ function drawReach() {
   ctx.translate(o.cx, o.cy); ctx.rotate(o.rot); ctx.scale(o.rx, o.ry);
   const g = ctx.createRadialGradient(0, 0, .3, 0, 0, 1);
   g.addColorStop(0, "rgba(255,255,255,0)");
-  g.addColorStop(.72, `rgba(${tint},${.05 + heat * .13})`);
+  g.addColorStop(.72, `rgba(${tint},${.05 + heatGlow * .13})`);
   g.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = g;
   ctx.beginPath(); ctx.arc(0, 0, 1, 0, 6.283); ctx.fill();
@@ -1014,8 +1200,7 @@ function drawReach() {
 
   ctx.save();
   ctx.translate(o.cx, o.cy); ctx.rotate(o.rot);
-
-  ctx.strokeStyle = `rgba(${tint},${.1 + heat * .22})`;
+  ctx.strokeStyle = `rgba(${tint},${.1 + heatGlow * .22})`;
   ctx.lineWidth = 1.2;
   ctx.beginPath();
   ctx.ellipse(0, 0, o.rx * CATCH_ZONE, o.ry * CATCH_ZONE, 0, 0, 6.283);
@@ -1023,7 +1208,7 @@ function drawReach() {
 
   ctx.strokeStyle = keeper.reachPulse > 0
     ? `rgba(61,220,132,${.35 + keeper.reachPulse * .6})`
-    : `rgba(${tint},${.18 + heat * .34})`;
+    : `rgba(${tint},${.18 + heatGlow * .34})`;
   ctx.lineWidth = 1.6 + keeper.reachPulse * 2;
   ctx.setLineDash([7, 8]);
   ctx.lineDashOffset = -performance.now() / 70;
@@ -1060,13 +1245,11 @@ function drawKeeper() {
   ctx.translate(keeper.x, keeper.y);
   ctx.rotate(keeper.tilt);
   ctx.translate(0, sp * 16);
-  // landing squash, anchored at the feet so he compresses into the turf
   if (sq > .01) { ctx.translate(0, 43); ctx.scale(1 + sq * .13, 1 - sq * .17); ctx.translate(0, -43); }
 
   const sway = (keeper.diving || sp > .3 || up > .3) ? 0 : Math.sin(keeper.step) * 6;
   const lead = clamp(keeper.vx / MOVE_SPEED, -1, 1) * up * 7;
 
-  /* ── legs: together standing, flung wide in the splits, tucked in the air ── */
   const kneeX = L(10, 42, sp) - up * 2;
   const kneeY = L(20, 14, sp) - up * 7;
   const footX = L(12, 70, sp) - up * 4;
@@ -1078,7 +1261,6 @@ function drawKeeper() {
   blob(-footX - sway, footY + lead * 1.6, -footX - sway - 8, footY + lead * 1.6 + L(2, -3, sp), 8, KIT.boot);
   blob(footX + sway, footY - lead * 1.6, footX + sway + 8, footY - lead * 1.6 + L(2, -3, sp), 8, KIT.boot);
 
-  /* ── torso ── */
   const th = L(52, 40, sp), tw = L(18, 19, sp);
   ctx.fillStyle = KIT.shirt;
   ctx.beginPath(); ctx.roundRect(-tw, -th + 4, tw * 2, th, [14, 14, 7, 7]); ctx.fill();
@@ -1088,8 +1270,6 @@ function drawKeeper() {
   ctx.font = "bold 15px Inter, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.fillText("1", 0, L(-31, -24, sp));
 
-  /* ── arms: at your side → out wide in the splits → up in a leap →
-        fully overhead diving → tucked in when you've claimed it ── */
   let gx = L(30, 74, sp), gy = L(-14, -6, sp);
   let ex = L(25, 50, sp), ey = L(-32, -16, sp);
   gx = L(gx, 17, up);      gy = L(gy, -66, up);
@@ -1104,7 +1284,6 @@ function drawKeeper() {
   blob(-ex, ey, -gx, gy, 10, KIT.skin);
   blob(ex, ey, gx, gy, 10, KIT.skin);
 
-  /* ── head ── */
   const hy = L(-60, -48, sp);
   ctx.fillStyle = KIT.skin;
   ctx.beginPath(); ctx.arc(0, hy, 12, 0, 6.283); ctx.fill();
@@ -1202,8 +1381,7 @@ function drawFlyingBall(s) {
   ctx.ellipse(s.bx, s.shadowY, s.br * 1.15, s.br * .35, 0, 0, 6.283);
   ctx.fill();
 
-  // Tether from ball to shadow. The longer it is, the higher the shot —
-  // the clearest possible "this one needs a jump".
+  // Tether from ball to shadow: the longer it is, the higher the shot.
   const gap = s.shadowY - s.by;
   if (gap > 30) {
     ctx.strokeStyle = `rgba(255,255,255,${clamp(gap / 210, 0, 1) * .32})`;
@@ -1283,15 +1461,17 @@ function drawOverlayText() {
     ctx.restore();
     ctx.globalAlpha = 1; ctx.shadowBlur = 0;
   }
-  if (roundBanner) {
-    ctx.globalAlpha = Math.min(1, roundBanner.life * 2.4);
-    ctx.fillStyle = "#ffd23f";
+  if (banner) {
+    ctx.globalAlpha = Math.min(1, banner.life * 2.4);
+    ctx.fillStyle = banner.color;
     ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 16;
     ctx.font = "52px 'Bebas Neue', Impact, sans-serif";
-    ctx.fillText("ROUND " + roundBanner.n, W / 2, GOAL.y - 14);
-    ctx.font = "600 12px Inter, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,.75)";
-    ctx.fillText(roundBanner.note, W / 2, GOAL.y + 6);
+    ctx.fillText(banner.title, W / 2, GOAL.y - 14);
+    if (banner.sub) {
+      ctx.font = "600 12px Inter, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,.75)";
+      ctx.fillText(banner.sub, W / 2, GOAL.y + 6);
+    }
     ctx.shadowBlur = 0; ctx.globalAlpha = 1;
   }
   if (hintBanner) {
@@ -1329,35 +1509,20 @@ function frame(now) {
       const after = Math.floor(G.countT / 700);
       if (after !== before && after <= 3) sfx.tick(3 - after);
       updateKeeper(dt); updateStamina(dt);
-      if (G.countT >= 2800) { G.phase = "play"; G.nextShot = 320; }
+      if (G.countT >= 2800) { G.phase = "play"; G.nextShot = 400; }
     } else if (G.phase === "play") {
       G.elapsed += dt;
-      const r = roundNo();
-      if (r !== G.round) {
-        G.round = r;
-        roundBanner = { n: r + 1, life: 1, note: roundNote(r) };
-        G.nextShot = Math.max(G.nextShot, BREATHER_MS);
-        sfx.round(); updateHUD();
-      }
+      checkUnlocks();
       G.nextShot -= dt;
       if (G.nextShot <= 0) { spawnShot(); G.nextShot = shotGap(); }
       updateKeeper(dt); updateStamina(dt); updateShots(dt);
-      updateStaminaBar();
+      updateLiveHUD();
     } else if (G.phase === "over") {
       updateKeeper(dt); updateStamina(dt);
     }
     updateEffects(dt);
   }
   render();
-}
-
-function roundNote(r) {
-  if (r === 1) return "Curlers and chips now";
-  if (r === 2) return "They're speeding up";
-  if (r === 3) return "Rockets incoming";
-  if (r === 4) return "Floodlights on";
-  if (r === 5) return "Good luck";
-  return "Faster";
 }
 
 function render() {
@@ -1394,36 +1559,36 @@ function render() {
 /* ═════════ HUD ═════════ */
 const stamFill = document.getElementById("stam-fill");
 
-function updateStaminaBar() {
+function fmtTime(ms) {
+  const t = Math.floor(ms / 1000);
+  return Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
+}
+
+function updateLiveHUD() {
   const f = keeper.stamina / STAM_MAX;
   stamFill.style.transform = `scaleX(${f})`;
   stamFill.classList.toggle("low", !keeper.exhausted && f < .35);
   stamFill.classList.toggle("spent", keeper.exhausted);
+  document.querySelector("#time b").textContent = fmtTime(G.elapsed);
 }
 
 function updateHUD() {
-  document.querySelector("#saves b").textContent = G.saves;
-  document.querySelector("#score b").textContent = G.score.toLocaleString();
-  document.querySelector("#combo b").firstChild.textContent = G.combo;
-  document.querySelector("#wave b").textContent = G.round + 1;
-  document.getElementById("best").textContent = G.best.toLocaleString();
-  const m = document.getElementById("mult"), mult = multiplier();
-  m.textContent = "x" + (mult % 1 ? mult.toFixed(1) : mult);
-  m.classList.toggle("on", mult > 1);
+  document.querySelector("#score b").textContent = G.score;
+  document.querySelector("#best b").textContent = Math.max(G.best, G.score);
   document.querySelectorAll("#lives .ball-pip")
     .forEach((p, i) => p.classList.toggle("gone", i >= G.lives));
-  updateStaminaBar();
+  updateLiveHUD();
 }
 
 /* ═════════ flow ═════════ */
 function startGame() {
   ac();
   G.phase = "count"; G.countT = 0; G.elapsed = 0; G.nextShot = 0;
-  G.saves = 0; G.score = 0; G.combo = 0; G.bestStreak = 0;
-  G.lives = 3; G.round = 0; G.paused = false;
-  G.stats = { faced: 0, catches: 0, parries: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0 };
-  shots = []; particles = []; pops = []; netHits = [];
-  shake = 0; hurt = 0; roundBanner = null; hintBanner = null;
+  G.score = 0; G.saves = 0; G.run = 0; G.bestRun = 0;
+  G.lives = 3; G.paused = false; G.announced = {}; G.milestone = 0;
+  G.stats = { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0 };
+  shots = []; particles = []; pops = []; netHits = []; lastArrival = null;
+  shake = 0; hurt = 0; banner = null; hintBanner = null;
   slowLeft = 0; timeScale = 1; themeNow = 0;
   keeper.x = W / 2; keeper.y = STAND_Y;
   keeper.vx = keeper.vy = 0; keeper.tilt = 0; keeper.spread = 0; keeper.holding = 0;
@@ -1431,6 +1596,7 @@ function startGame() {
   keeper.jumpBuffer = 0; keeper.landLock = 0; keeper.squash = 0;
   keeper.stamina = STAM_MAX; keeper.exhausted = false; keeper.lastUse = 9999;
   keeper.diving = false; keeper.grounded = false; keeper.getup = false;
+  document.getElementById("best").classList.remove("beaten");
   document.getElementById("start-screen").classList.add("hidden");
   document.getElementById("over-screen").classList.add("hidden");
   document.getElementById("pause-screen").classList.add("hidden");
@@ -1439,45 +1605,51 @@ function startGame() {
 
 function gameOver() {
   G.phase = "over";
-  if (G.score > G.best) {
+  const beat = G.score > G.best;
+  const previous = G.best;
+  if (beat) {
     G.best = G.score;
-    try { localStorage.setItem("shotstopper-best", String(G.best)); } catch (e) { /* preview sandbox */ }
+    try { localStorage.setItem(BEST_KEY, String(G.best)); } catch (e) { /* preview sandbox */ }
   }
   shots = [];
   sfx.whistle();
+
   const st = G.stats;
   const pct = st.faced ? Math.round(G.saves / st.faced * 100) : 0;
 
-  document.getElementById("f-saves").textContent = G.saves;
-  document.getElementById("f-score").textContent = G.score.toLocaleString();
-  document.getElementById("f-streak").textContent = G.bestStreak;
+  document.getElementById("f-score").textContent = G.score;
+  document.getElementById("over-title").textContent =
+    G.score >= 80 ? "UNBEATABLE" : G.score >= 45 ? "CLEAN HANDS" : G.score >= 20 ? "FULL TIME" : "LONG NIGHT";
+
+  document.getElementById("best-row").innerHTML = beat
+    ? `<div class="newbest">NEW BEST</div>${previous > 0 ? `<div class="beatline">beat your old ${previous}</div>` : ""}`
+    : `<div class="beatline">best ${G.best} — ${G.best - G.score} more to beat it</div>`;
+
   document.getElementById("breakdown").innerHTML = `
+    <div><span>Saves</span><b>${G.saves}</b></div>
+    <div><span>Survived</span><b>${fmtTime(G.elapsed)}</b></div>
+    <div><span>Two-pointers</span><b>${st.hard}</b></div>
     <div><span>Save rate</span><b>${pct}%</b></div>
-    <div><span>Rounds reached</span><b>${G.round + 1}</b></div>
     <div><span>Caught clean</span><b>${st.catches}</b></div>
     <div><span>Parried out</span><b>${st.parries}</b></div>
-    <div><span>Leaping saves</span><b>${st.leaps}</b></div>
-    <div><span>Diving saves</span><b>${st.dives}</b></div>
-    <div><span>From the splits</span><b>${st.splits}</b></div>
-    <div><span>Off the woodwork</span><b>${st.woodwork}</b></div>`;
-  document.getElementById("over-title").textContent =
-    G.saves >= 40 ? "UNBEATABLE" : G.saves >= 24 ? "CLEAN HANDS" : G.saves >= 12 ? "FULL TIME" : "LONG NIGHT";
+    <div><span>Leaps / dives / splits</span><b>${st.leaps} / ${st.dives} / ${st.splits}</b></div>
+    <div><span>Best run</span><b>${G.bestRun}</b></div>`;
 
   let line;
-  if (st.leaps === 0 && st.faced > 8) {
+  if (st.hard === 0 && st.faced > 8) {
+    line = "Every save was a standing one. Leap, dive or spread and they're worth double.";
+  } else if (st.leaps === 0 && st.faced > 8) {
     line = "You never left the ground. Hold W and the top of the goal opens up.";
   } else if (st.parries > st.catches * 2 && st.faced > 6) {
-    line = "You're getting a hand to plenty but holding almost none. Catches stop the follow-up.";
+    line = "Plenty of hands on it, almost nothing held. A clean catch kills the rebound.";
   } else if (st.dives === 0 && st.faced > 10) {
     line = "The corners are free goals unless you dive at them.";
-  } else if (st.splits === 0 && st.faced > 10) {
-    line = "Try the splits on the low ones — that's most of what beat you.";
-  } else if (G.saves >= 40) {
+  } else if (G.score >= 80) {
     line = "They ran out of ideas before you ran out of hands.";
-  } else if (G.saves >= 24) {
+  } else if (G.score >= 45) {
     line = "Proper shift between the sticks.";
-  } else if (G.saves >= 12) {
-    line = "Solid. The multiplier is where the score really is — keep the streak alive.";
+  } else if (G.score >= 20) {
+    line = "Solid. Two-pointers are where the score really climbs.";
   } else {
     line = "Stand up by default. Jump for high, splits for low, dive for the corners.";
   }
@@ -1550,13 +1722,13 @@ document.getElementById("motion-btn").addEventListener("click", e => {
   e.currentTarget.textContent = reducedMotion ? "Motion: reduced" : "Motion: full";
   e.currentTarget.blur();
 });
-document.getElementById("difficulty").addEventListener("click", e => {
-  const b = e.target.closest("button"); if (!b) return;
-  level = b.dataset.level;
-  for (const x of e.currentTarget.querySelectorAll("button")) {
-    x.setAttribute("aria-pressed", String(x === b));
-  }
-  b.blur();
+document.getElementById("reset-btn").addEventListener("click", e => {
+  G.best = 0;
+  try { localStorage.removeItem(BEST_KEY); } catch (err) { /* nothing stored */ }
+  updateHUD();
+  e.currentTarget.textContent = "Best cleared";
+  setTimeout(() => { e.currentTarget.textContent = "Clear best"; }, 1400);
+  e.currentTarget.blur();
 });
 
 if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -1564,9 +1736,9 @@ if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").m
   document.getElementById("motion-btn").textContent = "Motion: reduced";
 }
 
-// Best score survives a reload on a real server; the preview sandbox just skips it.
+// Best score survives a reload on a real server; the preview sandbox skips it.
 try {
-  const saved = parseInt(localStorage.getItem("shotstopper-best") || "0", 10);
+  const saved = parseInt(localStorage.getItem(BEST_KEY) || "0", 10);
   if (Number.isFinite(saved) && saved > 0) G.best = saved;
 } catch (e) { /* storage unavailable */ }
 
