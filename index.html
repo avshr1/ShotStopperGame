@@ -25,7 +25,6 @@ body{
 }
 .stage{width:min(880px,100%);display:flex;flex-direction:column;gap:9px}
 
-/* scoreboard */
 .hud{
   display:flex;align-items:center;gap:16px;flex-wrap:wrap;
   background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.09);
@@ -40,7 +39,6 @@ body{
 #mult.on{opacity:1}
 .grow{flex:1}
 
-/* stamina */
 .stam-wrap{display:flex;flex-direction:column;gap:4px;min-width:132px}
 .stam-wrap span{font-size:9px;letter-spacing:.17em;color:rgba(255,255,255,.45)}
 .stam-track{height:9px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden}
@@ -58,38 +56,35 @@ body{
 }
 .ball-pip.gone{opacity:.18;transform:scale(.7)}
 
-/* pitch */
 .frame{position:relative;border-radius:13px;overflow:hidden;box-shadow:0 20px 55px rgba(0,0,0,.6)}
-canvas{display:block;width:100%;height:auto;aspect-ratio:40/27;touch-action:none;background:#8fd0e6}
+canvas{display:block;width:100%;height:auto;aspect-ratio:40/27;touch-action:none;background:#8fd0e6;outline:none}
 
-/* touch pad — only on touch devices */
 .pad{position:absolute;inset:auto 0 0 0;z-index:4;display:none;
   justify-content:space-between;padding:12px 14px;pointer-events:none}
 .pad .group{display:flex;gap:9px;pointer-events:auto}
 .pad button{
   width:54px;height:54px;border-radius:14px;border:1px solid rgba(255,255,255,.28);
   background:rgba(0,0,0,.42);color:#fff;font-family:'Bebas Neue',sans-serif;
-  font-size:19px;letter-spacing:1px;backdrop-filter:blur(3px);
+  font-size:18px;letter-spacing:1px;backdrop-filter:blur(3px);
   -webkit-user-select:none;user-select:none;touch-action:none;
 }
 .pad button:active{background:rgba(61,220,132,.4)}
 .pad button.wide{width:70px}
 @media (pointer:coarse){ .pad{display:flex} }
 
-/* overlays */
 .sheet{
-  position:absolute;inset:0;z-index:5;padding:22px;
+  position:absolute;inset:0;z-index:5;padding:20px;
   display:flex;align-items:center;justify-content:center;text-align:center;
-  background:rgba(4,12,5,.88);backdrop-filter:blur(4px);
+  background:rgba(4,12,5,.9);backdrop-filter:blur(4px);overflow-y:auto;
 }
 .sheet.hidden{display:none}
-.card{max-width:470px;width:100%}
-.title{font-family:'Bebas Neue',sans-serif;line-height:.85;letter-spacing:2px;font-size:clamp(46px,9vw,78px)}
+.card{max-width:480px;width:100%}
+.title{font-family:'Bebas Neue',sans-serif;line-height:.85;letter-spacing:2px;font-size:clamp(44px,8.5vw,74px)}
 .title em{font-style:normal;display:block;color:var(--save)}
 .sub{margin-top:9px;color:rgba(255,255,255,.62);font-size:13px;line-height:1.5}
-.rules{margin:18px 0;display:flex;flex-direction:column;gap:8px;text-align:left;font-size:13px;color:rgba(255,255,255,.85)}
+.rules{margin:16px 0;display:flex;flex-direction:column;gap:7px;text-align:left;font-size:13px;color:rgba(255,255,255,.85)}
 .rules p{display:flex;gap:11px;align-items:baseline}
-.rules i{font-style:normal;min-width:62px;flex:none}
+.rules i{font-style:normal;min-width:66px;flex:none}
 .rules kbd{background:rgba(255,255,255,.14);border-radius:4px;padding:2px 7px;font-size:11px;
   font-family:inherit;color:#fff;font-weight:600}
 button.go{
@@ -100,14 +95,22 @@ button.go{
 button.go:hover{filter:brightness(1.08)}
 button.go:active{transform:scale(.96)}
 button.go:focus-visible,.chip:focus-visible,.seg button:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.final{display:flex;justify-content:center;gap:26px;margin:18px 0 8px}
+
+.final{display:flex;justify-content:center;gap:24px;margin:16px 0 6px}
 .final div{display:flex;flex-direction:column;gap:3px}
-.final b{font-family:'Bebas Neue',sans-serif;font-size:54px;line-height:1;color:var(--save)}
+.final b{font-family:'Bebas Neue',sans-serif;font-size:50px;line-height:1;color:var(--save)}
 .final span{font-size:10px;letter-spacing:.15em;color:rgba(255,255,255,.45)}
-#verdict{font-size:14px;color:rgba(255,255,255,.72);margin-bottom:18px;min-height:20px}
+.breakdown{
+  display:grid;grid-template-columns:1fr 1fr;gap:5px 18px;
+  font-size:12px;color:rgba(255,255,255,.7);
+  border-top:1px solid rgba(255,255,255,.12);padding-top:12px;margin:12px 0 14px;
+}
+.breakdown div{display:flex;justify-content:space-between;gap:10px}
+.breakdown b{color:#fff;font-weight:600}
+#verdict{font-size:13px;color:rgba(255,255,255,.72);margin-bottom:16px;min-height:18px}
 
 .bar{
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;
   background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);
   border-radius:11px;padding:8px 15px;font-size:12px;color:rgba(255,255,255,.55);
 }
@@ -119,7 +122,7 @@ button.go:focus-visible,.chip:focus-visible,.seg button:focus-visible{outline:3p
   font-size:11px;padding:4px 13px;border-radius:16px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:#fff;color:#0f2410;font-weight:700}
 kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:11px;color:#fff}
-@media (max-width:680px){.keys{display:none}}
+@media (max-width:700px){.keys{display:none}}
 </style>
 </head>
 <body>
@@ -143,7 +146,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
   </div>
 
   <div class="frame">
-    <canvas id="game" width="800" height="540" aria-label="Goalkeeper shot-stopping game"></canvas>
+    <canvas id="game" width="800" height="540" tabindex="0" aria-label="Goalkeeper shot-stopping game"></canvas>
 
     <div class="pad" id="pad">
       <div class="group">
@@ -151,8 +154,8 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
         <button data-key="d" aria-label="Right">▶</button>
       </div>
       <div class="group">
-        <button data-key="w" aria-label="Reach high">HIGH</button>
-        <button data-key="s" class="wide" aria-label="Split">SPLIT</button>
+        <button data-key="w" aria-label="Jump">JUMP</button>
+        <button data-key="s" class="wide" aria-label="Splits">SPLIT</button>
         <button data-key=" " class="wide" aria-label="Dive">DIVE</button>
       </div>
     </div>
@@ -163,10 +166,10 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
         <p class="sub">Shooting drill. They keep firing until you've let three in.</p>
         <div class="rules">
           <p><i><kbd>A</kbd> <kbd>D</kbd></i><div>Move along your line.</div></p>
-          <p><i><kbd>W</kbd></i><div>Stretch up for anything near the bar.</div></p>
-          <p><i><kbd>S</kbd></i><div>Drop into the splits — wide and low, but you lose all your height and most of your speed.</div></p>
-          <p><i><kbd>SPACE</kbd></i><div>Dive at a corner you can't walk to. You'll be on the grass for a second after.</div></p>
-          <p><i>Stamina</i><div>The splits drain it, diving costs a chunk. Run it dry and you can't do either until it recovers.</div></p>
+          <p><i><kbd>W</kbd></i><div>Jump. Tap for a short hop, hold for a full leap — the only way to reach the top of the goal.</div></p>
+          <p><i><kbd>S</kbd></i><div>Drop into the splits — wide and low, but you give up all your height.</div></p>
+          <p><i><kbd>SPACE</kbd></i><div>Dive at a corner you can't get to on your feet.</div></p>
+          <p><i>Catch it</i><div>Ball in the middle of your reach and you hold it. Clip the edge and you only parry — and they'll follow up.</div></p>
         </div>
         <button id="start-btn" class="go">KICK OFF</button>
       </div>
@@ -174,12 +177,13 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
     <div id="over-screen" class="sheet hidden">
       <div class="card">
-        <h2 id="over-title" class="title" style="font-size:52px">FULL TIME</h2>
+        <h2 id="over-title" class="title" style="font-size:48px">FULL TIME</h2>
         <div class="final">
           <div><b id="f-saves">0</b><span>SAVES</span></div>
           <div><b id="f-score">0</b><span>SCORE</span></div>
           <div><b id="f-streak">0</b><span>BEST RUN</span></div>
         </div>
+        <div class="breakdown" id="breakdown"></div>
         <p id="verdict"></p>
         <button id="again-btn" class="go">GO AGAIN</button>
       </div>
@@ -195,14 +199,17 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
   <div class="bar">
     <div class="keys">
-      <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> high · <kbd>S</kbd> splits · <kbd>SPACE</kbd> dive · <kbd>P</kbd> pause
+      <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> splits · <kbd>SPACE</kbd> dive · <kbd>P</kbd> pause
     </div>
     <div class="seg" id="difficulty" role="group" aria-label="Difficulty">
       <button data-level="amateur" aria-pressed="true">Amateur</button>
       <button data-level="pro" aria-pressed="false">Pro</button>
       <button data-level="world" aria-pressed="false">World Class</button>
     </div>
-    <button id="mute-btn" class="chip">Sound on</button>
+    <div style="display:flex;gap:8px">
+      <button id="motion-btn" class="chip">Motion: full</button>
+      <button id="mute-btn" class="chip">Sound on</button>
+    </div>
   </div>
 
 </div>
@@ -211,15 +218,17 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 "use strict";
 
 /* ═══════════════════════════════════════════════════════
-   SHOT STOPPER — goalkeeper shooting drill (keyboard)
+   SHOT STOPPER — goalkeeper shooting drill
 
-   Three stances, and the whole game is choosing between them:
-     standing  — balanced oval, full speed
-     high (W)  — lifts your reach toward the bar
-     splits(S) — oval goes wide and flat. Covers the ground,
-                 gives up everything above knee height, drains stamina.
-   Diving is the escape hatch for corners you can't walk to,
-   and it costs a chunk of the same bar.
+   Four things you can do, and the game is choosing between them:
+     standing    balanced oval, full speed, covers the bottom 60% of the goal
+     jump   (W)  a real leap — impulse, gravity, landing. Variable height,
+                 with a float at the apex so the top corners are reachable.
+     splits (S)  oval goes wide and flat. Covers the ground, gives up height.
+     dive (SPC)  the escape hatch for corners. Costs stamina, leaves you down.
+
+   Nothing hovers. Every vertical position the keeper occupies is the
+   result of an impulse and gravity, so what you see is what's happening.
    ═══════════════════════════════════════════════════════ */
 
 const CV = document.getElementById("game");
@@ -232,29 +241,40 @@ const LINE_Y = GOAL.y + GOAL.h;
 const GROUND_Y = 470;
 
 /* ── keeper ── */
-const REACH_X = 60, REACH_Y = 68;          // standing save oval
-const SPREAD_X = 1.62, SPREAD_Y = .50;     // what the splits do to it
+const REACH_X = 60, REACH_Y = 68;
+const SPREAD_X = 1.62, SPREAD_Y = .50;
+const CATCH_ZONE = .58;                    // inside this fraction of the oval you hold it
 const STAND_Y = LINE_Y - 34;               // hips when on his feet
-const HIGH_Y = GOAL.y + 74;                // hips at full stretch
-const CEIL_Y = GOAL.y + 36;
+const CEIL_Y = GOAL.y + 30;                // he can't go through the roof of the world
 
-const MOVE_SPEED = 700;                    // px/s along the line
-const MOVE_TAU = 70;                       // ms to reach that speed
-const RISE_SPEED = 470;                    // px/s going up
-const SINK_SPEED = 620;                    // px/s settling back down
+const MOVE_SPEED = 700, MOVE_TAU = 70;
 
-const DIVE_PUSH = 720, DIVE_LEAP = 230, GRAVITY = 1500;
+/* ── the jump ──
+   Tuned so a full leap tops out around the crossbar and hangs there for
+   about four tenths of a second: long enough to actually make the save,
+   short enough that a mistimed jump is a real mistake.            */
+const JUMP_V = 600;                        // takeoff speed, full hold
+const JUMP_CUT = 380;                      // release W early and the rise is cut to this
+const GRAVITY = 1500;
+const HANG_BAND = 135;                     // |vy| below this counts as "near the apex"
+const HANG_G = .46;                        // gravity is softer there — that's the float
+const AIR_CONTROL = .62, AIR_TAU = 150;    // you can still steer, just not as sharply
+const AIR_REACH = .17;                     // arms overhead stretch the oval this much
+const JUMP_BUFFER_MS = 130;                // press just before landing and it still counts
+const LAND_LOCK_MS = 90;                   // a beat on the floor before you can go again
+
+/* ── the dive ── */
+const DIVE_PUSH = 720, DIVE_LEAP = 230;
 const GROUND_MS = 170, GETUP_MS = 290;
 
 /* ── stamina ── */
 const STAM_MAX = 100;
-const SPLIT_DRAIN = 33;                    // per second held
-const DIVE_COST = 27;
-const REGEN = 27;                          // per second
-const REGEN_DELAY = 320;                   // ms of no use before it refills
-const EXHAUST_RECOVER = 32;                // must climb back to this after bottoming out
+const SPLIT_DRAIN = 33, DIVE_COST = 27, JUMP_COST = 12, REGEN = 27;
+const REGEN_DELAY = 320, EXHAUST_RECOVER = 32;
+const CATCH_REFUND = 10, PARRY_REFUND = 3;
 
 const ROUND_MS = 16000;
+const BREATHER_MS = 1700;
 
 const LEVELS = {
   amateur: { gap: 1.3, flight: 1.28, bend: .6,  label: "Amateur" },
@@ -262,25 +282,33 @@ const LEVELS = {
   world:   { gap: .82, flight: .84,  bend: 1.35, label: "World Class" }
 };
 let level = "amateur";
+let reducedMotion = false;
 
 const G = {
   phase: "menu", countT: 0, elapsed: 0, nextShot: 0,
   saves: 0, score: 0, combo: 0, bestStreak: 0, best: 0,
-  lives: 3, round: 0, paused: false
+  lives: 3, round: 0, paused: false,
+  stats: { faced: 0, catches: 0, parries: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0 }
 };
 
 const keeper = {
   x: W / 2, y: STAND_Y, vx: 0, vy: 0,
-  tilt: 0, step: 0, reachPulse: 0,
-  spread: 0,                               // 0 standing → 1 full splits
+  tilt: 0, step: 0, reachPulse: 0, spread: 0,
+  airborne: false, airT: 0, reachUp: 0,
+  jumpBuffer: 0, landLock: 0, squash: 0,
   stamina: STAM_MAX, lastUse: 0, exhausted: false, denied: 0,
+  holding: 0,
   diving: false, grounded: false, getup: false,
   diveT: 0, groundT: 0, getupT: 0, diveTilt: 0
 };
 
 const keys = new Set();
 let shots = [], particles = [], pops = [], crowdSeed = [], netHits = [];
-let shake = 0, hurt = 0, roundBanner = null;
+let shake = 0, hurt = 0, roundBanner = null, hintBanner = null;
+let timeScale = 1, slowLeft = 0;
+let themeNow = 0;
+
+const hintsShown = { low: false, high: false, dive: false, stam: false, rebound: false };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -316,6 +344,8 @@ function noise(dur, { gain = .18, freq = 1200, q = 1, delay = 0, sweepTo = null 
 }
 const sfx = {
   kick()  { tone(160, .12, { type: "triangle", gain: .28, to: 58 }); noise(.08, { gain: .22, freq: 2400 }); },
+  jump()  { noise(.13, { gain: .07, freq: 460, sweepTo: 1150 }); tone(210, .1, { type: "sine", gain: .09, to: 330 }); },
+  touch() { tone(110, .1, { type: "sine", gain: .1, to: 62 }); noise(.1, { gain: .08, freq: 420, q: .6 }); },
   dive()  { noise(.18, { gain: .08, freq: 780, sweepTo: 1800 }); },
   split() { noise(.22, { gain: .1, freq: 420, sweepTo: 200 }); },
   land()  { tone(85, .2, { type: "sine", gain: .2, to: 42 }); noise(.16, { gain: .15, freq: 300, q: .5 }); },
@@ -323,9 +353,10 @@ const sfx = {
     const f = 460 * Math.pow(2, Math.min(12, c) * 1.3 / 12);
     tone(f, .12, { type: "triangle", gain: .15, to: f * 1.4 });
     noise(.14, { gain: .1, freq: 900, q: .7 });
-    noise(.5, { gain: .1, freq: 700, q: .3, sweepTo: 1500, delay: .05 });
+    noise(.55, { gain: .07 + Math.min(.09, c * .008), freq: 700, q: .3, sweepTo: 1500, delay: .05 });
   },
   parry() { tone(320, .09, { type: "square", gain: .13, to: 620 }); noise(.22, { gain: .16, freq: 1900, q: .6 }); },
+  scramble(){ noise(.35, { gain: .12, freq: 500, q: .5, sweepTo: 1300 }); tone(220, .2, { type: "square", gain: .07, to: 340 }); },
   goal()  { noise(.9, { gain: .28, freq: 340, q: .35, sweepTo: 820 }); tone(150, .55, { type: "sawtooth", gain: .07, to: 82 }); },
   post()  { tone(1350, .45, { type: "square", gain: .15, to: 880 }); },
   wide()  { noise(.3, { gain: .1, freq: 480, sweepTo: 200 }); },
@@ -335,11 +366,34 @@ const sfx = {
   tick(n) { tone(n === 0 ? 900 : 540, .14, { type: "square", gain: .1 }); }
 };
 
+/* ═════════ look: afternoon → dusk → floodlights ═════════ */
+const THEMES = [
+  { skyTop: [78, 156, 196], skyBot: [159, 217, 234], grassTop: [46, 124, 54], grassBot: [84, 189, 93], crowd: 1,   amb: 0,   lights: 0 },
+  { skyTop: [186, 96, 62],  skyBot: [244, 178, 112], grassTop: [44, 100, 50], grassBot: [74, 150, 80], crowd: .84, amb: .16, lights: .4 },
+  { skyTop: [8, 16, 42],    skyBot: [28, 46, 84],    grassTop: [26, 72, 36],  grassBot: [46, 122, 56], crowd: .5,  amb: .44, lights: 1 }
+];
+const mix = (a, b, t) => [L(a[0], b[0], t), L(a[1], b[1], t), L(a[2], b[2], t)];
+const rgb = c => `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
+
+function currentTheme() {
+  const p = clamp(themeNow, 0, 2);
+  const i = Math.min(1, Math.floor(p)), t = p - i;
+  const A = THEMES[i], B = THEMES[i + 1] || THEMES[i];
+  return {
+    skyTop: mix(A.skyTop, B.skyTop, t), skyBot: mix(A.skyBot, B.skyBot, t),
+    grassTop: mix(A.grassTop, B.grassTop, t), grassBot: mix(A.grassBot, B.grassBot, t),
+    crowd: L(A.crowd, B.crowd, t), amb: L(A.amb, B.amb, t), lights: L(A.lights, B.lights, t)
+  };
+}
+
 /* ═════════ drill director ═════════ */
 function roundNo() { return Math.floor(G.elapsed / ROUND_MS); }
 
 function shotGap() {
-  return Math.max(620, 1560 - G.round * 105) * LEVELS[level].gap * rnd(.82, 1.2);
+  const base = Math.max(620, 1560 - G.round * 105) * LEVELS[level].gap;
+  const into = G.elapsed % ROUND_MS;
+  const burst = (G.round >= 2 && into > ROUND_MS - 4200) ? .6 : 1;
+  return base * burst * rnd(.82, 1.2);
 }
 
 function pickTarget() {
@@ -351,11 +405,9 @@ function pickTarget() {
     }
     return rnd(lo, hi);
   };
-  // a healthy share of shots kept low, so the splits have a job
   const x = along(GOAL.x + 34, GOAL.x + GOAL.w - 34);
-  const y = Math.random() < .38
-    ? rnd(LINE_Y - 46, LINE_Y - 14)
-    : along(GOAL.y + 30, LINE_Y - 18);
+  // A healthy share stays on the deck, so the splits always have work to do.
+  const y = Math.random() < .36 ? rnd(LINE_Y - 46, LINE_Y - 14) : along(GOAL.y + 38, LINE_Y - 18);
   return { x, y };
 }
 
@@ -377,21 +429,47 @@ function spawnShot() {
   if (r >= 1 && roll < .2) kind = "chip";
   else if (r >= 1 && roll < .48) kind = "curl";
   else if (r >= 3 && roll < .62) kind = "rocket";
-  if (kind === "chip") t.y = rnd(GOAL.y + 24, GOAL.y + 80);   // chips go high, by definition
+  if (kind === "chip") t.y = rnd(GOAL.y + 26, GOAL.y + 78);
 
   const base = Math.max(760, 1620 - r * 92) * cfg.flight;
   const flight = kind === "chip" ? base * 1.5 : kind === "rocket" ? base * .68 : base;
   const bendCap = kind === "curl" ? 130 : kind === "rocket" ? 22 : 54;
 
-  shots.push({
+  const s = {
     phase: "runup", t: 0,
     runup: Math.max(430, 760 - r * 26),
     flight, kind,
     bend: (Math.random() - .5) * 2 * bendCap * cfg.bend,
     sx, sy, runFrom, tx: t.x, ty: t.y,
     bx: sx, by: sy, br: 15, shadowY: sy,
-    trail: [], spin: Math.random() * 6.28
+    trail: [], spin: Math.random() * 6.28, rebound: false
+  };
+  shots.push(s);
+  maybeHint(s);
+}
+
+function reboundChance() { return Math.min(.62, .3 + G.round * .055); }
+
+function spawnRebound(from) {
+  if (shots.some(s => s.rebound)) return;
+  const sx = clamp(from.bx + rnd(-70, 70), 210, 590);
+  const t = pickTarget();
+  shots.push({
+    phase: "runup", t: 0, runup: 400,
+    flight: Math.max(560, 880 - G.round * 26) * LEVELS[level].flight,
+    kind: "rebound",
+    bend: rnd(-26, 26),
+    sx, sy: LINE_Y + 118, runFrom: Math.sign(from.bx - sx) || 1,
+    tx: t.x, ty: t.y,
+    bx: sx, by: LINE_Y + 118, br: 15, shadowY: LINE_Y + 118,
+    trail: [], spin: Math.random() * 6.28, rebound: true
   });
+  pops.push({ text: "REBOUND!", x: from.bx, y: from.by - 40, color: "#ffd23f", size: 24, life: 1 });
+  sfx.scramble();
+  if (!hintsShown.rebound) {
+    hintsShown.rebound = true;
+    showHint("CATCH IT CLEANLY TO STOP THE FOLLOW-UP");
+  }
 }
 
 function ballAt(s, t) {
@@ -410,7 +488,10 @@ function updateShots(dt) {
     const s = shots[i];
     s.t += dt;
     if (s.phase === "runup") {
-      if (s.t >= s.runup) { s.phase = "flight"; s.t = 0; s.trail = []; sfx.kick(); shake = Math.max(shake, 2); }
+      if (s.t >= s.runup) {
+        s.phase = "flight"; s.t = 0; s.trail = [];
+        sfx.kick(); shake = Math.max(shake, 2);
+      }
     } else {
       const t = Math.min(1, s.t / s.flight);
       const p = ballAt(s, t);
@@ -422,19 +503,20 @@ function updateShots(dt) {
   }
 }
 
-/* ═════════ the save oval ═════════ */
-// One shape, and the splits reshape it: wider, flatter, lower.
+/* ═════════ the save oval ═════════
+   One shape, drawn on screen, and it is exactly what stops the ball.
+   The splits flatten and widen it; a leap raises it and stretches it
+   upward, because his arms are over his head.                       */
 function reachOval() {
-  const sp = keeper.spread;
+  const sp = keeper.spread, up = keeper.reachUp;
   return {
     cx: keeper.x,
-    cy: keeper.y - L(24, 4, sp),
+    cy: keeper.y - L(24, 4, sp) - up * 13,
     rx: REACH_X * L(1, SPREAD_X, sp),
-    ry: REACH_Y * L(1, SPREAD_Y, sp),
+    ry: REACH_Y * L(1, SPREAD_Y, sp) * (1 + up * AIR_REACH),
     rot: keeper.tilt * .55 * (1 - sp)
   };
 }
-
 function ovalDepth(px, py, pad) {
   const o = reachOval();
   const c = Math.cos(-o.rot), s = Math.sin(-o.rot);
@@ -448,12 +530,13 @@ function ovalDepth(px, py, pad) {
 function spendStamina(n) {
   keeper.stamina = Math.max(0, keeper.stamina - n);
   keeper.lastUse = 0;
-  if (keeper.stamina <= 0) { keeper.exhausted = true; sfx.spent(); }
+  if (keeper.stamina <= 0 && !keeper.exhausted) {
+    keeper.exhausted = true; sfx.spent();
+    if (!hintsShown.stam) { hintsShown.stam = true; showHint("OUT OF PUFF — STAY ON YOUR FEET AND LET IT REFILL"); }
+  }
 }
-function canSpend(n) {
-  if (keeper.exhausted) return false;
-  return keeper.stamina >= n;
-}
+function refund(n) { keeper.stamina = Math.min(STAM_MAX, keeper.stamina + n); }
+function canSpend(n) { return !keeper.exhausted && keeper.stamina >= n; }
 
 function updateStamina(dt) {
   keeper.lastUse += dt;
@@ -463,9 +546,50 @@ function updateStamina(dt) {
   }
   if (keeper.exhausted && keeper.stamina >= EXHAUST_RECOVER) keeper.exhausted = false;
   keeper.denied = Math.max(0, keeper.denied - dt / 280);
+  keeper.holding = Math.max(0, keeper.holding - dt);
 }
 
-/* ═════════ keeper ═════════ */
+/* ═════════ jumping ═════════ */
+function requestJump() {
+  if (G.phase !== "play" && G.phase !== "count") return;
+  if (keeper.diving) return;
+  if (keeper.airborne || keeper.landLock > 0) { keeper.jumpBuffer = JUMP_BUFFER_MS; return; }
+  doJump();
+}
+
+function doJump() {
+  if (keeper.spread > .3) return;                 // you can't leap out of the splits
+  if (!canSpend(JUMP_COST)) { keeper.denied = 1; sfx.spent(); return; }
+  keeper.airborne = true;
+  keeper.vy = -JUMP_V;
+  keeper.airT = 0;
+  keeper.spread = 0;
+  spendStamina(JUMP_COST);
+  sfx.jump();
+  for (let i = 0; i < 6; i++) {
+    particles.push({
+      x: keeper.x + rnd(-14, 14), y: LINE_Y + 3,
+      vx: rnd(-1.4, 1.4), vy: rnd(-1.6, -.2),
+      life: .5, size: rnd(1.6, 3), color: "#b7e39c"
+    });
+  }
+}
+
+function onTouchDown() {
+  keeper.squash = 1;
+  keeper.landLock = LAND_LOCK_MS;
+  sfx.touch();
+  if (!reducedMotion) shake = Math.max(shake, 2);
+  for (let i = 0; i < 7; i++) {
+    particles.push({
+      x: keeper.x + rnd(-16, 16), y: LINE_Y + 3,
+      vx: rnd(-1.6, 1.6), vy: rnd(-1.4, -.2),
+      life: .45, size: rnd(1.6, 3), color: "#b7e39c"
+    });
+  }
+}
+
+/* ═════════ diving ═════════ */
 function groundYFor(tilt) { return LINE_Y - 12 - 22 * Math.cos(tilt); }
 
 function launchDive() {
@@ -482,7 +606,9 @@ function launchDive() {
   const d = Math.hypot(dx, dy) || 1;
   const ux = dx / d, uy = dy / d;
 
-  keeper.spread = 0;                       // diving snaps you out of the splits
+  // A dive takes over from a jump — you commit, mid-air or not.
+  keeper.airborne = false; keeper.jumpBuffer = 0;
+  keeper.spread = 0; keeper.holding = 0;
   keeper.diving = true; keeper.grounded = false; keeper.getup = false;
   keeper.diveT = 0; keeper.groundT = 0; keeper.getupT = 0;
   keeper.vx = ux * DIVE_PUSH;
@@ -492,7 +618,7 @@ function launchDive() {
   sfx.dive();
 }
 
-function onLand() {
+function onDiveLand() {
   sfx.land();
   shake = Math.max(shake, 4);
   for (let i = 0; i < 12; i++) {
@@ -504,9 +630,14 @@ function onLand() {
   }
 }
 
+/* ═════════ keeper ═════════ */
 function updateKeeper(dt) {
   const s = dt / 1000;
   let tiltTarget;
+
+  keeper.landLock = Math.max(0, keeper.landLock - dt);
+  keeper.jumpBuffer = Math.max(0, keeper.jumpBuffer - dt);
+  keeper.squash = Math.max(0, keeper.squash - dt / 170);
 
   if (keeper.diving) {
     keeper.diveT += dt;
@@ -519,6 +650,7 @@ function updateKeeper(dt) {
       if (keeper.getupT > GETUP_MS) {
         keeper.diving = false; keeper.getup = false;
         keeper.vx = keeper.vy = 0; keeper.y = STAND_Y;
+        keeper.landLock = LAND_LOCK_MS;
       }
     } else if (keeper.grounded) {
       keeper.groundT += dt;
@@ -537,12 +669,12 @@ function updateKeeper(dt) {
       const gy = groundYFor(keeper.tilt);
       if (keeper.y >= gy && keeper.vy >= 0) {
         keeper.y = gy; keeper.vy = 0; keeper.grounded = true; keeper.groundT = 0;
-        onLand();
+        onDiveLand();
       }
     }
   } else {
-    /* ── stance ── */
-    const wantSplit = keys.has("s") && !keeper.exhausted && keeper.stamina > 0;
+    /* ── splits: only from your feet ── */
+    const wantSplit = keys.has("s") && !keeper.airborne && !keeper.exhausted && keeper.stamina > 0;
     if (wantSplit) {
       if (keeper.spread < .05) sfx.split();
       keeper.spread += (1 - keeper.spread) * (1 - Math.exp(-dt / 95));
@@ -557,31 +689,61 @@ function updateKeeper(dt) {
     let dir = 0;
     if (keys.has("a")) dir -= 1;
     if (keys.has("d")) dir += 1;
-    const speedMul = L(1, .38, keeper.spread);
-    const want = dir * MOVE_SPEED * speedMul;
-    keeper.vx += (want - keeper.vx) * (1 - Math.exp(-dt / MOVE_TAU));
+    const authority = keeper.airborne ? AIR_CONTROL : L(1, .38, keeper.spread);
+    const tau = keeper.airborne ? AIR_TAU : MOVE_TAU;
+    keeper.vx += (dir * MOVE_SPEED * authority - keeper.vx) * (1 - Math.exp(-dt / tau));
     keeper.x += keeper.vx * s;
 
-    /* ── height: W lifts, otherwise he settles onto his feet ── */
-    const canRise = keys.has("w") && keeper.spread < .3;
-    const goalY = canRise ? HIGH_Y : STAND_Y;
-    const rate = canRise ? RISE_SPEED : SINK_SPEED;
-    const dy = goalY - keeper.y;
-    const stepY = clamp(dy, -rate * s, rate * s);
-    keeper.y += stepY;
-    keeper.vy = stepY / s;
+    /* ── vertical: a jump, and nothing but a jump ── */
+    if (keeper.airborne) {
+      keeper.airT += dt;
+      // Let go of W on the way up and the leap is cut short. Hold it for the full one.
+      if (!keys.has("w") && keeper.vy < -JUMP_CUT) keeper.vy = -JUMP_CUT;
+      // Softer gravity near the apex. This float is what makes a top-corner save possible.
+      const g = Math.abs(keeper.vy) < HANG_BAND ? GRAVITY * HANG_G : GRAVITY;
+      keeper.vy += g * s;
+      keeper.y += keeper.vy * s;
+      if (keeper.y < CEIL_Y) { keeper.y = CEIL_Y; keeper.vy = Math.max(0, keeper.vy); }
+      if (keeper.y >= STAND_Y && keeper.vy >= 0) {
+        keeper.y = STAND_Y; keeper.vy = 0; keeper.airborne = false;
+        onTouchDown();
+      }
+    } else {
+      keeper.y = STAND_Y; keeper.vy = 0;
+      if (keeper.jumpBuffer > 0 && keeper.landLock <= 0) { keeper.jumpBuffer = 0; doJump(); }
+    }
 
     tiltTarget = clamp(keeper.vx / 900 * .3, -.3, .3) * (1 - keeper.spread);
   }
 
   keeper.x = clamp(keeper.x, GOAL.x - 10, GOAL.x + GOAL.w + 10);
   keeper.tilt += (tiltTarget - keeper.tilt) * (1 - Math.exp(-dt / (keeper.getup ? 110 : 66)));
+  keeper.reachUp += ((keeper.airborne ? 1 : 0) - keeper.reachUp) * (1 - Math.exp(-dt / 70));
   keeper.step += Math.abs(keeper.vx) * s * .05;
   keeper.reachPulse = Math.max(0, keeper.reachPulse - dt / 260);
 }
 
+/* ═════════ hints ═════════ */
+function showHint(text) { hintBanner = { text, life: 1 }; }
+
+function maybeHint(s) {
+  if (G.round > 1) return;
+  if (!hintsShown.high && s.ty < GOAL.y + 100) {
+    hintsShown.high = true; showHint("HIGH ONE — HOLD W TO LEAP");
+  } else if (!hintsShown.low && s.ty > LINE_Y - 50) {
+    hintsShown.low = true; showHint("LOW ONE — HOLD S FOR THE SPLITS");
+  } else if (!hintsShown.dive && Math.abs(s.tx - W / 2) > 200) {
+    hintsShown.dive = true; showHint("THAT'S A CORNER — SPACE TO DIVE");
+  }
+}
+
 /* ═════════ resolving ═════════ */
 function multiplier() { return Math.min(4, 1 + Math.floor(G.combo / 4) * .5); }
+
+function slowmo(strength) {
+  if (reducedMotion) return;
+  slowLeft = 420; timeScale = strength;
+}
 
 function resolve(s) {
   const br = s.br;
@@ -595,14 +757,15 @@ function resolve(s) {
      Math.abs(s.bx - (GOAL.x + GOAL.w - GOAL.post / 2)) < GOAL.post + br ||
      Math.abs(s.by - (GOAL.y + GOAL.post / 2)) < GOAL.post + br);
 
-  if (depth < 1) return onSave(s, depth);
+  if (depth < 1) { G.stats.faced++; return onSave(s, depth); }
   if (wood) {
+    G.stats.faced++; G.stats.woodwork++;
     pops.push({ text: "OFF THE POST", x: s.bx, y: s.by, color: "#ffd23f", size: 26, life: 1 });
     burst(s.bx, s.by, 14, ["#ffd23f", "#fff"]);
     shake = Math.max(shake, 9); sfx.post();
     return;
   }
-  if (insideX && insideY) return onConcede(s);
+  if (insideX && insideY) { G.stats.faced++; return onConcede(s); }
   pops.push({ text: "WIDE", x: s.bx, y: s.by, color: "rgba(255,255,255,.8)", size: 22, life: 1 });
   sfx.wide();
 }
@@ -611,36 +774,51 @@ function onSave(s, depth) {
   G.saves++; G.combo++;
   G.bestStreak = Math.max(G.bestStreak, G.combo);
 
-  const clean = depth < .58;
+  const clean = depth < CATCH_ZONE;
   const diving = keeper.diving && !keeper.getup;
+  const leaping = keeper.airborne;
   const split = keeper.spread > .5;
-  let pts = s.kind === "rocket" ? 180 : s.kind === "curl" ? 140 : s.kind === "chip" ? 90 : 120;
+  const whisker = depth > .88;
+
+  let pts = s.kind === "rocket" ? 180 : s.kind === "curl" ? 140 : s.kind === "chip" ? 90 :
+            s.kind === "rebound" ? 160 : 120;
   if (clean) pts += 40;
   if (diving) pts = Math.round(pts * 1.7);
+  else if (leaping) pts = Math.round(pts * 1.45);
   else if (split) pts = Math.round(pts * 1.3);
   pts = Math.round(pts * multiplier());
   G.score += pts;
 
+  if (clean) { G.stats.catches++; refund(CATCH_REFUND); }
+  else { G.stats.parries++; refund(PARRY_REFUND); }
+  if (diving) G.stats.dives++;
+  if (leaping) G.stats.leaps++;
+  if (split) G.stats.splits++;
+
   const text = diving ? (clean ? "WHAT A SAVE!" : "FLYING SAVE!")
-             : split ? "BIG SPREAD!"
+             : leaping ? (clean ? "UP AND CLAIMS IT!" : "TIPPED OVER!")
+             : split ? (clean ? "BIG SPREAD!" : "STRONG LEG!")
              : clean ? "CAUGHT IT!" : "SAVED!";
   pops.push({ text, x: s.bx, y: s.by - 14, color: "#3ddc84", size: diving ? 32 : 26, life: 1 });
   pops.push({ text: "+" + pts, x: s.bx, y: s.by + 16, color: "#ffffff", size: 18, life: 1 });
   burst(s.bx, s.by, clean ? 14 : 22, ["#ffffff", "#3ddc84", "#d9fbe6"]);
   keeper.reachPulse = 1;
   shake = Math.max(shake, diving ? 7 : 3.5);
-  clean ? sfx.catchIt(G.combo) : sfx.parry();
 
-  if (!clean) {
+  if (diving || leaping || whisker) slowmo((diving || leaping) && whisker ? .28 : .42);
+  if (clean) { keeper.holding = 620; sfx.catchIt(G.combo); }
+  else {
+    sfx.parry();
     for (let i = 0; i < 8; i++) {
       particles.push({ x: s.bx, y: s.by, vx: rnd(-5, 5), vy: rnd(-4, 1), life: .7, size: rnd(2, 3.5), color: "#fff" });
     }
+    if (!s.rebound && Math.random() < reboundChance()) spawnRebound(s);
   }
   updateHUD();
 }
 
 function onConcede(s) {
-  G.lives--; G.combo = 0;
+  G.lives--; G.combo = 0; G.stats.conceded++;
   hurt = 1; shake = Math.max(shake, 13);
   netHits.push({ x: s.bx, y: s.by, life: 1 });
   pops.push({ text: "GOAL", x: s.bx, y: s.by, color: "#ff5a5f", size: 40, life: 1 });
@@ -677,40 +855,58 @@ function updateEffects(dt) {
     if (netHits[i].life <= 0) netHits.splice(i, 1);
   }
   shake *= Math.pow(.003, dt / 1000);
+  if (reducedMotion) shake = 0;
   hurt = Math.max(0, hurt - dt / 520);
   if (roundBanner) { roundBanner.life -= dt / 1700; if (roundBanner.life <= 0) roundBanner = null; }
+  if (hintBanner) { hintBanner.life -= dt / 2600; if (hintBanner.life <= 0) hintBanner = null; }
+
+  const wantTheme = clamp(G.round / 2.2, 0, 2);
+  themeNow += (wantTheme - themeNow) * (1 - Math.exp(-dt / 900));
 }
 
 /* ═════════ drawing ═════════ */
+let TH = currentTheme();
+
 function drawStadium() {
   const sky = ctx.createLinearGradient(0, 0, 0, 150);
-  sky.addColorStop(0, "#4e9cc4"); sky.addColorStop(1, "#9fd9ea");
+  sky.addColorStop(0, rgb(TH.skyTop)); sky.addColorStop(1, rgb(TH.skyBot));
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, 150);
 
   if (!crowdSeed.length) {
     for (let i = 0; i < 460; i++) crowdSeed.push({
       x: Math.random() * W, y: 4 + Math.random() * 44,
-      c: `hsl(${Math.random() * 360},${20 + Math.random() * 40}%,${32 + Math.random() * 32}%)`,
+      h: Math.random() * 360, s: 20 + Math.random() * 40, l: 32 + Math.random() * 32,
       ph: Math.random() * 6.28
     });
   }
-  ctx.fillStyle = "#12271a"; ctx.fillRect(0, 0, W, 58);
+  ctx.fillStyle = rgb(mix([18, 39, 26], [8, 14, 22], clamp(themeNow / 2, 0, 1)));
+  ctx.fillRect(0, 0, W, 58);
   const t = performance.now() / 650;
   for (const p of crowdSeed) {
-    ctx.fillStyle = p.c;
+    ctx.fillStyle = `hsl(${p.h},${p.s}%,${p.l * TH.crowd}%)`;
     ctx.fillRect(p.x, p.y + Math.sin(t + p.ph) * 1.3, 3.4, 4.4);
   }
   const fade = ctx.createLinearGradient(0, 36, 0, 66);
-  fade.addColorStop(0, "rgba(18,39,26,0)"); fade.addColorStop(1, "rgba(18,39,26,.95)");
+  fade.addColorStop(0, "rgba(10,20,14,0)"); fade.addColorStop(1, "rgba(10,20,14,.95)");
   ctx.fillStyle = fade; ctx.fillRect(0, 36, W, 30);
   ctx.fillStyle = "#0d1c24"; ctx.fillRect(0, 50, W, 16);
-  ctx.fillStyle = "rgba(255,255,255,.07)";
+  ctx.fillStyle = `rgba(255,255,255,${.07 + TH.lights * .1})`;
   for (let x = 0; x < W; x += 92) ctx.fillRect(x + 6, 54, 62, 8);
+
+  if (TH.lights > .02) {
+    for (const lx of [110, 330, 470, 690]) {
+      const g = ctx.createRadialGradient(lx, 30, 4, lx, 30, 46);
+      g.addColorStop(0, `rgba(255,245,210,${TH.lights * .85})`);
+      g.addColorStop(1, "rgba(255,245,210,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(lx, 30, 46, 0, 6.283); ctx.fill();
+    }
+  }
 }
 
 function drawPitch() {
   const g = ctx.createLinearGradient(0, 56, 0, H);
-  g.addColorStop(0, "#2e7c36"); g.addColorStop(1, "#54bd5d");
+  g.addColorStop(0, rgb(TH.grassTop)); g.addColorStop(1, rgb(TH.grassBot));
   ctx.fillStyle = g; ctx.fillRect(0, 56, W, H - 56);
 
   for (let i = 0; i < 10; i += 2) {
@@ -719,7 +915,17 @@ function drawPitch() {
     ctx.fillRect(0, y0, W, y1 - y0);
   }
 
-  ctx.strokeStyle = "rgba(255,255,255,.4)"; ctx.lineWidth = 2.5;
+  if (TH.lights > .02) {
+    for (const lx of [150, 400, 650]) {
+      const g2 = ctx.createRadialGradient(lx, 300, 20, lx, 320, 300);
+      g2.addColorStop(0, `rgba(255,248,214,${TH.lights * .16})`);
+      g2.addColorStop(1, "rgba(255,248,214,0)");
+      ctx.fillStyle = g2;
+      ctx.beginPath(); ctx.ellipse(lx, 330, 300, 190, 0, 0, 6.283); ctx.fill();
+    }
+  }
+
+  ctx.strokeStyle = `rgba(255,255,255,${.4 + TH.lights * .18})`; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.moveTo(0, LINE_Y); ctx.lineTo(W, LINE_Y); ctx.stroke();
   ctx.beginPath();
   ctx.moveTo(GOAL.x - 44, LINE_Y); ctx.lineTo(GOAL.x - 84, LINE_Y + 66);
@@ -739,7 +945,7 @@ function drawNet() {
   ctx.beginPath();
   ctx.rect(GOAL.x + GOAL.post, GOAL.y + GOAL.post, GOAL.w - GOAL.post * 2, GOAL.h - GOAL.post);
   ctx.clip();
-  ctx.fillStyle = "rgba(10,28,16,.3)";
+  ctx.fillStyle = `rgba(10,28,16,${.3 + TH.amb * .5})`;
   ctx.fillRect(GOAL.x, GOAL.y, GOAL.w, GOAL.h);
   const bulge = (x, y) => {
     let ox = x, oy = y;
@@ -751,7 +957,7 @@ function drawNet() {
     }
     return [ox, oy];
   };
-  ctx.strokeStyle = "rgba(255,255,255,.3)"; ctx.lineWidth = 1;
+  ctx.strokeStyle = `rgba(255,255,255,${.3 + TH.lights * .12})`; ctx.lineWidth = 1;
   for (let x = GOAL.x + GOAL.post; x <= GOAL.x + GOAL.w - GOAL.post; x += 17) {
     ctx.beginPath();
     for (let y = GOAL.y; y <= LINE_Y; y += 9) {
@@ -772,16 +978,18 @@ function drawNet() {
 }
 
 function drawGoalFrame() {
+  const danger = G.lives === 1 && G.phase === "play" ? .5 + .5 * Math.sin(performance.now() / 250) : 0;
   ctx.save();
   ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = danger ? `rgb(255,${190 - danger * 90},${190 - danger * 90})` : "#ffffff";
   ctx.fillRect(GOAL.x, GOAL.y, GOAL.post, GOAL.h);
   ctx.fillRect(GOAL.x + GOAL.w - GOAL.post, GOAL.y, GOAL.post, GOAL.h);
   ctx.fillRect(GOAL.x, GOAL.y, GOAL.w, GOAL.post);
   ctx.restore();
 }
 
-/* the reach glow — your hitbox, made visible */
+/* the reach glow — your hitbox, made visible.
+   Inner ring is the catch zone: ball in there and you hold it. */
 function drawReach() {
   const o = reachOval();
   let near = 0;
@@ -790,7 +998,9 @@ function drawReach() {
     near = Math.max(near, clamp(2.4 - ovalDepth(s.bx, s.by, s.br), 0, 1));
   }
   const heat = Math.max(near, keeper.reachPulse);
-  const tint = keeper.spread > .4 ? "255,210,63" : "226,255,235";
+  const tint = keeper.spread > .4 ? "255,210,63"
+             : keeper.reachUp > .4 ? "180,232,255"
+             : "226,255,235";
 
   ctx.save();
   ctx.translate(o.cx, o.cy); ctx.rotate(o.rot); ctx.scale(o.rx, o.ry);
@@ -804,6 +1014,13 @@ function drawReach() {
 
   ctx.save();
   ctx.translate(o.cx, o.cy); ctx.rotate(o.rot);
+
+  ctx.strokeStyle = `rgba(${tint},${.1 + heat * .22})`;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, o.rx * CATCH_ZONE, o.ry * CATCH_ZONE, 0, 0, 6.283);
+  ctx.stroke();
+
   ctx.strokeStyle = keeper.reachPulse > 0
     ? `rgba(61,220,132,${.35 + keeper.reachPulse * .6})`
     : `rgba(${tint},${.18 + heat * .34})`;
@@ -828,32 +1045,40 @@ function blob(x1, y1, x2, y2, w, color) {
 
 function drawKeeper() {
   const sp = keeper.spread;
+  const up = keeper.reachUp;
   const stretch = keeper.diving ? clamp(keeper.diveT / 200, 0, 1) * (keeper.getup ? .3 : 1) : 0;
-  const air = clamp((STAND_Y - keeper.y) / 90, 0, 1);
+  const hold = clamp(keeper.holding / 620, 0, 1);
+  const sq = reducedMotion ? 0 : keeper.squash;
+  const air = clamp((STAND_Y - keeper.y) / 135, 0, 1);
 
-  ctx.fillStyle = `rgba(0,0,0,${.3 - air * .16})`;
+  ctx.fillStyle = `rgba(0,0,0,${(.3 + TH.lights * .12) - air * .18})`;
   ctx.beginPath();
-  ctx.ellipse(keeper.x, LINE_Y + 5, L(28, 52, sp) - air * 9, 7 - air * 2.4, 0, 0, 6.283);
+  ctx.ellipse(keeper.x, LINE_Y + 5, L(28, 52, sp) - air * 11, 7 - air * 3, 0, 0, 6.283);
   ctx.fill();
 
   ctx.save();
   ctx.translate(keeper.x, keeper.y);
   ctx.rotate(keeper.tilt);
-  ctx.translate(0, sp * 16);                    // he sinks as he goes down into it
+  ctx.translate(0, sp * 16);
+  // landing squash, anchored at the feet so he compresses into the turf
+  if (sq > .01) { ctx.translate(0, 43); ctx.scale(1 + sq * .13, 1 - sq * .17); ctx.translate(0, -43); }
 
-  const sway = (keeper.diving || sp > .3) ? 0 : Math.sin(keeper.step) * 6;
+  const sway = (keeper.diving || sp > .3 || up > .3) ? 0 : Math.sin(keeper.step) * 6;
+  const lead = clamp(keeper.vx / MOVE_SPEED, -1, 1) * up * 7;
 
-  // ── legs: together when standing, flung wide in the splits
-  const kneeX = L(10, 42, sp), kneeY = L(20, 14, sp);
-  const footX = L(12, 70, sp), footY = L(40, 20, sp);
-  blob(-5, 0, -kneeX - sway * .4, kneeY, L(17, 14, sp), KIT.shorts);
-  blob(5, 0, kneeX + sway * .4, kneeY, L(17, 14, sp), KIT.shorts);
-  blob(-kneeX - sway * .4, kneeY, -footX - sway, footY, 11, KIT.skin);
-  blob(kneeX + sway * .4, kneeY, footX + sway, footY, 11, KIT.skin);
-  blob(-footX - sway, footY, -footX - sway - 8, footY + L(2, -3, sp), 8, KIT.boot);
-  blob(footX + sway, footY, footX + sway + 8, footY + L(2, -3, sp), 8, KIT.boot);
+  /* ── legs: together standing, flung wide in the splits, tucked in the air ── */
+  const kneeX = L(10, 42, sp) - up * 2;
+  const kneeY = L(20, 14, sp) - up * 7;
+  const footX = L(12, 70, sp) - up * 4;
+  const footY = L(40, 20, sp) - up * 14;
+  blob(-5, 0, -kneeX - sway * .4, kneeY + lead, L(17, 14, sp), KIT.shorts);
+  blob(5, 0, kneeX + sway * .4, kneeY - lead, L(17, 14, sp), KIT.shorts);
+  blob(-kneeX - sway * .4, kneeY + lead, -footX - sway, footY + lead * 1.6, 11, KIT.skin);
+  blob(kneeX + sway * .4, kneeY - lead, footX + sway, footY - lead * 1.6, 11, KIT.skin);
+  blob(-footX - sway, footY + lead * 1.6, -footX - sway - 8, footY + lead * 1.6 + L(2, -3, sp), 8, KIT.boot);
+  blob(footX + sway, footY - lead * 1.6, footX + sway + 8, footY - lead * 1.6 + L(2, -3, sp), 8, KIT.boot);
 
-  // ── torso, squashed a little in the splits
+  /* ── torso ── */
   const th = L(52, 40, sp), tw = L(18, 19, sp);
   ctx.fillStyle = KIT.shirt;
   ctx.beginPath(); ctx.roundRect(-tw, -th + 4, tw * 2, th, [14, 14, 7, 7]); ctx.fill();
@@ -863,18 +1088,23 @@ function drawKeeper() {
   ctx.font = "bold 15px Inter, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.fillText("1", 0, L(-31, -24, sp));
 
-  // ── arms: at your side standing, straight up diving, straight out in the splits
-  const gxStand = L(30, 74, sp), gyStand = L(-14, -6, sp);
-  const exStand = L(25, 50, sp), eyStand = L(-32, -16, sp);
-  const gx = L(gxStand, 6, stretch), gy = L(gyStand, -78, stretch);
-  const ex = L(exStand, 5, stretch), ey = L(eyStand, -52, stretch);
+  /* ── arms: at your side → out wide in the splits → up in a leap →
+        fully overhead diving → tucked in when you've claimed it ── */
+  let gx = L(30, 74, sp), gy = L(-14, -6, sp);
+  let ex = L(25, 50, sp), ey = L(-32, -16, sp);
+  gx = L(gx, 17, up);      gy = L(gy, -66, up);
+  ex = L(ex, 15, up);      ey = L(ey, -44, up);
+  gx = L(gx, 6, stretch);  gy = L(gy, -78, stretch);
+  ex = L(ex, 5, stretch);  ey = L(ey, -52, stretch);
+  gx = L(gx, 13, hold);    gy = L(gy, -34, hold);
+  ex = L(ex, 20, hold);    ey = L(ey, -30, hold);
   const shy = L(-38, -28, sp);
   blob(-13, shy, -ex, ey, 12, KIT.shirt);
   blob(13, shy, ex, ey, 12, KIT.shirt);
   blob(-ex, ey, -gx, gy, 10, KIT.skin);
   blob(ex, ey, gx, gy, 10, KIT.skin);
 
-  // ── head
+  /* ── head ── */
   const hy = L(-60, -48, sp);
   ctx.fillStyle = KIT.skin;
   ctx.beginPath(); ctx.arc(0, hy, 12, 0, 6.283); ctx.fill();
@@ -883,14 +1113,18 @@ function drawKeeper() {
   ctx.fillStyle = "#26303f";
   ctx.beginPath(); ctx.arc(-4.5, hy + 1, 1.8, 0, 6.283); ctx.arc(4.5, hy + 1, 1.8, 0, 6.283); ctx.fill();
 
-  // ── gloves
+  if (hold > .02) {
+    ctx.globalAlpha = Math.min(1, hold * 2);
+    drawBallAt(0, -34, 12, performance.now() / 300);
+    ctx.globalAlpha = 1;
+  }
+
   ctx.fillStyle = KIT.glove; ctx.strokeStyle = KIT.gloveEdge; ctx.lineWidth = 2;
   for (const g of [-gx, gx]) {
-    ctx.beginPath(); ctx.arc(g, gy, 12 + stretch * 2, 0, 6.283); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(g, gy, 12 + stretch * 2 + up * 1.5, 0, 6.283); ctx.fill(); ctx.stroke();
   }
   ctx.restore();
 
-  // recovery bar while you're on the floor
   if (keeper.diving && (keeper.grounded || keeper.getup)) {
     const done = keeper.grounded
       ? keeper.groundT / (GROUND_MS + GETUP_MS)
@@ -899,7 +1133,6 @@ function drawKeeper() {
     ctx.fillRect(keeper.x - 22, LINE_Y + 16, 44 * clamp(1 - done, 0, 1), 3.5);
   }
 
-  // stamina under his feet, so you never have to look up at the HUD
   if (keeper.stamina < STAM_MAX - .5 || keeper.denied > 0) {
     const f = keeper.stamina / STAM_MAX;
     ctx.fillStyle = "rgba(0,0,0,.35)";
@@ -918,9 +1151,11 @@ function drawStriker(s) {
   const p = clamp(s.t / s.runup, 0, 1);
   const kick = Math.max(0, (p - .78) / .22);
   const run = Math.min(1, p / .82);
-  const x = s.sx - s.runFrom * 74 * (1 - run);
+  const x = s.sx - s.runFrom * (s.rebound ? 40 : 74) * (1 - run);
   const y = s.sy - 6 * run;
   const bob = Math.sin(p * 24) * (1 - run) * 4;
+  const kitBody = s.rebound ? "#d0342f" : "#2f5bd0";
+  const kitLeg = s.rebound ? "#8f1f1c" : "#23407f";
 
   ctx.fillStyle = "rgba(0,0,0,.24)";
   ctx.beginPath(); ctx.ellipse(x, y + 34, 22, 6, 0, 0, 6.283); ctx.fill();
@@ -929,9 +1164,9 @@ function drawStriker(s) {
   ctx.translate(x, y + bob);
   ctx.rotate(s.runFrom * kick * .38);
   const swing = kick > 0 ? kick * 1.5 : Math.sin(p * 24) * .8 * (1 - run);
-  blob(0, 6, -s.runFrom * 22 * swing, 30, 13, "#23407f");
-  blob(0, 6, s.runFrom * 10, 32, 13, "#23407f");
-  ctx.fillStyle = "#2f5bd0";
+  blob(0, 6, -s.runFrom * 22 * swing, 30, 13, kitLeg);
+  blob(0, 6, s.runFrom * 10, 32, 13, kitLeg);
+  ctx.fillStyle = kitBody;
   ctx.beginPath(); ctx.roundRect(-16, -34, 32, 46, [13, 13, 6, 6]); ctx.fill();
   ctx.fillStyle = "#c98f63";
   ctx.beginPath(); ctx.arc(0, -46, 11, 0, 6.283); ctx.fill();
@@ -962,15 +1197,52 @@ function drawBallAt(x, y, r, spin) {
 }
 
 function drawFlyingBall(s) {
-  ctx.fillStyle = "rgba(0,0,0,.2)";
+  ctx.fillStyle = `rgba(0,0,0,${.2 + TH.lights * .1})`;
   ctx.beginPath();
   ctx.ellipse(s.bx, s.shadowY, s.br * 1.15, s.br * .35, 0, 0, 6.283);
   ctx.fill();
-  const streak = s.kind === "rocket" ? "rgba(255,170,60," : s.kind === "curl" ? "rgba(120,200,255," : "rgba(255,255,255,";
-  for (let i = 0; i < s.trail.length; i++) {
-    const p = s.trail[i], a = i / s.trail.length;
-    ctx.fillStyle = streak + (a * .3) + ")";
-    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (.4 + a * .55), 0, 6.283); ctx.fill();
+
+  // Tether from ball to shadow. The longer it is, the higher the shot —
+  // the clearest possible "this one needs a jump".
+  const gap = s.shadowY - s.by;
+  if (gap > 30) {
+    ctx.strokeStyle = `rgba(255,255,255,${clamp(gap / 210, 0, 1) * .32})`;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(s.bx, s.by + s.br); ctx.lineTo(s.bx, s.shadowY); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  const col = s.kind === "rocket" ? "255,170,60"
+            : s.kind === "curl" ? "120,200,255"
+            : s.kind === "rebound" ? "255,120,120"
+            : "255,255,255";
+
+  if (s.kind === "rocket") {
+    for (let i = 0; i < s.trail.length; i++) {
+      const p = s.trail[i], a = i / s.trail.length;
+      ctx.fillStyle = `rgba(${col},${a * .38})`;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (.2 + a * .8), 0, 6.283); ctx.fill();
+    }
+  } else if (s.kind === "chip") {
+    for (let i = 0; i < s.trail.length; i += 3) {
+      const p = s.trail[i], a = i / s.trail.length;
+      ctx.fillStyle = `rgba(${col},${a * .3})`;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * .45, 0, 6.283); ctx.fill();
+    }
+  } else if (s.kind === "curl") {
+    for (let i = 0; i < s.trail.length; i++) {
+      const p = s.trail[i], a = i / s.trail.length;
+      const off = Math.sin(i * .9 + s.spin) * p.r * .8 * (1 - a);
+      ctx.fillStyle = `rgba(${col},${a * .32})`;
+      ctx.beginPath(); ctx.arc(p.x + off, p.y, p.r * (.35 + a * .5), 0, 6.283); ctx.fill();
+    }
+  } else {
+    for (let i = 0; i < s.trail.length; i++) {
+      const p = s.trail[i], a = i / s.trail.length;
+      ctx.fillStyle = `rgba(${col},${a * .3})`;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (.4 + a * .55), 0, 6.283); ctx.fill();
+    }
   }
   drawBallAt(s.bx, s.by, s.br, s.spin + performance.now() / 90);
 }
@@ -1022,6 +1294,16 @@ function drawOverlayText() {
     ctx.fillText(roundBanner.note, W / 2, GOAL.y + 6);
     ctx.shadowBlur = 0; ctx.globalAlpha = 1;
   }
+  if (hintBanner) {
+    ctx.globalAlpha = Math.min(1, hintBanner.life * 2.2);
+    ctx.fillStyle = "rgba(0,0,0,.5)";
+    ctx.font = "600 13px Inter, sans-serif";
+    const w = ctx.measureText(hintBanner.text).width + 28;
+    ctx.beginPath(); ctx.roundRect(W / 2 - w / 2, H - 52, w, 26, 13); ctx.fill();
+    ctx.fillStyle = "#ffd23f";
+    ctx.fillText(hintBanner.text, W / 2, H - 34);
+    ctx.globalAlpha = 1;
+  }
 }
 
 /* ═════════ loop ═════════ */
@@ -1029,30 +1311,38 @@ let last = performance.now();
 
 function frame(now) {
   requestAnimationFrame(frame);
-  let dt = now - last; last = now;
-  if (dt > 90) dt = 90;
+  let real = now - last; last = now;
+  if (real > 90) real = 90;
+
+  if (slowLeft > 0) {
+    slowLeft -= real;
+    timeScale = L(timeScale, 1, 1 - Math.exp(-real / 260));
+    if (slowLeft <= 0) timeScale = 1;
+  } else timeScale = 1;
+
+  const dt = real * timeScale;
 
   if (!G.paused) {
     if (G.phase === "count") {
       const before = Math.floor(G.countT / 700);
-      G.countT += dt;
-      if (Math.floor(G.countT / 700) !== before && Math.floor(G.countT / 700) <= 3) {
-        sfx.tick(3 - Math.floor(G.countT / 700));
-      }
+      G.countT += real;
+      const after = Math.floor(G.countT / 700);
+      if (after !== before && after <= 3) sfx.tick(3 - after);
       updateKeeper(dt); updateStamina(dt);
-      if (G.countT >= 2800) { G.phase = "play"; G.nextShot = 260; }
+      if (G.countT >= 2800) { G.phase = "play"; G.nextShot = 320; }
     } else if (G.phase === "play") {
       G.elapsed += dt;
       const r = roundNo();
       if (r !== G.round) {
         G.round = r;
         roundBanner = { n: r + 1, life: 1, note: roundNote(r) };
+        G.nextShot = Math.max(G.nextShot, BREATHER_MS);
         sfx.round(); updateHUD();
       }
       G.nextShot -= dt;
       if (G.nextShot <= 0) { spawnShot(); G.nextShot = shotGap(); }
       updateKeeper(dt); updateStamina(dt); updateShots(dt);
-      updateHUD();
+      updateStaminaBar();
     } else if (G.phase === "over") {
       updateKeeper(dt); updateStamina(dt);
     }
@@ -1065,11 +1355,13 @@ function roundNote(r) {
   if (r === 1) return "Curlers and chips now";
   if (r === 2) return "They're speeding up";
   if (r === 3) return "Rockets incoming";
+  if (r === 4) return "Floodlights on";
   if (r === 5) return "Good luck";
   return "Faster";
 }
 
 function render() {
+  TH = currentTheme();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
   if (shake > .4) ctx.translate(rnd(-shake, shake), rnd(-shake, shake));
@@ -1085,14 +1377,29 @@ function render() {
   drawEffects();
   drawOverlayText();
 
-  if (hurt > 0) {
+  if (TH.amb > .01) {
+    ctx.fillStyle = `rgba(6,12,28,${TH.amb})`;
+    ctx.fillRect(-30, -30, W + 60, H + 60);
+  }
+  if (hurt > 0 && !reducedMotion) {
     ctx.fillStyle = `rgba(255,90,95,${hurt * .24})`;
+    ctx.fillRect(-30, -30, W + 60, H + 60);
+  }
+  if (timeScale < .95) {
+    ctx.fillStyle = `rgba(180,220,255,${(1 - timeScale) * .07})`;
     ctx.fillRect(-30, -30, W + 60, H + 60);
   }
 }
 
-/* ═════════ flow ═════════ */
+/* ═════════ HUD ═════════ */
 const stamFill = document.getElementById("stam-fill");
+
+function updateStaminaBar() {
+  const f = keeper.stamina / STAM_MAX;
+  stamFill.style.transform = `scaleX(${f})`;
+  stamFill.classList.toggle("low", !keeper.exhausted && f < .35);
+  stamFill.classList.toggle("spent", keeper.exhausted);
+}
 
 function updateHUD() {
   document.querySelector("#saves b").textContent = G.saves;
@@ -1105,47 +1412,76 @@ function updateHUD() {
   m.classList.toggle("on", mult > 1);
   document.querySelectorAll("#lives .ball-pip")
     .forEach((p, i) => p.classList.toggle("gone", i >= G.lives));
-
-  const f = keeper.stamina / STAM_MAX;
-  stamFill.style.transform = `scaleX(${f})`;
-  stamFill.classList.toggle("low", !keeper.exhausted && f < .35);
-  stamFill.classList.toggle("spent", keeper.exhausted);
+  updateStaminaBar();
 }
 
+/* ═════════ flow ═════════ */
 function startGame() {
   ac();
   G.phase = "count"; G.countT = 0; G.elapsed = 0; G.nextShot = 0;
   G.saves = 0; G.score = 0; G.combo = 0; G.bestStreak = 0;
   G.lives = 3; G.round = 0; G.paused = false;
+  G.stats = { faced: 0, catches: 0, parries: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0 };
   shots = []; particles = []; pops = []; netHits = [];
-  shake = 0; hurt = 0; roundBanner = null;
+  shake = 0; hurt = 0; roundBanner = null; hintBanner = null;
+  slowLeft = 0; timeScale = 1; themeNow = 0;
   keeper.x = W / 2; keeper.y = STAND_Y;
-  keeper.vx = keeper.vy = 0; keeper.tilt = 0; keeper.spread = 0;
+  keeper.vx = keeper.vy = 0; keeper.tilt = 0; keeper.spread = 0; keeper.holding = 0;
+  keeper.airborne = false; keeper.airT = 0; keeper.reachUp = 0;
+  keeper.jumpBuffer = 0; keeper.landLock = 0; keeper.squash = 0;
   keeper.stamina = STAM_MAX; keeper.exhausted = false; keeper.lastUse = 9999;
   keeper.diving = false; keeper.grounded = false; keeper.getup = false;
   document.getElementById("start-screen").classList.add("hidden");
   document.getElementById("over-screen").classList.add("hidden");
   document.getElementById("pause-screen").classList.add("hidden");
   updateHUD();
-  CV.focus();
 }
 
 function gameOver() {
   G.phase = "over";
-  G.best = Math.max(G.best, G.score);
+  if (G.score > G.best) {
+    G.best = G.score;
+    try { localStorage.setItem("shotstopper-best", String(G.best)); } catch (e) { /* preview sandbox */ }
+  }
   shots = [];
   sfx.whistle();
+  const st = G.stats;
+  const pct = st.faced ? Math.round(G.saves / st.faced * 100) : 0;
+
   document.getElementById("f-saves").textContent = G.saves;
   document.getElementById("f-score").textContent = G.score.toLocaleString();
   document.getElementById("f-streak").textContent = G.bestStreak;
+  document.getElementById("breakdown").innerHTML = `
+    <div><span>Save rate</span><b>${pct}%</b></div>
+    <div><span>Rounds reached</span><b>${G.round + 1}</b></div>
+    <div><span>Caught clean</span><b>${st.catches}</b></div>
+    <div><span>Parried out</span><b>${st.parries}</b></div>
+    <div><span>Leaping saves</span><b>${st.leaps}</b></div>
+    <div><span>Diving saves</span><b>${st.dives}</b></div>
+    <div><span>From the splits</span><b>${st.splits}</b></div>
+    <div><span>Off the woodwork</span><b>${st.woodwork}</b></div>`;
   document.getElementById("over-title").textContent =
     G.saves >= 40 ? "UNBEATABLE" : G.saves >= 24 ? "CLEAN HANDS" : G.saves >= 12 ? "FULL TIME" : "LONG NIGHT";
-  document.getElementById("verdict").textContent =
-    G.saves >= 40 ? "They ran out of ideas before you ran out of hands." :
-    G.saves >= 24 ? "Proper shift between the sticks." :
-    G.saves >= 12 ? "Solid. Save the splits for the low ones and you'll go further." :
-    G.saves >= 5  ? "Getting there. Don't sit in the splits — you can't reach anything high." :
-                    "Tip: stay on your feet by default. Splits for low shots, dive for corners.";
+
+  let line;
+  if (st.leaps === 0 && st.faced > 8) {
+    line = "You never left the ground. Hold W and the top of the goal opens up.";
+  } else if (st.parries > st.catches * 2 && st.faced > 6) {
+    line = "You're getting a hand to plenty but holding almost none. Catches stop the follow-up.";
+  } else if (st.dives === 0 && st.faced > 10) {
+    line = "The corners are free goals unless you dive at them.";
+  } else if (st.splits === 0 && st.faced > 10) {
+    line = "Try the splits on the low ones — that's most of what beat you.";
+  } else if (G.saves >= 40) {
+    line = "They ran out of ideas before you ran out of hands.";
+  } else if (G.saves >= 24) {
+    line = "Proper shift between the sticks.";
+  } else if (G.saves >= 12) {
+    line = "Solid. The multiplier is where the score really is — keep the streak alive.";
+  } else {
+    line = "Stand up by default. Jump for high, splits for low, dive for the corners.";
+  }
+  document.getElementById("verdict").textContent = line;
   document.getElementById("over-screen").classList.remove("hidden");
   updateHUD();
 }
@@ -1156,7 +1492,7 @@ function setPaused(v) {
   document.getElementById("pause-screen").classList.toggle("hidden", !v);
 }
 
-/* ═════════ input — keyboard first ═════════ */
+/* ═════════ input ═════════ */
 const KEYMAP = {
   "a": "a", "arrowleft": "a",
   "d": "d", "arrowright": "d",
@@ -1166,7 +1502,13 @@ const KEYMAP = {
 
 window.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if (KEYMAP[k]) { e.preventDefault(); keys.add(KEYMAP[k]); }
+  const mapped = KEYMAP[k];
+  if (mapped) {
+    e.preventDefault();
+    const wasDown = keys.has(mapped);          // ignore the OS key-repeat
+    keys.add(mapped);
+    if (mapped === "w" && !wasDown) requestJump();
+  }
   if (e.code === "Space") {
     e.preventDefault();
     if (G.phase === "menu" || G.phase === "over") startGame(); else launchDive();
@@ -1180,13 +1522,14 @@ window.addEventListener("keyup", e => {
 window.addEventListener("blur", () => { keys.clear(); setPaused(true); });
 document.addEventListener("visibilitychange", () => { if (document.hidden) { keys.clear(); setPaused(true); } });
 
-// touch pad for phones — same keys, different buttons
 for (const btn of document.querySelectorAll("#pad button")) {
   const k = btn.dataset.key;
   const press = e => {
     e.preventDefault();
-    if (k === " ") { if (G.phase === "menu" || G.phase === "over") startGame(); else launchDive(); }
-    else keys.add(k);
+    if (k === " ") { if (G.phase === "menu" || G.phase === "over") startGame(); else launchDive(); return; }
+    const wasDown = keys.has(k);
+    keys.add(k);
+    if (k === "w" && !wasDown) requestJump();
   };
   const release = e => { e.preventDefault(); if (k !== " ") keys.delete(k); };
   btn.addEventListener("pointerdown", press);
@@ -1202,6 +1545,11 @@ document.getElementById("mute-btn").addEventListener("click", e => {
   e.currentTarget.textContent = muted ? "Sound off" : "Sound on";
   e.currentTarget.blur();
 });
+document.getElementById("motion-btn").addEventListener("click", e => {
+  reducedMotion = !reducedMotion;
+  e.currentTarget.textContent = reducedMotion ? "Motion: reduced" : "Motion: full";
+  e.currentTarget.blur();
+});
 document.getElementById("difficulty").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   level = b.dataset.level;
@@ -1210,6 +1558,17 @@ document.getElementById("difficulty").addEventListener("click", e => {
   }
   b.blur();
 });
+
+if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  reducedMotion = true;
+  document.getElementById("motion-btn").textContent = "Motion: reduced";
+}
+
+// Best score survives a reload on a real server; the preview sandbox just skips it.
+try {
+  const saved = parseInt(localStorage.getItem("shotstopper-best") || "0", 10);
+  if (Number.isFinite(saved) && saved > 0) G.best = saved;
+} catch (e) { /* storage unavailable */ }
 
 updateHUD();
 requestAnimationFrame(frame);
