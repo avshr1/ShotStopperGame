@@ -317,7 +317,7 @@ const keeper = {
 };
 
 const keys = new Set();
-let shots = [], particles = [], pops = [], crowdSeed = [], netHits = [];
+let shots = [], particles = [], pops = [], crowdSeed = [], grassSeed = [], netHits = [];
 let lastArrival = null;                 // where the last on-target shot landed, and when
 let shake = 0, hurt = 0, banner = null, hintBanner = null;
 let timeScale = 1, slowLeft = 0;
@@ -956,6 +956,7 @@ function onSave(s, depth) {
   // The whole scoring system: one point on your feet, two if you earned it.
   const hard = diving || leaping || split;
   const pts = hard ? 2 : 1;
+  const prevScore = G.score;
   G.score += pts;
   if (hard) G.stats.hard++;
 
@@ -985,19 +986,21 @@ function onSave(s, depth) {
     if (!s.rebound && Math.random() < pace("spill", heat())) spawnRebound(s);
   }
 
-  checkMilestone();
+  checkMilestone(prevScore);
   updateHUD();
 }
 
 // Every 25 points gets a shout, and passing your own record gets a bigger one.
-function checkMilestone() {
+function checkMilestone(prevScore) {
   const step = Math.floor(G.score / 25);
   if (step > G.milestone) {
     G.milestone = step;
     banner = { title: G.score + " POINTS", sub: "", life: 1, color: "#3ddc84" };
     sfx.milestone();
   }
-  if (G.best > 0 && G.score === G.best + 1) {
+  // A hard save is worth 2, so a run can jump straight past best+1 —
+  // check for the crossing, not an exact landing value.
+  if (G.best > 0 && prevScore <= G.best && G.score > G.best) {
     banner = { title: "NEW BEST", sub: "everything from here is gravy", life: 1, color: "#ffd23f" };
     sfx.record();
     document.getElementById("best").classList.add("beaten");
@@ -1056,38 +1059,93 @@ function updateEffects(dt) {
 let TH = currentTheme();
 
 function drawStadium() {
+  // Sky first — kept genuinely visible now: a strip above the roofline and
+  // the gaps around the floodlight pylons, instead of being fully painted
+  // over by the stand and pitch. That's the only place the afternoon →
+  // dusk → floodlights colour shift can actually be seen.
   const sky = ctx.createLinearGradient(0, 0, 0, 150);
   sky.addColorStop(0, rgb(TH.skyTop)); sky.addColorStop(1, rgb(TH.skyBot));
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, 150);
 
-  if (!crowdSeed.length) {
-    for (let i = 0; i < 460; i++) crowdSeed.push({
-      x: Math.random() * W, y: 4 + Math.random() * 44,
-      h: Math.random() * 360, s: 20 + Math.random() * 40, l: 32 + Math.random() * 32,
-      ph: Math.random() * 6.28
-    });
+  if (TH.lights < .95) {
+    const sunA = (1 - TH.lights) * .55;
+    const sg = ctx.createRadialGradient(658, 9, 2, 658, 9, 90);
+    sg.addColorStop(0, `rgba(255,244,214,${sunA})`);
+    sg.addColorStop(1, "rgba(255,244,214,0)");
+    ctx.fillStyle = sg; ctx.fillRect(0, 0, W, 60);
   }
+  if (TH.lights < .75) {
+    const a = (1 - TH.lights) * .55;
+    ctx.fillStyle = `rgba(255,255,255,${a * .6})`;
+    const drift = performance.now() / 46000;
+    for (let i = 0; i < 3; i++) {
+      const x = (((drift + i * .38) % 1) * (W + 260)) - 130;
+      ctx.beginPath();
+      ctx.ellipse(x, 12, 40, 8, 0, 0, 6.283);
+      ctx.ellipse(x + 26, 9, 26, 7, 0, 0, 6.283);
+      ctx.ellipse(x - 24, 10, 24, 6, 0, 0, 6.283);
+      ctx.fill();
+    }
+  }
+
+  if (!crowdSeed.length) {
+    for (let i = 0; i < 620; i++) {
+      const tier = Math.random() < .42 ? 0 : 1;
+      crowdSeed.push({
+        x: Math.random() * W,
+        y: tier === 0 ? 18 + Math.random() * 12 : 30 + Math.random() * 16,
+        tier,
+        h: Math.random() * 360, s: 18 + Math.random() * 42, l: 30 + Math.random() * 34,
+        ph: Math.random() * 6.28
+      });
+    }
+  }
+
+  // Roof fascia with support struts, sitting under the open sky strip.
+  ctx.fillStyle = rgb(mix([16, 34, 24], [6, 11, 18], clamp(themeNow / 2, 0, 1)));
+  ctx.fillRect(0, 16, W, 3);
+  ctx.strokeStyle = "rgba(0,0,0,.3)"; ctx.lineWidth = 2;
+  for (let x = 40; x < W; x += 74) { ctx.beginPath(); ctx.moveTo(x, 16); ctx.lineTo(x, 19); ctx.stroke(); }
+
+  // Two tiers of stand, back row smaller and dimmer for depth.
   ctx.fillStyle = rgb(mix([18, 39, 26], [8, 14, 22], clamp(themeNow / 2, 0, 1)));
-  ctx.fillRect(0, 0, W, 58);
+  ctx.fillRect(0, 19, W, 30);
   const t = performance.now() / 650;
   for (const p of crowdSeed) {
+    const size = p.tier === 0 ? 2.6 : 3.8;
     ctx.fillStyle = `hsl(${p.h},${p.s}%,${p.l * TH.crowd}%)`;
-    ctx.fillRect(p.x, p.y + Math.sin(t + p.ph) * 1.3, 3.4, 4.4);
+    ctx.fillRect(p.x, p.y + Math.sin(t + p.ph) * (p.tier ? 1.6 : .9), size, size * 1.3);
   }
-  const fade = ctx.createLinearGradient(0, 36, 0, 66);
-  fade.addColorStop(0, "rgba(10,20,14,0)"); fade.addColorStop(1, "rgba(10,20,14,.95)");
-  ctx.fillStyle = fade; ctx.fillRect(0, 36, W, 30);
-  ctx.fillStyle = "#0d1c24"; ctx.fillRect(0, 50, W, 16);
-  ctx.fillStyle = `rgba(255,255,255,${.07 + TH.lights * .1})`;
-  for (let x = 0; x < W; x += 92) ctx.fillRect(x + 6, 54, 62, 8);
+  const fade = ctx.createLinearGradient(0, 40, 0, 58);
+  fade.addColorStop(0, "rgba(8,16,12,0)"); fade.addColorStop(1, "rgba(8,16,12,.97)");
+  ctx.fillStyle = fade; ctx.fillRect(0, 40, W, 18);
 
+  // Advertising hoarding along the front, lit brighter under the floodlights.
+  ctx.fillStyle = "#0c1a20"; ctx.fillRect(0, 46, W, 12);
+  const boardCols = ["#1c8f5e", "#c23b3b", "#1c6fb0", "#c99a1e", "#7a3fb0"];
+  ctx.globalAlpha = .5 + TH.lights * .4;
+  for (let x = 0, i = 0; x < W; x += 88, i++) {
+    ctx.fillStyle = boardCols[i % boardCols.length];
+    ctx.fillRect(x + 4, 48, 78, 8);
+  }
+  ctx.globalAlpha = 1;
+
+  // Floodlight pylons rise through the roofline into open sky, glowing
+  // harder as the match moves into the evening.
+  for (const lx of [72, 300, 500, 728]) {
+    ctx.fillStyle = "rgba(4,6,10,.92)";
+    ctx.fillRect(lx - 1.5, 0, 3, 18);
+    ctx.fillRect(lx - 12, 0, 24, 5);
+    ctx.fillStyle = `rgba(255,245,214,${.45 + TH.lights * .5})`;
+    for (let i = 0; i < 4; i++) ctx.fillRect(lx - 10 + i * 6, 1, 3, 3);
+  }
   if (TH.lights > .02) {
-    for (const lx of [110, 330, 470, 690]) {
-      const g = ctx.createRadialGradient(lx, 30, 4, lx, 30, 46);
-      g.addColorStop(0, `rgba(255,245,210,${TH.lights * .85})`);
+    for (const lx of [72, 300, 500, 728]) {
+      const g = ctx.createRadialGradient(lx, 8, 3, lx, 8, 50);
+      g.addColorStop(0, `rgba(255,245,210,${TH.lights * .9})`);
       g.addColorStop(1, "rgba(255,245,210,0)");
       ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(lx, 30, 46, 0, 6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(lx, 8, 50, 0, 6.283); ctx.fill();
     }
   }
 }
@@ -1101,6 +1159,17 @@ function drawPitch() {
     const y0 = 56 + (H - 56) * (i / 10), y1 = 56 + (H - 56) * ((i + 1) / 10);
     ctx.fillStyle = "rgba(255,255,255,.04)";
     ctx.fillRect(0, y0, W, y1 - y0);
+  }
+
+  if (!grassSeed.length) {
+    for (let i = 0; i < 260; i++) grassSeed.push({
+      x: Math.random() * W, y: 60 + Math.random() * (H - 66),
+      w: 1 + Math.random() * 2.2, dark: Math.random() < .55
+    });
+  }
+  for (const b of grassSeed) {
+    ctx.fillStyle = b.dark ? "rgba(0,22,4,.06)" : "rgba(255,255,255,.05)";
+    ctx.fillRect(b.x, b.y, b.w, b.w * 2.4);
   }
 
   if (TH.lights > .02) {
@@ -1126,6 +1195,9 @@ function drawPitch() {
   ctx.beginPath(); ctx.ellipse(W / 2, LINE_Y + 148, 104, 30, 0, 0, 6.283); ctx.stroke();
   ctx.fillStyle = "rgba(255,255,255,.8)";
   ctx.beginPath(); ctx.ellipse(W / 2, LINE_Y + 118, 5, 2.4, 0, 0, 6.283); ctx.fill();
+
+  ctx.beginPath(); ctx.arc(0, H, 24, -Math.PI / 2, 0); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W, H, 24, Math.PI, Math.PI * 1.5); ctx.stroke();
 }
 
 function drawNet() {
@@ -1169,10 +1241,27 @@ function drawGoalFrame() {
   const danger = G.lives === 1 && G.phase === "play" ? .5 + .5 * Math.sin(performance.now() / 250) : 0;
   ctx.save();
   ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
-  ctx.fillStyle = danger ? `rgb(255,${190 - danger * 90},${190 - danger * 90})` : "#ffffff";
-  ctx.fillRect(GOAL.x, GOAL.y, GOAL.post, GOAL.h);
-  ctx.fillRect(GOAL.x + GOAL.w - GOAL.post, GOAL.y, GOAL.post, GOAL.h);
-  ctx.fillRect(GOAL.x, GOAL.y, GOAL.w, GOAL.post);
+
+  let leftG, rightG, topG;
+  if (danger) {
+    leftG = rightG = topG = `rgb(255,${190 - danger * 90},${190 - danger * 90})`;
+  } else {
+    leftG = ctx.createLinearGradient(GOAL.x, 0, GOAL.x + GOAL.post, 0);
+    leftG.addColorStop(0, "#c9d2d9"); leftG.addColorStop(.4, "#ffffff"); leftG.addColorStop(1, "#a7b2bb");
+    rightG = ctx.createLinearGradient(GOAL.x + GOAL.w - GOAL.post, 0, GOAL.x + GOAL.w, 0);
+    rightG.addColorStop(0, "#a7b2bb"); rightG.addColorStop(.6, "#ffffff"); rightG.addColorStop(1, "#c9d2d9");
+    topG = ctx.createLinearGradient(0, GOAL.y, 0, GOAL.y + GOAL.post);
+    topG.addColorStop(0, "#ffffff"); topG.addColorStop(1, "#adb8c1");
+  }
+  ctx.fillStyle = leftG; ctx.fillRect(GOAL.x, GOAL.y, GOAL.post, GOAL.h);
+  ctx.fillStyle = rightG; ctx.fillRect(GOAL.x + GOAL.w - GOAL.post, GOAL.y, GOAL.post, GOAL.h);
+  ctx.fillStyle = topG; ctx.fillRect(GOAL.x, GOAL.y, GOAL.w, GOAL.post);
+
+  ctx.shadowColor = "transparent";
+  ctx.strokeStyle = "rgba(15,20,26,.4)"; ctx.lineWidth = 1;
+  ctx.strokeRect(GOAL.x + .5, GOAL.y + .5, GOAL.post - 1, GOAL.h - 1);
+  ctx.strokeRect(GOAL.x + GOAL.w - GOAL.post + .5, GOAL.y + .5, GOAL.post - 1, GOAL.h - 1);
+  ctx.strokeRect(GOAL.x + .5, GOAL.y + .5, GOAL.w - 1, GOAL.post - 1);
   ctx.restore();
 }
 
@@ -1224,6 +1313,8 @@ const KIT = {
 };
 
 function blob(x1, y1, x2, y2, w, color) {
+  ctx.strokeStyle = "rgba(0,0,0,.22)"; ctx.lineWidth = w + 2.2; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
   ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = "round";
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
 }
@@ -1262,8 +1353,11 @@ function drawKeeper() {
   blob(footX + sway, footY - lead * 1.6, footX + sway + 8, footY - lead * 1.6 + L(2, -3, sp), 8, KIT.boot);
 
   const th = L(52, 40, sp), tw = L(18, 19, sp);
-  ctx.fillStyle = KIT.shirt;
+  const torsoGrad = ctx.createLinearGradient(-tw, 0, tw, 0);
+  torsoGrad.addColorStop(0, "#ffd47d"); torsoGrad.addColorStop(.55, KIT.shirt); torsoGrad.addColorStop(1, KIT.shirtDark);
+  ctx.fillStyle = torsoGrad;
   ctx.beginPath(); ctx.roundRect(-tw, -th + 4, tw * 2, th, [14, 14, 7, 7]); ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,.2)"; ctx.lineWidth = 1.4; ctx.stroke();
   ctx.fillStyle = KIT.shirtDark;
   ctx.beginPath(); ctx.roundRect(-tw, -14, tw * 2, 8, 3); ctx.fill();
   ctx.fillStyle = "rgba(0,0,0,.2)";
@@ -1285,7 +1379,9 @@ function drawKeeper() {
   blob(ex, ey, gx, gy, 10, KIT.skin);
 
   const hy = L(-60, -48, sp);
-  ctx.fillStyle = KIT.skin;
+  const headGrad = ctx.createRadialGradient(-4, hy - 4, 1, 0, hy, 13);
+  headGrad.addColorStop(0, "#f4cd9e"); headGrad.addColorStop(1, KIT.skin);
+  ctx.fillStyle = headGrad;
   ctx.beginPath(); ctx.arc(0, hy, 12, 0, 6.283); ctx.fill();
   ctx.fillStyle = KIT.hair;
   ctx.beginPath(); ctx.arc(0, hy - 2, 12, Math.PI * 1.05, Math.PI * 1.95); ctx.fill();
@@ -1298,9 +1394,13 @@ function drawKeeper() {
     ctx.globalAlpha = 1;
   }
 
-  ctx.fillStyle = KIT.glove; ctx.strokeStyle = KIT.gloveEdge; ctx.lineWidth = 2;
+  ctx.strokeStyle = KIT.gloveEdge; ctx.lineWidth = 2;
   for (const g of [-gx, gx]) {
-    ctx.beginPath(); ctx.arc(g, gy, 12 + stretch * 2 + up * 1.5, 0, 6.283); ctx.fill(); ctx.stroke();
+    const gr = 12 + stretch * 2 + up * 1.5;
+    const gloveGrad = ctx.createRadialGradient(g - 3, gy - 3, .5, g, gy, gr);
+    gloveGrad.addColorStop(0, "#ffffff"); gloveGrad.addColorStop(1, KIT.glove);
+    ctx.fillStyle = gloveGrad;
+    ctx.beginPath(); ctx.arc(g, gy, gr, 0, 6.283); ctx.fill(); ctx.stroke();
   }
   ctx.restore();
 
@@ -1345,9 +1445,15 @@ function drawStriker(s) {
   const swing = kick > 0 ? kick * 1.5 : Math.sin(p * 24) * .8 * (1 - run);
   blob(0, 6, -s.runFrom * 22 * swing, 30, 13, kitLeg);
   blob(0, 6, s.runFrom * 10, 32, 13, kitLeg);
-  ctx.fillStyle = kitBody;
+  const stGrad = ctx.createLinearGradient(-16, 0, 16, 0);
+  stGrad.addColorStop(0, s.rebound ? "#ff8f78" : "#7fa0f2");
+  stGrad.addColorStop(.55, kitBody); stGrad.addColorStop(1, kitLeg);
+  ctx.fillStyle = stGrad;
   ctx.beginPath(); ctx.roundRect(-16, -34, 32, 46, [13, 13, 6, 6]); ctx.fill();
-  ctx.fillStyle = "#c98f63";
+  ctx.strokeStyle = "rgba(0,0,0,.2)"; ctx.lineWidth = 1.4; ctx.stroke();
+  const stHead = ctx.createRadialGradient(-3, -49, .5, 0, -46, 11);
+  stHead.addColorStop(0, "#e0a878"); stHead.addColorStop(1, "#c98f63");
+  ctx.fillStyle = stHead;
   ctx.beginPath(); ctx.arc(0, -46, 11, 0, 6.283); ctx.fill();
   ctx.fillStyle = "#1e1208";
   ctx.beginPath(); ctx.arc(0, -48, 11, Math.PI * 1.05, Math.PI * 1.95); ctx.fill();
@@ -1361,7 +1467,9 @@ function drawStriker(s) {
 }
 
 function drawBallAt(x, y, r, spin) {
-  ctx.fillStyle = "#ffffff";
+  const base = ctx.createRadialGradient(x - r * .32, y - r * .34, r * .12, x, y, r * 1.05);
+  base.addColorStop(0, "#ffffff"); base.addColorStop(.55, "#f0f0f0"); base.addColorStop(1, "#c6c6c6");
+  ctx.fillStyle = base;
   ctx.strokeStyle = "rgba(20,20,20,.7)";
   ctx.lineWidth = Math.max(1, r * .1);
   ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill(); ctx.stroke();
@@ -1373,6 +1481,8 @@ function drawBallAt(x, y, r, spin) {
     ctx.arc(x + Math.cos(a) * r * .62, y + Math.sin(a) * r * .62, r * .17, 0, 6.283);
     ctx.fill();
   }
+  ctx.fillStyle = "rgba(255,255,255,.6)";
+  ctx.beginPath(); ctx.ellipse(x - r * .35, y - r * .4, r * .26, r * .16, -.6, 0, 6.283); ctx.fill();
 }
 
 function drawFlyingBall(s) {
@@ -1539,6 +1649,11 @@ function render() {
   drawGoalFrame();
   for (const s of shots) if (s.phase === "flight") drawFlyingBall(s);
   for (const s of shots) if (s.phase === "runup") drawStriker(s);
+
+  const vin = ctx.createRadialGradient(W / 2, H * .55, H * .38, W / 2, H * .55, H * .85);
+  vin.addColorStop(0, "rgba(0,0,0,0)"); vin.addColorStop(1, "rgba(0,0,0,.26)");
+  ctx.fillStyle = vin; ctx.fillRect(-30, -30, W + 60, H + 60);
+
   drawEffects();
   drawOverlayText();
 
