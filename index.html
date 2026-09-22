@@ -55,6 +55,24 @@ body{
   transition:opacity .3s, transform .3s;
 }
 .ball-pip.gone{opacity:.18;transform:scale(.7)}
+.ball-pip.lost{animation:pipLost .7s ease-out}
+@keyframes pipLost{
+  0%{transform:scale(1.6);opacity:1;background:var(--concede);box-shadow:0 0 14px var(--concede)}
+  100%{transform:scale(.7);opacity:.18}
+}
+.cell.big b{display:inline-block;transform-origin:left bottom}
+.cell.big b.bump{animation:bump .38s cubic-bezier(.2,1.6,.4,1)}
+@keyframes bump{0%{transform:scale(1.28);filter:brightness(1.5)}100%{transform:scale(1)}}
+.streak{
+  display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;
+  background:rgba(79,195,247,.14);border:1px solid rgba(79,195,247,.35);
+  font-size:10px;letter-spacing:.14em;color:#bfe9ff;font-weight:700;
+  opacity:0;transform:translateY(4px) scale(.94);transition:opacity .25s,transform .25s;
+}
+.streak b{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#fff;line-height:1}
+.streak.on{opacity:1;transform:none}
+.streak.hot{background:rgba(255,210,63,.16);border-color:rgba(255,210,63,.45);color:#ffe9a3}
+@media (max-width:560px){.streak{display:none}}
 
 .frame{position:relative;border-radius:13px;overflow:hidden;box-shadow:0 20px 55px rgba(0,0,0,.6)}
 canvas{display:block;width:100%;height:auto;aspect-ratio:40/27;touch-action:none;background:#8fd0e6;outline:none}
@@ -80,8 +98,25 @@ canvas{display:block;width:100%;height:auto;aspect-ratio:40/27;touch-action:none
 }
 .sheet.hidden{display:none}
 .card{max-width:470px;width:100%}
-.title{font-family:'Bebas Neue',sans-serif;line-height:.85;letter-spacing:2px;font-size:clamp(44px,8.5vw,74px)}
-.title em{font-style:normal;display:block;color:var(--save)}
+#start-screen,#over-screen{background:radial-gradient(120% 90% at 50% 40%, rgba(6,18,9,.42), rgba(2,8,3,.8))}
+#start-screen .card,#over-screen .card{
+  background:linear-gradient(180deg,rgba(10,26,14,.78),rgba(4,12,6,.86));
+  border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 28px 24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+  animation:cardIn .45s cubic-bezier(.2,1.2,.4,1);
+}
+@keyframes cardIn{0%{opacity:0;transform:translateY(14px) scale(.97)}100%{opacity:1;transform:none}}
+.title{font-family:'Bebas Neue',sans-serif;line-height:.85;letter-spacing:2px;font-size:clamp(44px,8.5vw,74px);
+  text-shadow:0 4px 0 rgba(0,0,0,.35)}
+.title em{font-style:normal;display:block;color:var(--save);
+  text-shadow:0 0 28px rgba(61,220,132,.45),0 4px 0 rgba(0,0,0,.35)}
+.bigscore{text-shadow:0 0 34px rgba(61,220,132,.4)}
+.breakdown div{background:rgba(255,255,255,.04);border-radius:7px;padding:6px 9px}
+button.go{box-shadow:0 6px 0 #1f8a52, 0 10px 24px rgba(61,220,132,.3)}
+button.go:active{transform:translateY(4px) scale(.98);box-shadow:0 2px 0 #1f8a52}
+#start-screen{backdrop-filter:blur(1.5px)}
+@media (prefers-reduced-motion:reduce){#start-screen .card,#over-screen .card{animation:none}}
+
 .sub{margin-top:9px;color:rgba(255,255,255,.62);font-size:13px;line-height:1.5}
 .rules{margin:16px 0;display:flex;flex-direction:column;gap:7px;text-align:left;font-size:13px;color:rgba(255,255,255,.85)}
 .rules p{display:flex;gap:11px;align-items:baseline}
@@ -130,6 +165,20 @@ button.go:focus-visible,.chip:focus-visible{outline:3px solid #fff;outline-offse
 .chip:hover{border-color:rgba(255,255,255,.45);color:#fff}
 kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:11px;color:#fff}
 @media (max-width:700px){.keys{display:none}}
+/* Phones: the canvas is short, so trim the cards to what fits. The keyboard
+   rules don't apply there anyway — the on-screen pad is labelled. */
+@media (max-width:560px){
+  .sheet{padding:10px}
+  #start-screen .card,#over-screen .card{padding:12px 12px 14px;border-radius:12px}
+  .title{font-size:38px}
+  #over-title{font-size:30px !important}
+  .sub{font-size:12px;margin-top:6px}
+  .rules,.breakdown{display:none}
+  .scoring{font-size:12px;padding:8px 10px;margin:10px 0 12px}
+  .bigscore{font-size:60px}
+  #verdict{font-size:12px;margin:8px 0 10px}
+  button.go{font-size:20px;padding:10px 34px}
+}
 </style>
 </head>
 <body>
@@ -145,6 +194,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
       <div class="stam-track"><div class="stam-fill" id="stam-fill"></div></div>
     </div>
     <div class="grow"></div>
+    <div class="streak" id="streak" aria-live="polite"><b>0</b>IN A ROW</div>
     <div class="lives" id="lives" aria-label="Goals you can still concede">
       <i class="ball-pip"></i><i class="ball-pip"></i><i class="ball-pip"></i>
     </div>
@@ -770,6 +820,7 @@ function onTouchDown() {
       life: .45, size: rnd(1.6, 3), color: "#b7e39c"
     });
   }
+  addScuff(keeper.x, 14, 0, .5);
 }
 
 /* ═════════ diving ═════════ */
@@ -810,6 +861,15 @@ function onDiveLand() {
       life: .65, size: rnd(2, 4), color: "#a8dd8a"
     });
   }
+  // Clods of turf kicked up, and a skid mark left behind.
+  for (let i = 0; i < 6; i++) {
+    particles.push({
+      x: keeper.x + rnd(-20, 20), y: LINE_Y + 2,
+      vx: rnd(-2.6, 2.6) + keeper.vx * .003, vy: rnd(-3.4, -1.4),
+      life: .9, size: rnd(3, 4.6), color: "#6b5634"
+    });
+  }
+  addScuff(keeper.x - Math.sign(keeper.vx) * 18, 34 + Math.min(30, Math.abs(keeper.vx) * .05), 0, 1);
 }
 
 /* ═════════ keeper ═════════ */
@@ -983,6 +1043,12 @@ function onSave(s, depth) {
   burst(s.bx, s.by, clean ? 14 : 22, hard ? ["#ffffff", "#ffd23f", "#fff4c4"] : ["#ffffff", "#3ddc84", "#d9fbe6"]);
   rings.push({ x: s.bx, y: s.by, r: s.br, grow: hard ? 70 : 44, life: 1, color: hard ? "255,210,63" : "61,220,132" });
   cheer = Math.max(cheer, hard ? 1 : .55);
+  flashes.push({ x: s.bx, y: s.by, life: 1, big: hard, rot: Math.random() * .8 });
+  if (hard && !reducedMotion) { punch = 1; punchX = s.bx; punchY = s.by; }
+  if (G.run >= 5 && G.run % 5 === 0) {
+    if (!crowdWave && !reducedMotion) crowdWave = { x: -120 };
+    pops.push({ text: G.run + " IN A ROW", x: W / 2, y: GOAL.y + 40, color: "#4fc3f7", size: 28, life: 1.2 });
+  }
   keeper.reachPulse = 1;
   shake = Math.max(shake, diving ? 7 : 3.5);
 
@@ -1007,12 +1073,14 @@ function checkMilestone(prevScore) {
     G.milestone = step;
     banner = { title: G.score + " POINTS", sub: "", life: 1, color: "#3ddc84" };
     sfx.milestone();
+    spawnConfetti(70);
   }
   // A hard save is worth 2, so a run can jump straight past best+1 —
   // check for the crossing, not an exact landing value.
   if (G.best > 0 && prevScore <= G.best && G.score > G.best) {
     banner = { title: "NEW BEST", sub: "everything from here is gravy", life: 1, color: "#ffd23f" };
     sfx.record();
+    spawnConfetti(150);
     document.getElementById("best").classList.add("beaten");
   }
 }
@@ -1053,14 +1121,40 @@ function updateEffects(dt) {
     if (pops[i].life <= 0) pops.splice(i, 1);
   }
   for (let i = netHits.length - 1; i >= 0; i--) {
-    netHits[i].life -= dt / 800;
+    netHits[i].life -= dt / 1300;
     if (netHits[i].life <= 0) netHits.splice(i, 1);
   }
   for (let i = rings.length - 1; i >= 0; i--) {
     rings[i].life -= dt / 520;
     if (rings[i].life <= 0) rings.splice(i, 1);
   }
+  for (let i = flashes.length - 1; i >= 0; i--) {
+    flashes[i].life -= dt / 240;
+    if (flashes[i].life <= 0) flashes.splice(i, 1);
+  }
+  for (let i = confetti.length - 1; i >= 0; i--) {
+    const c = confetti[i];
+    c.vy = Math.min(c.vy + dt * .0006, .16);
+    c.x += (c.vx + Math.sin(c.ph + c.y * .03) * .05) * dt;
+    c.y += c.vy * dt;
+    c.rot += c.vr * dt; c.flip += dt * .012;
+    if (c.y > H + 20) confetti.splice(i, 1);
+  }
+  for (let i = scuffs.length - 1; i >= 0; i--) {
+    scuffs[i].life -= dt / 45000;
+    if (scuffs[i].life <= 0) scuffs.splice(i, 1);
+  }
+  if (crowdWave) { crowdWave.x += dt * .55; if (crowdWave.x > W + 120) crowdWave = null; }
   cheer = Math.max(0, cheer - dt / 1500);
+  punch = Math.max(0, punch - dt / 380);
+
+  // How "set" the keeper is: knees bend as a shot is about to be struck.
+  let threat = 0;
+  for (const s of shots) {
+    if (s.phase === "flight") threat = 1;
+    else if (s.runup - s.t < 420) threat = Math.max(threat, 1 - (s.runup - s.t) / 420);
+  }
+  poseReady += (threat - poseReady) * (1 - Math.exp(-dt / 110));
   shake *= Math.pow(.003, dt / 1000);
   if (reducedMotion) shake = 0;
   hurt = Math.max(0, hurt - dt / 520);
@@ -1076,7 +1170,36 @@ function updateEffects(dt) {
 let TH = currentTheme();
 let cheer = 0;                  // crowd excitement — saves and goals kick it up
 let rings = [];                 // expanding shockwaves on saves, goals and the woodwork
+let flashes = [];               // bright star-bursts where glove meets ball
+let confetti = [];              // milestones and new records
+let scuffs = [];                // marks left in the turf by dives and landings
+let crowdWave = null;           // a Mexican wave, set off by a run of saves
+let punch = 0, punchX = W / 2, punchY = H / 2;   // brief camera push-in on big saves
+let poseReady = 0;              // 0 relaxed → 1 crouched and set
 const FLOOD_X = [72, 300, 500, 728];
+const FLAGS = [58, 190, 262, 430, 548, 640, 752].map((x, i) => ({
+  x, row: i % 3, ph: Math.random() * 6.28,
+  a: ["#ffb020", "#1a2540", "#ffffff", "#ffb020", "#2f5bd0", "#1a2540", "#ffb020"][i],
+  b: ["#1a2540", "#ffb020", "#ffb020", "#ffffff", "#ffffff", "#ffffff", "#ffffff"][i]
+}));
+const RAIN = Array.from({ length: 110 }, () => ({ x: Math.random() * W, y: Math.random() * H, v: .55 + Math.random() * .35, l: 7 + Math.random() * 9 }));
+
+function spawnConfetti(n) {
+  if (reducedMotion) return;
+  const cols = ["#ffd23f", "#3ddc84", "#ffffff", "#ffb020", "#4fc3f7", "#ff5a5f"];
+  for (let i = 0; i < n; i++) {
+    confetti.push({
+      x: Math.random() * W, y: -10 - Math.random() * 120,
+      vx: rnd(-.03, .03), vy: rnd(.03, .09),
+      rot: Math.random() * 6.28, vr: rnd(-.01, .01), flip: Math.random() * 6.28, ph: Math.random() * 6.28,
+      w: rnd(4, 7), h: rnd(2.5, 4), c: cols[Math.random() * cols.length | 0]
+    });
+  }
+}
+function addScuff(x, len, rot, strength) {
+  scuffs.push({ x, y: LINE_Y + rnd(4, 12), rx: len, ry: 3 + strength * 2, rot, life: 1, a: strength });
+  if (scuffs.length > 36) scuffs.shift();
+}
 const ADS = [
   ["SHOT STOPPER", "#1c8f5e"], ["SAFE HANDS", "#c23b3b"], ["KEEP IT OUT", "#1c6fb0"],
   ["NO. 1", "#c99a1e"], ["CLEAN SHEET", "#7a3fb0"]
@@ -1141,11 +1264,17 @@ function drawStadium() {
     }
   }
   if (TH.lights < .95) {
-    const sunA = (1 - TH.lights) * .6;
-    const sg = ctx.createRadialGradient(658, 6, 2, 658, 6, 90);
-    sg.addColorStop(0, `rgba(255,244,214,${sunA})`);
-    sg.addColorStop(1, "rgba(255,244,214,0)");
+    // The sun drops behind the roof and reddens as the evening comes on.
+    const set = clamp(themeNow, 0, 1);
+    const sunY = L(4, 22, set), sunX = L(658, 700, set);
+    const warm = [L(255, 255, set), L(244, 150, set), L(214, 80, set)];
+    const sunA = (1 - TH.lights) * .7;
+    const sg = ctx.createRadialGradient(sunX, sunY, 2, sunX, sunY, L(90, 150, set));
+    sg.addColorStop(0, `rgba(${warm[0] | 0},${warm[1] | 0},${warm[2] | 0},${sunA})`);
+    sg.addColorStop(1, `rgba(${warm[0] | 0},${warm[1] | 0},${warm[2] | 0},0)`);
     ctx.fillStyle = sg; ctx.fillRect(0, 0, W, 60);
+    ctx.fillStyle = `rgba(255,${L(250, 200, set) | 0},${L(230, 140, set) | 0},${sunA * 1.2})`;
+    ctx.beginPath(); ctx.arc(sunX, sunY, 6, 0, 6.283); ctx.fill();
   }
   if (TH.lights < .75) {
     const a = (1 - TH.lights) * .55;
@@ -1183,16 +1312,39 @@ function drawStadium() {
   for (const p of crowdSeed) {
     const idle = Math.sin(now / 900 + p.ph) * .35;
     const hop = cheer * p.jump * Math.abs(Math.sin(t + p.ph)) * (1.4 + p.row * .35);
-    const y = p.y - hop + idle;
+    let wv = 0;
+    if (crowdWave) {
+      const d = (p.x - crowdWave.x) / 55;
+      if (d > -1.6 && d < 1.6) wv = Math.cos(d * Math.PI / 3.2) ** 2;
+    }
+    const y = p.y - hop - wv * (3 + p.row * .6) + idle;
     const bw = 3.3 * p.s, bh = 3.6 * p.s, hs = 2.5 * p.s;
     ctx.fillStyle = p.c;
     ctx.fillRect(p.x - bw / 2, y, bw, bh);
-    if (p.arms && cheer > .25) {
+    if ((p.arms && cheer > .25) || wv > .45) {
       ctx.fillRect(p.x - bw / 2 - .8, y - 3.2 * p.s, .9 * p.s, 3.6 * p.s);
       ctx.fillRect(p.x + bw / 2 - .1, y - 3.2 * p.s, .9 * p.s, 3.6 * p.s);
     }
     ctx.fillStyle = p.skin;
     ctx.fillRect(p.x - hs / 2, y - hs, hs, hs);
+  }
+  // A handful of flags, waved harder when the crowd is up.
+  for (const f of FLAGS) {
+    const fy = 26 + f.row * 6, px = f.x;
+    const wave = now / (170 - cheer * 70) + f.ph;
+    const lift = cheer * 3;
+    ctx.strokeStyle = "rgba(20,20,20,.8)"; ctx.lineWidth = .8;
+    ctx.beginPath(); ctx.moveTo(px, fy + 8); ctx.lineTo(px, fy - 6 - lift); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(px, fy - 6 - lift);
+    for (let i = 1; i <= 4; i++) ctx.lineTo(px + i * 3.2, fy - 6 - lift + Math.sin(wave + i * .9) * 1.3 * i * .5);
+    for (let i = 4; i >= 0; i--) ctx.lineTo(px + i * 3.2, fy - 0.5 - lift + Math.sin(wave + i * .9) * 1.3 * i * .5);
+    ctx.closePath();
+    ctx.fillStyle = f.a; ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(px, fy - 3.5 - lift);
+    for (let i = 1; i <= 4; i++) ctx.lineTo(px + i * 3.2, fy - 3.5 - lift + Math.sin(wave + i * .9) * 1.3 * i * .5);
+    ctx.strokeStyle = f.b; ctx.lineWidth = 1.6; ctx.stroke();
   }
   // The stand falls into shadow as the evening comes on.
   if (TH.crowd < .99) {
@@ -1278,6 +1430,27 @@ function drawPitch() {
   if (!grassTex) buildGrassTex();
   ctx.drawImage(grassTex, 0, 0, W, H);
 
+  // The goalmouth is worn thin where the keeper lives.
+  ctx.save();
+  ctx.translate(W / 2, LINE_Y + 10); ctx.scale(1, .16);
+  const wear = ctx.createRadialGradient(0, 0, 10, 0, 0, 250);
+  wear.addColorStop(0, "rgba(128,104,58,.34)");
+  wear.addColorStop(.55, "rgba(128,104,58,.16)");
+  wear.addColorStop(1, "rgba(128,104,58,0)");
+  ctx.fillStyle = wear; ctx.beginPath(); ctx.arc(0, 0, 250, 0, 6.283); ctx.fill();
+  ctx.restore();
+  const spotWear = ctx.createRadialGradient(W / 2, LINE_Y + 136, 2, W / 2, LINE_Y + 136, 26);
+  spotWear.addColorStop(0, "rgba(128,104,58,.3)"); spotWear.addColorStop(1, "rgba(128,104,58,0)");
+  ctx.fillStyle = spotWear; ctx.fillRect(W / 2 - 26, LINE_Y + 110, 52, 52);
+
+  // Fresh marks from this run's dives and landings.
+  for (const sc of scuffs) {
+    ctx.fillStyle = `rgba(92,70,36,${.34 * sc.a * sc.life})`;
+    ctx.beginPath(); ctx.ellipse(sc.x, sc.y, sc.rx, sc.ry, sc.rot, 0, 6.283); ctx.fill();
+    ctx.fillStyle = `rgba(60,44,20,${.22 * sc.a * sc.life})`;
+    ctx.beginPath(); ctx.ellipse(sc.x, sc.y + .5, sc.rx * .7, sc.ry * .45, sc.rot, 0, 6.283); ctx.fill();
+  }
+
   // The stand throws a soft shadow onto the far edge of the grass.
   const sh = ctx.createLinearGradient(0, top, 0, top + 24);
   sh.addColorStop(0, "rgba(0,0,0,.32)"); sh.addColorStop(1, "rgba(0,0,0,0)");
@@ -1349,8 +1522,14 @@ function bulge(x, y) {
   for (const n of netHits) {
     const [hx, hy] = toBack(n.x, n.y);
     const d2 = (x - hx) * (x - hx) + (y - hy) * (y - hy);
-    const push = Math.exp(-d2 / 2600) * 16 * n.life;
-    if (push < .05) continue;
+    // A deep dent where the ball hit, and a ripple that runs outward
+    // through the mesh and dies away.
+    const d = Math.sqrt(d2), age = 1 - n.life;
+    const dent = Math.exp(-d2 / 2600) * 16 * n.life * n.life;
+    const ripple = Math.sin(d * .11 - age * 26) * Math.exp(-d / 130) * 7 * n.life
+                 * clamp(age * 26 - d * .11, 0, 1);
+    const push = dent + ripple;
+    if (Math.abs(push) < .05) continue;
     const a = Math.atan2(y - hy, x - hx);
     ox -= Math.cos(a) * push; oy -= Math.sin(a) * push * .7;
   }
@@ -1361,7 +1540,9 @@ function drawNet() {
   const N = NET;
   const FTL = [N.FL, N.FT], FTR = [N.FR, N.FT], FBL = [N.FL, N.FB], FBR = [N.FR, N.FB];
   const BTL = [N.BL, N.BT], BTR = [N.BR, N.BT], BBL = [N.BL, N.BB], BBR = [N.BR, N.BB];
-  const lineA = .3 + TH.lights * .12;
+  let flare = 0;
+  for (const n of netHits) flare = Math.max(flare, n.life);
+  const lineA = .3 + TH.lights * .12 + flare * flare * .35;
 
   // Grass inside the goal sits in the net's shade.
   const floor = ctx.createLinearGradient(0, N.BB, 0, N.FB);
@@ -1541,25 +1722,46 @@ function drawKeeper() {
   const sq = reducedMotion ? 0 : keeper.squash;
   const air = clamp((STAND_Y - keeper.y) / 135, 0, 1);
 
+  // Under the floodlights he throws a shadow from each side, not just one.
+  const shW = L(28, 52, sp) - air * 11;
+  if (TH.lights > .05) {
+    for (const d of [-1, 1]) {
+      ctx.fillStyle = `rgba(0,0,0,${TH.lights * .13 * (1 - air * .6)})`;
+      ctx.beginPath();
+      ctx.ellipse(keeper.x + d * (20 + air * 14), LINE_Y + 7, shW * 1.15, 5.5 - air * 2, d * .1, 0, 6.283);
+      ctx.fill();
+    }
+  }
   ctx.fillStyle = `rgba(0,0,0,${(.32 + TH.lights * .12) - air * .18})`;
   ctx.beginPath();
-  ctx.ellipse(keeper.x, LINE_Y + 5, L(28, 52, sp) - air * 11, 7 - air * 3, 0, 0, 6.283);
+  ctx.ellipse(keeper.x, LINE_Y + 5, shW, 7 - air * 3, 0, 0, 6.283);
   ctx.fill();
+
+  // Set position: when a shot is coming and he's on his feet, he sinks
+  // into a crouch with his hands out. Idle, he breathes.
+  const standing = (1 - sp) * (1 - up) * (1 - stretch) * (1 - hold) * (keeper.diving ? 0 : 1);
+  const crouch = poseReady * standing * (reducedMotion ? .6 : 1);
+  const breathe = reducedMotion ? 0 : Math.sin(performance.now() / 520) * .9 * (1 - poseReady) * standing;
+  const sink = crouch * 6 + breathe;
+  const tuck = up * clamp(-keeper.vy / JUMP_V, 0, 1) * (keeper.diving ? 0 : 1);
 
   ctx.save();
   ctx.translate(keeper.x, keeper.y);
   ctx.rotate(keeper.tilt);
-  ctx.translate(0, sp * 16);
+  ctx.translate(0, sp * 16 + sink);
   if (sq > .01) { ctx.translate(0, 43); ctx.scale(1 + sq * .13, 1 - sq * .17); ctx.translate(0, -43); }
 
-  const sway = (keeper.diving || sp > .3 || up > .3) ? 0 : Math.sin(keeper.step) * 6;
+  const sway = (keeper.diving || sp > .3 || up > .3) ? 0 : Math.sin(keeper.step) * 6 * (1 - crouch * .5);
   const lead = clamp(keeper.vx / MOVE_SPEED, -1, 1) * up * 7;
 
   /* legs: shorts, socks with a kit-coloured band, boots */
-  const kneeX = L(10, 42, sp) - up * 2;
-  const kneeY = L(20, 14, sp) - up * 7;
-  const footX = L(12, 70, sp) - up * 4;
-  const footY = L(40, 20, sp) - up * 14;
+  let kneeX = L(10, 42, sp) - up * 2 + crouch * 7;
+  let kneeY = L(20, 14, sp) - up * 7 - crouch * 3 - tuck * 6;
+  let footX = L(12, 70, sp) - up * 4 + crouch * 3 + tuck * 3;
+  let footY = L(40, 20, sp) - up * 14 - sink - tuck * 9;
+  // On a dive the legs stretch out behind him in one line.
+  kneeX = L(kneeX, 5, stretch);  kneeY = L(kneeY, 25, stretch);
+  footX = L(footX, 7, stretch);  footY = L(footY, 50, stretch);
   const legs = [
     { k: [-kneeX - sway * .4, kneeY + lead], f: [-footX - sway, footY + lead * 1.6], d: -1 },
     { k: [kneeX + sway * .4, kneeY - lead],  f: [footX + sway, footY - lead * 1.6],  d: 1 }
@@ -1609,6 +1811,8 @@ function drawKeeper() {
   ex = L(ex, 5, stretch);  ey = L(ey, -52, stretch);
   gx = L(gx, 13, hold);    gy = L(gy, -34, hold);
   ex = L(ex, 20, hold);    ey = L(ey, -30, hold);
+  gx += crouch * 6;        gy += crouch * 5;
+  ex += crouch * 4;        ey += crouch * 3;
   const shy = L(-38, -28, sp);
   for (const d of [-1, 1]) {
     blob(d * 13, shy, d * ex, ey, 12, KIT.shirt);
@@ -1720,6 +1924,12 @@ function drawStriker(s) {
   const kitDark = s.rebound ? "#8f1f1c" : "#23407f";
   const kitLight = s.rebound ? "#ff8f78" : "#7fa0f2";
 
+  if (TH.lights > .05) {
+    for (const d of [-1, 1]) {
+      ctx.fillStyle = `rgba(0,0,0,${TH.lights * .12})`;
+      ctx.beginPath(); ctx.ellipse(x + d * 20, y + 37, 24, 5, d * .12, 0, 6.283); ctx.fill();
+    }
+  }
   ctx.fillStyle = "rgba(0,0,0,.26)";
   ctx.beginPath(); ctx.ellipse(x, y + 36, 22, 6, 0, 0, 6.283); ctx.fill();
 
@@ -1731,6 +1941,14 @@ function drawStriker(s) {
   for (const f of [kf, pf]) {
     blob(0, 8, f[0], f[1], 12, kitDark);                          // sock
     blob(f[0], f[1], f[0] - s.runFrom * 3, f[1] + 3, 9, "#10151c"); // boot
+  }
+  // Arms pump against the stride, then fling out for balance on the strike.
+  const pump = Math.sin(p * 24) * (1 - run) * 1;
+  const fling = kick;
+  for (const d of [-1, 1]) {
+    const hx = d * L(20 + pump * d * 6, 30, fling), hy = L(-4 - pump * d * 8, -22, fling);
+    blob(d * 14, -28, d * 18 + (hx - d * 18) * .5, (-28 + hy) / 2 + 4, 8, kitBody);
+    blob(d * 18 + (hx - d * 18) * .5, (-28 + hy) / 2 + 4, hx, hy, 7, "#c98f63");
   }
   ctx.fillStyle = "#f2f4f7";                                       // shorts
   ctx.beginPath(); ctx.roundRect(-15, 4, 30, 11, [2, 2, 5, 5]); ctx.fill();
@@ -1842,6 +2060,55 @@ function drawFlyingBall(s) {
     ctx.fillStyle = gl; ctx.fillRect(s.bx - s.br * 2.6, s.by - s.br * 2.6, s.br * 5.2, s.br * 5.2);
   }
   drawBallAt(s.bx, s.by, s.br, s.spin + performance.now() / 90);
+}
+
+function drawFlashes() {
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (const f of flashes) {
+    const r = (f.big ? 34 : 22) * (1.2 - f.life * .4);
+    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
+    g.addColorStop(0, `rgba(255,255,240,${f.life * .9})`);
+    g.addColorStop(.35, `rgba(255,236,170,${f.life * .35})`);
+    g.addColorStop(1, "rgba(255,236,170,0)");
+    ctx.fillStyle = g; ctx.fillRect(f.x - r, f.y - r, r * 2, r * 2);
+    // Four-point star
+    ctx.save();
+    ctx.fillStyle = `rgba(255,255,255,${f.life * .85})`;
+    ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+    const len = r * 1.5, wd = 2.4 * f.life + .6;
+    for (let i = 0; i < 4; i++) {
+      ctx.rotate(Math.PI / 2);
+      ctx.beginPath(); ctx.moveTo(0, -wd); ctx.lineTo(len, 0); ctx.lineTo(0, wd); ctx.fill();
+    }
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+function drawConfetti() {
+  for (const c of confetti) {
+    ctx.save();
+    ctx.translate(c.x, c.y); ctx.rotate(c.rot); ctx.scale(1, Math.cos(c.flip));
+    ctx.fillStyle = c.c;
+    ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+    ctx.restore();
+  }
+}
+
+// Fine drizzle once the floodlights are on — only really visible in the beams.
+function drawRain() {
+  if (TH.lights < .6 || reducedMotion) return;
+  const a = (TH.lights - .6) / .4;
+  const t = performance.now();
+  ctx.strokeStyle = `rgba(200,220,255,${a * .16})`; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const r of RAIN) {
+    const y = (r.y + t * r.v) % (H + 40) - 20;
+    const x = (r.x + y * .12) % W;
+    ctx.moveTo(x, y); ctx.lineTo(x + r.l * .12, y + r.l);
+  }
+  ctx.stroke();
 }
 
 function drawRings() {
@@ -1988,6 +2255,13 @@ function frame(now) {
       updateLiveHUD();
     } else if (G.phase === "over") {
       updateKeeper(dt); updateStamina(dt);
+    } else if (G.phase === "menu") {
+      // Attract mode: behind the title card the keeper shuffles across his line.
+      const tx = W / 2 + (reducedMotion ? 0 : Math.sin(now / 1600) * 150 + Math.sin(now / 610) * 18);
+      keeper.vx = (tx - keeper.x) / Math.max(1, real) * 1000;
+      keeper.x = tx;
+      keeper.tilt = clamp(keeper.vx / 900 * .3, -.3, .3);
+      keeper.step += Math.abs(keeper.vx) * real / 1000 * .05;
     }
     updateEffects(dt);
   }
@@ -2000,6 +2274,17 @@ function render() {
   ctx.clearRect(0, 0, W, H);
   if (shake > .4) ctx.translate(rnd(-shake, shake), rnd(-shake, shake));
 
+  // Camera push-in on a big save: a quick lean toward the ball, then back.
+  const applyPunch = () => {
+    if (punch <= 0) return;
+    const k = punch > .85 ? (1 - punch) / .15 : punch / .85;
+    const z = 1 + .045 * k * k * (3 - 2 * k);
+    const fx = L(W / 2, punchX, .6), fy = L(H / 2, punchY, .6);
+    ctx.translate(fx, fy); ctx.scale(z, z); ctx.translate(-fx, -fy);
+  };
+  ctx.save();
+  applyPunch();
+
   drawStadium();
   drawPitch();
   drawNet();
@@ -2008,6 +2293,8 @@ function render() {
   drawGoalFrame();
   for (const s of shots) if (s.phase === "flight") drawFlyingBall(s);
   for (const s of shots) if (s.phase === "runup") drawStriker(s);
+  drawRain();
+  ctx.restore();
 
   const vin = ctx.createRadialGradient(W / 2, H * .55, H * .38, W / 2, H * .55, H * .85);
   vin.addColorStop(0, "rgba(0,0,0,0)"); vin.addColorStop(1, "rgba(0,0,0,.3)");
@@ -2017,8 +2304,13 @@ function render() {
   drawBloom();
 
   // Feedback sits above the night grade so it never gets dimmed.
+  ctx.save();
+  applyPunch();                 // world-space feedback moves with the camera
   drawRings();
+  drawFlashes();
   drawEffects();
+  ctx.restore();
+  drawConfetti();
   drawOverlayText();
 
   if (hurt > 0 && !reducedMotion) {
@@ -2053,11 +2345,27 @@ function updateLiveHUD() {
   document.querySelector("#time b").textContent = fmtTime(G.elapsed);
 }
 
+let shownScore = 0;
 function updateHUD() {
-  document.querySelector("#score b").textContent = G.score;
+  const sb = document.querySelector("#score b");
+  sb.textContent = G.score;
+  if (G.score > shownScore && !reducedMotion) {
+    sb.classList.remove("bump"); void sb.offsetWidth; sb.classList.add("bump");
+  }
+  shownScore = G.score;
   document.querySelector("#best b").textContent = Math.max(G.best, G.score);
-  document.querySelectorAll("#lives .ball-pip")
-    .forEach((p, i) => p.classList.toggle("gone", i >= G.lives));
+  document.querySelectorAll("#lives .ball-pip").forEach((p, i) => {
+    const gone = i >= G.lives;
+    if (gone && !p.classList.contains("gone") && G.phase !== "menu" && !reducedMotion) {
+      p.classList.remove("lost"); void p.offsetWidth; p.classList.add("lost");
+    }
+    if (!gone) p.classList.remove("lost");
+    p.classList.toggle("gone", gone);
+  });
+  const st = document.getElementById("streak");
+  st.querySelector("b").textContent = G.run;
+  st.classList.toggle("on", G.run >= 3 && G.phase === "play");
+  st.classList.toggle("hot", G.run >= 10);
   updateLiveHUD();
 }
 
@@ -2069,6 +2377,7 @@ function startGame() {
   G.lives = 3; G.paused = false; G.announced = {}; G.milestone = 0;
   G.stats = { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0 };
   shots = []; particles = []; pops = []; netHits = []; rings = []; cheer = 0; lastArrival = null;
+  flashes = []; confetti = []; scuffs = []; crowdWave = null; punch = 0; poseReady = 0; shownScore = 0;
   shake = 0; hurt = 0; banner = null; hintBanner = null;
   slowLeft = 0; timeScale = 1; themeNow = 0;
   keeper.x = W / 2; keeper.y = STAND_Y;
@@ -2113,7 +2422,7 @@ function gameOver() {
     <div><span>Save rate</span><b>${pct}%</b></div>
     <div><span>Caught clean</span><b>${st.catches}</b></div>
     <div><span>Parried out</span><b>${st.parries}</b></div>
-    <div><span>Leaps / dives / splits</span><b>${st.leaps} / ${st.dives} / ${st.splits}</b></div>
+    <div style="grid-column:1/-1"><span>Leaps / dives / splits</span><b>${st.leaps} / ${st.dives} / ${st.splits}</b></div>
     <div><span>Best run</span><b>${G.bestRun}</b></div>`;
 
   let line;
