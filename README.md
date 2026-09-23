@@ -21,23 +21,23 @@ ever downloads is the hand tracker, and only if you choose to play with the came
 
 On a phone, an on-screen button pad appears instead.
 
-### Or play with your hand
+### Or play with one finger
 
-Press **Play with your hand** on the title screen and the game uses your webcam instead of the
-keyboard:
+Press **Play with one finger** on the title screen and the game uses your webcam instead of the
+keyboard. Point your index finger up at the camera:
 
-| Hand | Action |
+| Finger | Action |
 | --- | --- |
-| Move it left and right | The keeper follows |
-| Raise it | Jump. Keep it up there for a full leap |
-| Drop it | The splits |
+| Move it left and right | The keeper follows your fingertip |
+| Lift it | Jump. Keep it up there for a full leap |
+| Bend it down | The splits |
 | Flick it sideways, fast | Dive that way. Up-and-across for a top corner |
 
-Hold your hand still wherever it's comfortable and the game kicks off from there. Resting your
+Hold your finger still wherever it's comfortable and the game kicks off from there. Resting your
 elbow on the desk works best: small movements cover the whole goal. The setup screen shows your
-hand with the jump and splits lines drawn on it, and a practice flick shows up as a dive. If it
-loses sight of your hand mid-game it pauses itself, and it carries on when your hand is back.
-`C` re-centres, `P` pauses.
+hand with the steering finger picked out and the jump and splits lines drawn on it, and a practice
+flick shows up as a dive. If it loses sight of your finger mid-game it pauses itself, and it
+carries on when your finger is back. `C` re-centres, `P` pauses.
 
 Camera runs keep their own best score, separate from the keyboard one.
 
@@ -105,17 +105,18 @@ leaps.
 spins off the gloves, the woodwork sends the ball ricocheting out, and a parry that leads to a
 follow-up visibly bounces out to the striker who then shoots it.
 
-**The camera controls are measured in palm-lengths.** It tracks the middle of your palm rather than
-a fingertip, which jumps about whenever the finger bends. Every distance (how far to move for a
-post, how far up counts as a jump) is in multiples of your own palm size, so the controls feel the
-same whether you sit close to the camera or further back. A one-euro filter steadies the keeper
-when your hand is still without adding lag when it moves.
+**The camera controls are measured in palm-lengths.** The keeper follows the tip of your index
+finger, but every distance (how far to move for a post, how far up counts as a jump) is in
+multiples of your own palm size, because the palm is the steadiest thing the tracker sees. So the
+controls feel the same whether you sit close to the camera or further back. A fingertip wobbles
+more than a palm, so a one-euro filter steadies the keeper when your finger is still without adding
+lag when it moves.
 
 A flick is harder to spot than it sounds, because at 30 frames a second a quick flick can fall
 almost entirely between two frames. So a dive fires on either two fast frames in a row, or one very
-fast frame that the hand doesn't snap straight back from. A tracking glitch jumps out and straight
+fast frame that the finger doesn't snap straight back from. A tracking glitch jumps out and straight
 back, so it doesn't count. Tested across 15–60 fps with synthetic hands: no false dives from
-ordinary fast movement, glitches or jitter, and every deliberate flick caught at 30 fps.
+ordinary fast movement, glitches or jitter, and every full flick caught at 30 fps.
 
 **Camera runs get time back for the tracking delay.** A webcam and a hand tracker are slower than a
 key press. Before kick-off the game measures that delay, from the moment a frame is captured to

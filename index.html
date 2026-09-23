@@ -257,7 +257,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 .cam-actions{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .cam-privacy{font-size:11px;color:rgba(255,255,255,.42);margin-top:10px}
 
-/* The little picture-in-picture while you play: your hand, and the lines
+/* The little picture-in-picture while you play: your finger, and the lines
    you cross to jump and to go down. */
 .cam-mini{position:absolute;right:10px;bottom:10px;width:20%;max-width:176px;height:auto;border-radius:10px;z-index:6;
   border:1px solid rgba(255,255,255,.3);box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none;display:none}
@@ -349,27 +349,27 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
         </div>
         <div class="start-actions">
           <button id="start-btn" class="go">KICK OFF</button>
-          <button id="cam-btn" class="share cam-open" title="Uses your camera"><b class="new">NEW</b>Play with your hand</button>
+          <button id="cam-btn" class="share cam-open" title="Uses your camera"><b class="new">NEW</b>Play with one finger</button>
         </div>
       </div>
     </div>
 
     <div id="cam-screen" class="sheet hidden">
       <div class="card">
-        <h2 class="title cam-title">HAND <em>CONTROL</em></h2>
+        <h2 class="title cam-title">FINGER <em>CONTROL</em></h2>
         <div class="cam-grid">
           <div>
             <div class="cam-view">
-              <canvas id="cam-big" width="600" height="450" aria-label="Your camera, mirrored, with your tracked hand drawn over it"></canvas>
+              <canvas id="cam-big" width="600" height="450" aria-label="Your camera, mirrored, with your tracked finger drawn over it"></canvas>
               <div class="cam-status" id="cam-status" aria-live="polite">Starting your camera…</div>
             </div>
             <div class="cam-meta" id="cam-meta"></div>
           </div>
           <div>
             <div class="cam-rules">
-              <p><i>↔</i><span>Hold one hand up and move it left and right. The keeper follows it.</span></p>
-              <p><i>↑</i><span>Raise your hand to jump. Keep it up there for a full leap.</span></p>
-              <p><i>↓</i><span>Drop your hand for the splits.</span></p>
+              <p><i>↔</i><span>Point your index finger up and move it left and right. The keeper follows your fingertip.</span></p>
+              <p><i>↑</i><span>Lift your finger to jump. Keep it up there for a full leap.</span></p>
+              <p><i>↓</i><span>Bend your finger down for the splits.</span></p>
               <p><i>⇆</i><span>Flick it sideways, fast, to dive that way.</span></p>
             </div>
             <div class="cam-row"><span>SENSITIVITY</span>
@@ -377,7 +377,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
                 <button data-v="0">Low</button><button data-v="1" class="on">Medium</button><button data-v="2">High</button>
               </div>
             </div>
-            <p class="cam-note">Rest your elbow on the desk: small movements cover the whole goal. Try a flick to see it register, then hold your hand still wherever feels comfortable to kick off.</p>
+            <p class="cam-note">Rest your elbow on the desk: small finger movements cover the whole goal. Try a flick to see it register, then hold your finger still wherever feels comfortable to kick off.</p>
           </div>
         </div>
         <div class="cam-actions">
@@ -400,7 +400,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
           <button id="again-btn" class="go">GO AGAIN</button>
           <div class="over-row">
             <button id="share-btn" class="share">Share score</button>
-            <button id="swap-btn" class="linkbtn">Try it with your hand</button>
+            <button id="swap-btn" class="linkbtn">Try it with one finger</button>
           </div>
         </div>
       </div>
@@ -452,7 +452,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
    Nothing hovers. Every vertical position comes from an impulse
    and gravity, so what you see is what's happening.
 
-   Or play it with your hand through the webcam instead (see "camera
+   Or play it with one finger through the webcam instead (see "camera
    control" further down). Camera runs keep their own best score.
    ═══════════════════════════════════════════════════════ */
 
@@ -1151,7 +1151,7 @@ function updateKeeper(dt) {
     let dir = 0;
     const following = G.mode === "cam" && (G.phase === "play" || G.phase === "count");
     if (following) {
-      // Run to where the hand says: flat out from a distance, easing in over
+      // Run to where the finger says: flat out from a distance, easing in over
       // the last stretch so he settles on the spot instead of overshooting.
       // Never faster than on the keyboard, so every shot stays as fair.
       dir = clamp((CAM.targetX - keeper.x) / CAM_EASE, -1, 1);
@@ -1197,9 +1197,9 @@ function maybeHint(s) {
   if (secs() > 40) return;
   const cam = G.mode === "cam";
   if (!hintsShown.high && s.ty < GOAL.y + 100) {
-    hintsShown.high = true; showHint(cam ? "HIGH ONE — RAISE YOUR HAND TO LEAP" : "HIGH ONE — HOLD W TO LEAP");
+    hintsShown.high = true; showHint(cam ? "HIGH ONE — LIFT YOUR FINGER TO LEAP" : "HIGH ONE — HOLD W TO LEAP");
   } else if (!hintsShown.low && s.ty > LINE_Y - 50) {
-    hintsShown.low = true; showHint(cam ? "LOW ONE — DROP YOUR HAND FOR THE SPLITS" : "LOW ONE — HOLD S FOR THE SPLITS");
+    hintsShown.low = true; showHint(cam ? "LOW ONE — BEND YOUR FINGER FOR THE SPLITS" : "LOW ONE — HOLD S FOR THE SPLITS");
   } else if (!hintsShown.dive && Math.abs(s.tx - W / 2) > 200) {
     hintsShown.dive = true; showHint(cam ? "THAT'S A CORNER — FLICK SIDEWAYS TO DIVE" : "THAT'S A CORNER — SPACE TO DIVE");
   }
@@ -2854,7 +2854,7 @@ function render() {
   drawDebris("net");                       // inside the goal, or gone past it
   drawGoalFrame();
   drawReach();
-  drawCamTarget();                         // camera runs: where your hand is sending him
+  drawCamTarget();                         // camera runs: where your finger is sending him
   drawKeeper();
   for (const s of shots) if (s.phase === "flight") drawFlyingBall(s);
   drawDebris("front");                     // coming back out toward us
@@ -2950,11 +2950,11 @@ function updateHUD() {
 function setMode(mode) {
   G.mode = mode;
   G.best = bests[mode];
-  document.getElementById("best-label").textContent = mode === "cam" ? "HAND BEST" : "BEST";
+  document.getElementById("best-label").textContent = mode === "cam" ? "CAM BEST" : "BEST";
   document.getElementById("keys-hint").innerHTML = mode === "cam"
-    ? "Hand <kbd>↔</kbd> move · up jump · down splits · flick dive · <kbd>C</kbd> re-centre · <kbd>P</kbd> pause"
+    ? "Finger <kbd>↔</kbd> move · up jump · bend splits · flick dive · <kbd>C</kbd> re-centre · <kbd>P</kbd> pause"
     : "<kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> splits · <kbd>SPACE</kbd> dive · <kbd>P</kbd> pause";
-  document.getElementById("swap-btn").textContent = mode === "cam" ? "Back to the keyboard" : "Try it with your hand";
+  document.getElementById("swap-btn").textContent = mode === "cam" ? "Back to the keyboard" : "Try it with one finger";
   updateHUD();
 }
 
@@ -2994,7 +2994,7 @@ function startGame(mode) {
   updateHUD();
 }
 
-// Same way of playing as last time. On camera that means holding your hand
+// Same way of playing as last time. On camera that means holding your finger
 // still again first, which also re-centres it.
 function goAgain() {
   if (G.mode === "cam") openCamScreen(); else startGame("keys");
@@ -3040,7 +3040,7 @@ function gameOver() {
     line = "Every save was a standing one. Leap, dive or spread and they're worth double.";
   } else if (st.leaps === 0 && st.faced > 8) {
     line = G.mode === "cam"
-      ? "You never left the ground. Raise your hand and the top of the goal opens up."
+      ? "You never left the ground. Lift your finger and the top of the goal opens up."
       : "You never left the ground. Hold W and the top of the goal opens up.";
   } else if (st.parries > st.catches * 2 && st.faced > 6) {
     line = "Plenty of hands on it, almost nothing held. A clean catch kills the rebound.";
@@ -3060,17 +3060,17 @@ function gameOver() {
   updateHUD();
 }
 
-// A camera run pauses itself when it loses sight of your hand, and picks
+// A camera run pauses itself when it loses sight of your finger, and picks
 // up again by itself once it's back. Any other pause waits for P.
 function setPaused(v, why = "user") {
   if (G.phase !== "play" && G.phase !== "count") return;
   G.paused = v;
   G.pauseWhy = v ? why : null;
   const hand = v && why === "hand";
-  document.getElementById("pause-title").textContent = hand ? "WHERE'S YOUR HAND?" : "PAUSED";
+  document.getElementById("pause-title").textContent = hand ? "WHERE'S YOUR FINGER?" : "PAUSED";
   document.getElementById("pause-sub").innerHTML = !hand ? "Press <kbd>P</kbd> to carry on."
     : CAM.status === "error" ? CAM.msg + " Press <kbd>P</kbd> to finish this run."
-    : "Hold it back up where you started and the game carries on by itself.";
+    : "Point it back up where you started and the game carries on by itself.";
   document.getElementById("pause-screen").classList.toggle("hidden", !v);
 }
 
@@ -3082,9 +3082,9 @@ const KEYMAP = {
   "s": "s", "arrowdown": "s"
 };
 
-// During a camera run the hand is the only controller — the keys would
+// During a camera run the finger is the only controller — the keys would
 // make it a different game, and camera runs keep their own record. P still
-// pauses, and C re-centres your hand on wherever it is right now.
+// pauses, and C re-centres your finger on wherever it is right now.
 const camRun = () => G.mode === "cam" && (G.phase === "play" || G.phase === "count");
 const camScreenOpen = () => !document.getElementById("cam-screen").classList.contains("hidden");
 
@@ -3144,22 +3144,22 @@ for (const btn of document.querySelectorAll("#pad button")) {
 }
 
 /* ═════════ camera control ═════════
-   Play with your hand instead of the keyboard. Google's MediaPipe hand
+   Play with one finger instead of the keyboard. Google's MediaPipe hand
    tracker is loaded the first time someone asks for it (about 20 MB, which
    the browser then caches) and runs entirely on this device. The video is
    never uploaded or recorded.
 
-   It follows the middle of your palm rather than a fingertip: a fingertip
-   jumps about every time the finger bends, the palm doesn't. And every
-   distance is measured in palm-lengths rather than pixels, so the controls
-   feel the same whether you sit close to the camera or further back.
+   It follows the tip of your index finger. Every distance is measured in
+   palm-lengths rather than pixels (the palm is the steadiest thing the
+   tracker sees), so the controls feel the same whether you sit close to
+   the camera or further back.
 
-     hand left / right    he runs to the matching spot on his line
-     hand up              jump — keep it up there for the full leap
-     hand down            the splits
-     quick sideways flick dive that way
+     fingertip left / right  he runs to the matching spot on his line
+     lift it                 jump — keep it up there for the full leap
+     bend it down            the splits
+     quick sideways flick    dive that way
 
-   Tracking a hand through a webcam is slower than a key press. So a camera
+   Tracking through a webcam is slower than a key press. So a camera
    run measures that delay before kick-off and gives every shot exactly that
    much extra time in the air, and the fairness check allows for it too.  */
 const TASKS_VERSIONS = ["1.0.1", "0.10.35"];            // pinned; the second is a fallback
@@ -3168,15 +3168,16 @@ const HAND_MODELS = [
   "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task"
 ];
 const SENS_KEY = "shotstopper-cam-sens";
-// All in palm-lengths. range: how far either side of centre reaches a post.
-// up / down: how far to move for a jump or the splits. flick: palms per
+// All in palm-lengths. range: how far the fingertip goes either side of
+// centre to reach a post. up / down: how far it moves for a jump or the
+// splits (bending the finger right down is about .8). flick: palms per
 // second a flick has to hit to count as a dive.
 const SENS = [
-  { range: 1.6,  up: .95, down: .9,  flick: 27 },     // low
-  { range: 1.25, up: .8,  down: .75, flick: 21.5 },   // medium
-  { range: .95,  up: .66, down: .62, flick: 17 }      // high
+  { range: 1.3,  up: .8,  down: .66, flick: 25 },     // low
+  { range: 1.0,  up: .66, down: .55, flick: 20 },     // medium
+  { range: .75,  up: .52, down: .45, flick: 16 }      // high
 ];
-const ZONE_HYST = .28;              // come back this far to leave the jump or splits zone
+const ZONE_HYST = .22;              // come back this far to leave the jump or splits zone
 const CAM_EASE = 70;                // px: inside this he eases onto the spot rather than sprinting
 const CAM_TAU = 40;
 const CALIB_MS = 900;               // hold still this long to kick off
@@ -3192,7 +3193,7 @@ const CAM = {
   sens: 1,
   hand: false, lastSeen: -1e9, seenSince: 0,
   lm: null,                         // the tracked hand's 21 points, as the tracker gave them
-  raw: null, tip: null,             // palm centre: as measured, and smoothed (x mirrored, in frame heights)
+  raw: null, tip: null,             // index fingertip: as measured, and smoothed (x mirrored, in frame heights)
   palm: .15, hist: [],
   neutral: null, zone: "mid", targetX: W / 2,
   diveAt: -1e9, jumpAt: -1e9, flash: 0, practice: null,
@@ -3215,7 +3216,7 @@ function oneEuro(minCut, beta, dCut) {
     }
   };
 }
-const camFX = oneEuro(1.2, .6, 4), camFY = oneEuro(1.2, .6, 4);
+const camFX = oneEuro(.9, .6, 4), camFY = oneEuro(.9, .6, 4);
 
 // Palm size, as the longer of wrist-to-knuckles and knuckle width (scaled
 // to match), so turning the hand doesn't make it look like it shrank.
@@ -3224,28 +3225,26 @@ function palmOf(h) {
   const d = (i, j) => Math.hypot((h[i].x - h[j].x) * A, h[i].y - h[j].y);
   return Math.max(d(0, 9), d(5, 17) * 1.25);
 }
-function palmCentre(h) {
-  let x = 0, y = 0;
-  for (const i of [0, 5, 9, 13, 17]) { x += h[i].x; y += h[i].y; }
-  return { x: (1 - x / 5) * CAM.aspect, y: y / 5 };        // mirrored, like looking in a mirror
+// The tip of the index finger, mirrored like looking in a mirror.
+function fingertip(h) {
+  return { x: (1 - h[8].x) * CAM.aspect, y: h[8].y };
 }
 
 /* Take one frame's worth of tracked hands (landmarks straight from the
-   tracker) and update where the hand is. */
+   tracker) and update where the fingertip is. */
 function camFeed(hands, now) {
   // With two hands in view, stay with whichever is nearest the one we
   // were already following; otherwise take the biggest.
   let pick = null, best = Infinity;
   for (const h of hands || []) {
     if (!h || h.length < 21) continue;
-    const c = palmCentre(h);
+    const c = fingertip(h);
     const score = CAM.raw && now - CAM.lastSeen < 400 ? Math.hypot(c.x - CAM.raw.x, c.y - CAM.raw.y) : -palmOf(h);
     if (score < best) { best = score; pick = h; }
   }
   if (!pick) { CAM.hand = false; CAM.lm = null; return; }
 
-  const c = palmCentre(pick);
-  const tipX = (1 - pick[8].x) * CAM.aspect;                 // index fingertip: flicks show up best here
+  const c = fingertip(pick);
   // Back after a gap, or suddenly somewhere else entirely (the tracker lost
   // one hand and found another): start afresh rather than read it as a move.
   const leapt = CAM.raw && Math.hypot(c.x - CAM.raw.x, c.y - CAM.raw.y) > 4 * CAM.palm;
@@ -3256,11 +3255,11 @@ function camFeed(hands, now) {
   CAM.hand = true; CAM.lastSeen = now; CAM.lm = pick;
   CAM.raw = c;
   CAM.tip = { x: camFX.f(c.x, now, CAM.palm), y: camFY.f(c.y, now, CAM.palm) };
-  CAM.hist.push({ x: c.x, y: c.y, fx: tipX, t: now });
+  CAM.hist.push({ x: c.x, y: c.y, t: now });
   while (CAM.hist.length > 8 || now - CAM.hist[0].t > 300) CAM.hist.shift();
 }
 
-/* Turn the hand into what the keeper should do. Held states (jump zone,
+/* Turn the finger into what the keeper should do. Held states (jump zone,
    splits zone) live on CAM; the moments something starts come back. */
 function camRead(now) {
   if (!CAM.hand || !CAM.neutral) return null;
@@ -3313,9 +3312,9 @@ function camRead(now) {
    that's just the return leg of one doesn't count, and it has to cover real
    distance so a twitch can't throw him on the floor. Returns -1, 0 or 1. */
 function camFlick(now) {
-  const h = CAM.hist, k = h.length, p = CAM.palm, F = SENS[CAM.sens].flick;
+  const h = CAM.hist, k = h.length, p = CAM.palm, S = SENS[CAM.sens], F = S.flick;
   if (k < 3 || now - CAM.diveAt < 550) return 0;
-  const speed = (a, b) => { const d = (b.t - a.t) / 1000; return d > .004 && d < .12 ? (b.fx - a.fx) / d / p : NaN; };
+  const speed = (a, b) => { const d = (b.t - a.t) / 1000; return d > .004 && d < .12 ? (b.x - a.x) / d / p : NaN; };
   const v1 = speed(h[k - 3], h[k - 2]), v2 = speed(h[k - 2], h[k - 1]);
   if (!Number.isFinite(v1) || !Number.isFinite(v2)) return 0;
   const v0 = k >= 4 ? speed(h[k - 4], h[k - 3]) || 0 : 0;
@@ -3326,7 +3325,7 @@ function camFlick(now) {
   // Distance covered since just before the burst began (a time window, so
   // it means the same thing at 15 frames a second as at 60).
   const from = h.find(e => e.t >= h[k - 3].t - 100) || h[0];
-  if ((h[k - 1].fx - from.fx) / p * way < .8) return 0;
+  if ((h[k - 1].x - from.x) / p * way < S.range * .7) return 0;
   CAM.diveAt = now;
   return way;
 }
@@ -3348,12 +3347,12 @@ function camApply(out, now) {
   }
 }
 
-/* Before kick-off: hold your hand still where it's comfortable. That spot
+/* Before kick-off: hold your finger still where it's comfortable. That spot
    becomes the middle of the goal, and the lines are measured from it. */
 function camCalibrate(now) {
   if (!CAM.hand) {
     CAM.calib = []; CAM.calibK = 0;
-    setCamStatus("Hold one hand up to the camera, palm facing it.");
+    setCamStatus("Point one finger up at the camera, palm facing it.");
     return;
   }
   // Practice while you're here: a flick shows up on the preview as a dive.
@@ -3368,10 +3367,13 @@ function camCalibrate(now) {
   const wander = Math.max(...c.map(e => Math.hypot(e.x - mx, e.y - my))) / p;
 
   let problem = "";
+  // The tracker finds the finger by seeing the whole hand, so the wrist has
+  // to stay in the picture too.
+  const wristY = CAM.lm ? CAM.lm[0].y : 0;
   if (p < .075) problem = "Bring your hand a bit closer to the camera.";
   else if (p > .4) problem = "Move your hand a bit further from the camera.";
-  else if (my - (S.up + .45) * p < 0) problem = "Lower your hand a little, so there's room above it to jump.";
-  else if (my + (S.down + .45) * p > 1) problem = "Raise your hand a little, so there's room below it for the splits.";
+  else if (my - (S.up + .45) * p < 0) problem = "Lower your hand a little, so there's room above your finger to jump.";
+  else if (wristY > .95 || my + (S.down + .45) * p > 1) problem = "Raise your hand a little, so the camera can see all of it.";
   else if (mx - (S.range + .5) * p < 0 || mx + (S.range + .5) * p > A) problem = "Move your hand toward the middle of the picture.";
   if (problem || wander > .3) {
     CAM.calib = [c[n - 1]]; CAM.calibK = 0;
@@ -3392,11 +3394,11 @@ function camRecentre() {
   if (!CAM.hand || !CAM.tip) return;
   CAM.neutral = { x: CAM.tip.x, y: CAM.raw.y };
   CAM.zone = "mid";
-  showHint("HAND RE-CENTRED");
+  showHint("FINGER RE-CENTRED");
 }
 
 // The extra flight time a camera run gets: the measured delay from camera
-// to keeper, plus a little for the hand having to travel to a line.
+// to keeper, plus a little for the finger having to travel to a line.
 function camDelayBudget() {
   return Math.round(clamp(CAM.lag + 60, 110, 240));
 }
@@ -3440,7 +3442,7 @@ function openCamScreen() {
   CAM.neutral = null; CAM.calib = []; CAM.calibK = 0; CAM.zone = "mid";
   if (CAM.stream && CAM.tracker) {
     CAM.status = "calib";
-    setCamStatus("Hold one hand up to the camera, palm facing it.");
+    setCamStatus("Point one finger up at the camera, palm facing it.");
   } else camStart();
 }
 
@@ -3474,7 +3476,7 @@ async function camStart() {
       CAM.tracker = tracker;
     }
     CAM.status = "calib"; CAM.calib = []; CAM.calibK = 0;
-    setCamStatus("Hold one hand up to the camera, palm facing it.");
+    setCamStatus("Point one finger up at the camera, palm facing it.");
   } catch (e) {
     if (my === CAM.token) camFail(e);
   }
@@ -3679,7 +3681,7 @@ function drawCamView(cv, big) {
     c.fillStyle = "rgba(3,12,6,.32)"; c.fillRect(0, 0, w, h);
   }
 
-  // Before kick-off the lines ride along with your hand, so you can see
+  // Before kick-off the lines ride along with your finger, so you can see
   // where they'll be; once you've held still they stay put.
   const S = SENS[CAM.sens], p = CAM.palm;
   const n = CAM.neutral || (CAM.status === "calib" && CAM.hand && CAM.raw ? CAM.raw : null);
@@ -3708,6 +3710,11 @@ function drawCamView(cv, big) {
     c.beginPath();
     for (const [a, b] of HAND_LINKS) { const pa = P(a), pb = P(b); c.moveTo(pa[0], pa[1]); c.lineTo(pb[0], pb[1]); }
     c.stroke();
+    // The finger that's doing the steering, picked out.
+    c.strokeStyle = "rgba(61,220,132,.95)"; c.lineWidth = 3.5 * u;
+    c.beginPath();
+    for (let i = 5; i <= 8; i++) { const q = P(i); if (i === 5) c.moveTo(q[0], q[1]); else c.lineTo(q[0], q[1]); }
+    c.stroke();
     const tx = X(CAM.tip.x), ty = Y(CAM.tip.y);
     if (CAM.status === "calib" && CAM.calibK > 0) {             // the hold-still ring
       c.strokeStyle = "#3ddc84"; c.lineWidth = 3.5 * u;
@@ -3723,7 +3730,7 @@ function drawCamView(cv, big) {
   } else if (CAM.stream && CAM.tracker && !big) {
     c.font = `700 ${11 * u}px Inter, sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
     c.fillStyle = "rgba(255,214,215,.95)";
-    c.fillText("NO HAND", w / 2, h / 2);
+    c.fillText("NO FINGER", w / 2, h / 2);
   }
 
   if (big && CAM.practice && performance.now() < CAM.practice.until) {
@@ -3738,7 +3745,7 @@ function drawCamView(cv, big) {
   }
 }
 
-// On the pitch: a marker on the line showing where your hand is sending him,
+// On the pitch: a marker on the line showing where your finger is sending him,
 // coloured by what it's asking for (blue jump, gold splits).
 function drawCamTarget() {
   if (!camRun() || !CAM.neutral) return;
@@ -3757,7 +3764,7 @@ const GAME_URL = "https://avshr1.github.io/ShotStopperGame/";
 document.getElementById("share-btn").addEventListener("click", async e => {
   const btn = e.currentTarget;
   const url = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : GAME_URL;
-  const how = G.mode === "cam" ? " playing with my hand on camera" : "";
+  const how = G.mode === "cam" ? " playing with one finger on camera" : "";
   const text = `I scored ${G.score} in Shot Stopper${how} — ${G.saves} saves, lasted ${fmtTime(G.elapsed)}. Beat that:`;
   const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = "Share score"; }, 2200); };
   try {
@@ -3825,3 +3832,4 @@ requestAnimationFrame(frame);
 </script>
 </body>
 </html>
+
