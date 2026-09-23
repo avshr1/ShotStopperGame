@@ -214,6 +214,87 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
   #verdict{font-size:12px;margin:8px 0 10px}
   button.go{font-size:20px;padding:10px 34px}
 }
+
+/* ── camera mode ── */
+[hidden]{display:none !important}
+.start-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}
+.cam-open{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.cam-open .new{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:14px;letter-spacing:1.5px;
+  background:var(--stam);color:#04202c;border-radius:5px;padding:1px 6px 0;line-height:1.2}
+.over-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+#start-screen .card{max-width:500px}           /* room for both buttons side by side */
+.linkbtn{background:none;border:none;color:rgba(255,255,255,.62);font-family:inherit;font-size:12px;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.3);padding:4px 6px}
+.linkbtn:hover{color:#fff;text-decoration-color:rgba(255,255,255,.7)}
+.linkbtn:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:4px}
+
+#cam-screen .card{
+  max-width:680px;background:linear-gradient(180deg,rgba(10,26,14,.92),rgba(4,12,6,.95));
+  border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:18px 22px 14px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.title.cam-title{font-size:40px}
+.cam-title em{display:inline}
+.cam-title em::before{content:" "}
+.cam-grid{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:18px;align-items:start;text-align:left;margin-top:12px}
+.cam-view{position:relative;border-radius:12px;overflow:hidden;background:#050b07;border:1px solid rgba(255,255,255,.14)}
+.cam-view canvas,.cam-mini{aspect-ratio:auto;background:#050b07;touch-action:auto}
+.cam-view canvas{width:100%;height:auto;display:block}
+.cam-status{position:absolute;left:0;right:0;bottom:0;padding:18px 10px 8px;font-size:12px;font-weight:600;line-height:1.35;
+  background:linear-gradient(0deg,rgba(0,0,0,.8),rgba(0,0,0,0));color:#fff;text-align:center}
+.cam-status.err{color:#ffd6d7}
+.cam-meta{font-size:11px;color:rgba(255,255,255,.45);margin-top:6px;min-height:15px;text-align:center}
+.cam-rules{display:flex;flex-direction:column;gap:8px;font-size:13px;color:rgba(255,255,255,.86)}
+.cam-rules p{display:flex;gap:10px;align-items:baseline;line-height:1.4}
+.cam-rules i{font-style:normal;flex:none;width:24px;text-align:center;font-weight:700;color:var(--save)}
+.cam-row{display:flex;align-items:center;gap:10px;margin-top:13px;font-size:9px;letter-spacing:.17em;color:rgba(255,255,255,.45)}
+.seg{display:inline-flex;border:1px solid rgba(255,255,255,.2);border-radius:20px;overflow:hidden}
+.seg button{background:none;border:none;color:rgba(255,255,255,.7);font-family:inherit;font-size:11px;padding:5px 11px;cursor:pointer}
+.seg button + button{border-left:1px solid rgba(255,255,255,.14)}
+.seg button.on{background:rgba(61,220,132,.22);color:#fff}
+.seg button:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+.cam-note{font-size:12px;color:rgba(255,255,255,.62);line-height:1.5;margin-top:12px}
+.cam-actions{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.cam-privacy{font-size:11px;color:rgba(255,255,255,.42);margin-top:10px}
+
+/* The little picture-in-picture while you play: your hand, and the lines
+   you cross to jump and to go down. */
+.cam-mini{position:absolute;right:10px;bottom:10px;width:20%;max-width:176px;height:auto;border-radius:10px;z-index:6;
+  border:1px solid rgba(255,255,255,.3);box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none;display:none}
+.frame.cam-live .cam-mini{display:block}
+.frame.cam-live .pad{display:none}
+
+@media (max-width:640px){
+  .cam-grid{grid-template-columns:1fr;gap:12px}
+  .cam-view{max-width:300px;width:100%;margin:0 auto}
+}
+/* Phones: the game frame is only a couple of hundred pixels tall, so the
+   camera screen keeps just the picture, a one-line reminder and the buttons. */
+@media (max-width:560px){
+  #cam-screen .card{padding:10px;border-radius:12px}
+  .cam-title,.cam-note,.cam-privacy,.cam-meta{display:none}
+  .cam-grid{margin-top:0;gap:8px}
+  .cam-view{max-width:190px}
+  .cam-status{font-size:11px;padding:14px 6px 5px}
+  .cam-rules{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:2px 10px;font-size:11px}
+  .cam-rules p{gap:4px}
+  .cam-rules i{width:auto}
+  .cam-rules span{display:none}
+  .cam-rules p::after{color:rgba(255,255,255,.8)}
+  .cam-rules p:nth-child(1)::after{content:"move"}
+  .cam-rules p:nth-child(2)::after{content:"jump"}
+  .cam-rules p:nth-child(3)::after{content:"splits"}
+  .cam-rules p:nth-child(4)::after{content:"flick to dive"}
+  .cam-row{justify-content:center;margin-top:6px}
+  .cam-actions{margin-top:8px;gap:8px}
+  .cam-actions .share{padding:6px 14px;font-size:12px}
+  .cam-open{padding:7px 12px;font-size:12px}
+  .cam-open .new{display:none}
+  .start-actions{gap:10px}
+  .over-actions{flex-wrap:wrap;gap:8px 10px}
+  .over-row{display:contents}
+  #swap-btn{font-size:11px;padding:2px 6px}
+}
 </style>
 </head>
 <body>
@@ -222,7 +303,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
   <div class="hud">
     <div class="cell big" id="score"><span>SCORE</span><b>0</b></div>
-    <div class="cell" id="best"><span>BEST</span><b>0</b></div>
+    <div class="cell" id="best"><span id="best-label">BEST</span><b>0</b></div>
     <div class="cell" id="time"><span>TIME</span><b>0:00</b></div>
     <div class="stam-wrap">
       <span>STAMINA</span>
@@ -237,6 +318,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
   <div class="frame">
     <canvas id="game" width="800" height="540" tabindex="0" aria-label="Goalkeeper shot-stopping game"></canvas>
+    <canvas id="cam-mini" class="cam-mini" width="320" height="240" aria-hidden="true"></canvas>
 
     <div class="pad" id="pad">
       <div class="group">
@@ -265,7 +347,44 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
           Save it with a leap, a dive or the splits: <b>2 points</b>.
           <span class="scoring-note">Ten saves in a row wins back a ball you've let in.</span>
         </div>
-        <button id="start-btn" class="go">KICK OFF</button>
+        <div class="start-actions">
+          <button id="start-btn" class="go">KICK OFF</button>
+          <button id="cam-btn" class="share cam-open" title="Uses your camera"><b class="new">NEW</b>Play with your hand</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="cam-screen" class="sheet hidden">
+      <div class="card">
+        <h2 class="title cam-title">HAND <em>CONTROL</em></h2>
+        <div class="cam-grid">
+          <div>
+            <div class="cam-view">
+              <canvas id="cam-big" width="600" height="450" aria-label="Your camera, mirrored, with your tracked hand drawn over it"></canvas>
+              <div class="cam-status" id="cam-status" aria-live="polite">Starting your camera…</div>
+            </div>
+            <div class="cam-meta" id="cam-meta"></div>
+          </div>
+          <div>
+            <div class="cam-rules">
+              <p><i>↔</i><span>Hold one hand up and move it left and right. The keeper follows it.</span></p>
+              <p><i>↑</i><span>Raise your hand to jump. Keep it up there for a full leap.</span></p>
+              <p><i>↓</i><span>Drop your hand for the splits.</span></p>
+              <p><i>⇆</i><span>Flick it sideways, fast, to dive that way.</span></p>
+            </div>
+            <div class="cam-row"><span>SENSITIVITY</span>
+              <div class="seg" id="cam-sens" role="group" aria-label="Sensitivity">
+                <button data-v="0">Low</button><button data-v="1" class="on">Medium</button><button data-v="2">High</button>
+              </div>
+            </div>
+            <p class="cam-note">Rest your elbow on the desk: small movements cover the whole goal. Try a flick to see it register, then hold your hand still wherever feels comfortable to kick off.</p>
+          </div>
+        </div>
+        <div class="cam-actions">
+          <button id="cam-retry" class="go" hidden>TRY AGAIN</button>
+          <button id="cam-back" class="share">Use the keyboard instead</button>
+        </div>
+        <p class="cam-privacy">The video stays on your device. Nothing is recorded or uploaded.</p>
       </div>
     </div>
 
@@ -279,21 +398,24 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
         <p id="verdict"></p>
         <div class="over-actions">
           <button id="again-btn" class="go">GO AGAIN</button>
-          <button id="share-btn" class="share">Share score</button>
+          <div class="over-row">
+            <button id="share-btn" class="share">Share score</button>
+            <button id="swap-btn" class="linkbtn">Try it with your hand</button>
+          </div>
         </div>
       </div>
     </div>
 
     <div id="pause-screen" class="sheet hidden">
       <div class="card">
-        <h2 class="title" style="font-size:44px">PAUSED</h2>
-        <p class="sub">Press <kbd>P</kbd> to carry on.</p>
+        <h2 class="title" id="pause-title" style="font-size:44px">PAUSED</h2>
+        <p class="sub" id="pause-sub">Press <kbd>P</kbd> to carry on.</p>
       </div>
     </div>
   </div>
 
   <div class="bar">
-    <div class="keys">
+    <div class="keys" id="keys-hint">
       <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> splits · <kbd>SPACE</kbd> dive · <kbd>P</kbd> pause
     </div>
     <div style="display:flex;gap:8px">
@@ -329,6 +451,9 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
    Nothing hovers. Every vertical position comes from an impulse
    and gravity, so what you see is what's happening.
+
+   Or play it with your hand through the webcam instead (see "camera
+   control" further down). Camera runs keep their own best score.
    ═══════════════════════════════════════════════════════ */
 
 const CV = document.getElementById("game");
@@ -388,6 +513,10 @@ const LIFE_BACK_RUN = 10;
    climb, and it levels off rather than running away from you.        */
 const RAMP_MS = 180000;
 const BEST_KEY = "shotstopper-best";
+// Keyboard and camera are different games to be good at, so each keeps its
+// own record. The keyboard key is unchanged, so existing bests carry over.
+const BEST_KEYS = { keys: BEST_KEY, cam: "shotstopper-best-cam" };
+const bests = { keys: 0, cam: 0 };
 
 const PACE = {
   gap:   [2050, 540],    // ms between shots
@@ -405,7 +534,10 @@ let reducedMotion = false;
 const G = {
   phase: "menu", countT: 0, elapsed: 0, nextShot: 0,
   score: 0, best: 0, saves: 0, run: 0, bestRun: 0,
-  lives: 3, paused: false, announced: {}, milestone: 0,
+  lives: 3, paused: false, pauseWhy: null, announced: {}, milestone: 0,
+  mode: "keys",            // "keys" or "cam" — fixed for the length of a run
+  lag: 0,                  // ms of extra flight time a camera run gets for tracking delay
+
   stats: { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 }
 };
 
@@ -433,7 +565,12 @@ function showBanner(b) {
 let timeScale = 1, slowLeft = 0;
 let themeNow = 0;
 
-const hintsShown = { low: false, high: false, dive: false, stam: false, rebound: false };
+// Each way of playing gets its own first-time hints, worded for its controls.
+const HINTS = {
+  keys: { low: false, high: false, dive: false, stam: false, rebound: false },
+  cam:  { low: false, high: false, dive: false, stam: false, rebound: false }
+};
+let hintsShown = HINTS.keys;
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -564,7 +701,11 @@ const MIN_ARRIVAL_GAP = 260;        // ms — nothing arrives on top of somethin
 function band(y) { return y < HIGH_Y ? 2 : y > LOW_Y ? 0 : 1; }   // 2 high, 1 mid, 0 low
 
 // Seconds of the gap eaten by changing stance, before any running happens.
+// On camera there's also the tracking delay before he reacts at all.
 function stanceCost(fromY, toY) {
+  return stanceBase(fromY, toY) + G.lag / 1000;
+}
+function stanceBase(fromY, toY) {
   const a = band(fromY), b = band(toY);
   if (a === b) return .12;
   if (a === 2 && b === 0) return .70;   // land out of a leap, then get down into the splits
@@ -679,7 +820,9 @@ function spawnShot() {
   let kind = pickKind();
   const baseRunup = L(760, 430, h);
   const base = pace("flight", h);
-  let flight = kind === "chip" ? base * 1.45 : kind === "rocket" ? base * .68 : base;
+  // G.lag is zero on the keyboard. On camera every shot gets that much
+  // longer in the air, to pay back the time the tracking takes.
+  let flight = (kind === "chip" ? base * 1.45 : kind === "rocket" ? base * .68 : base) + G.lag;
 
   const offTarget = Math.random() < .09;           // the odd one sprayed wide
   let tx, ty, arriveAt, runup = baseRunup;
@@ -699,7 +842,7 @@ function spawnShot() {
     // A chip that can't be reached in time isn't a chip — hit it flat.
     if (!plan && wantHigh) {
       kind = "drive";
-      flight = base;
+      flight = base + G.lag;
       plan = planShot(G.elapsed + baseRunup + flight, null);
     }
     if (!plan) return;                             // hold fire, try again next gap
@@ -729,7 +872,7 @@ function spawnShot() {
 function spawnRebound(from) {
   if (shots.some(s => s.rebound)) return false;
   const sx = clamp(from.bx + rnd(-70, 70), 210, 590);
-  const flight = L(900, 600, heat());
+  const flight = L(900, 600, heat()) + G.lag;
   const plan = planShot(G.elapsed + 400 + flight, null);
   if (!plan) return false;                         // no fair way to follow up
   const arriveAt = plan.at, runup = arriveAt - flight - G.elapsed;
@@ -900,16 +1043,21 @@ function onTouchDown() {
 /* ═════════ diving ═════════ */
 function groundYFor(tilt) { return LINE_Y - 12 - 22 * Math.cos(tilt); }
 
-function launchDive() {
+// On the keyboard the direction comes from the keys held down; a camera
+// flick passes its own.
+function launchDive(dir) {
   if (keeper.diving) return;
   if (G.phase !== "play" && G.phase !== "count") return;
   if (!canSpend(DIVE_COST)) { keeper.denied = 1; sfx.spent(); return; }
 
   let dx = 0, dy = 0;
-  if (keys.has("a")) dx -= 1;
-  if (keys.has("d")) dx += 1;
-  if (keys.has("w")) dy -= 1;
-  if (keys.has("s")) dy += 1;
+  if (dir) { dx = dir.dx; dy = dir.dy; }
+  else {
+    if (keys.has("a")) dx -= 1;
+    if (keys.has("d")) dx += 1;
+    if (keys.has("w")) dy -= 1;
+    if (keys.has("s")) dy += 1;
+  }
   if (dx === 0 && dy === 0) { dx = Math.sign(keeper.vx) || (Math.random() < .5 ? -1 : 1); dy = -.55; }
   const d = Math.hypot(dx, dy) || 1;
   const ux = dx / d, uy = dy / d;
@@ -1001,10 +1149,18 @@ function updateKeeper(dt) {
     if (keeper.spread < .02) keeper.spread = 0;
 
     let dir = 0;
-    if (keys.has("a")) dir -= 1;
-    if (keys.has("d")) dir += 1;
+    const following = G.mode === "cam" && (G.phase === "play" || G.phase === "count");
+    if (following) {
+      // Run to where the hand says: flat out from a distance, easing in over
+      // the last stretch so he settles on the spot instead of overshooting.
+      // Never faster than on the keyboard, so every shot stays as fair.
+      dir = clamp((CAM.targetX - keeper.x) / CAM_EASE, -1, 1);
+    } else {
+      if (keys.has("a")) dir -= 1;
+      if (keys.has("d")) dir += 1;
+    }
     const authority = keeper.airborne ? AIR_CONTROL : L(1, .38, keeper.spread);
-    const tau = keeper.airborne ? AIR_TAU : MOVE_TAU;
+    const tau = keeper.airborne ? AIR_TAU : following ? CAM_TAU : MOVE_TAU;
     keeper.vx += (dir * MOVE_SPEED * authority - keeper.vx) * (1 - Math.exp(-dt / tau));
     keeper.x += keeper.vx * s;
 
@@ -1039,12 +1195,13 @@ function showHint(text) { hintBanner = { text, life: 1 }; }
 
 function maybeHint(s) {
   if (secs() > 40) return;
+  const cam = G.mode === "cam";
   if (!hintsShown.high && s.ty < GOAL.y + 100) {
-    hintsShown.high = true; showHint("HIGH ONE — HOLD W TO LEAP");
+    hintsShown.high = true; showHint(cam ? "HIGH ONE — RAISE YOUR HAND TO LEAP" : "HIGH ONE — HOLD W TO LEAP");
   } else if (!hintsShown.low && s.ty > LINE_Y - 50) {
-    hintsShown.low = true; showHint("LOW ONE — HOLD S FOR THE SPLITS");
+    hintsShown.low = true; showHint(cam ? "LOW ONE — DROP YOUR HAND FOR THE SPLITS" : "LOW ONE — HOLD S FOR THE SPLITS");
   } else if (!hintsShown.dive && Math.abs(s.tx - W / 2) > 200) {
-    hintsShown.dive = true; showHint("THAT'S A CORNER — SPACE TO DIVE");
+    hintsShown.dive = true; showHint(cam ? "THAT'S A CORNER — FLICK SIDEWAYS TO DIVE" : "THAT'S A CORNER — SPACE TO DIVE");
   }
 }
 
@@ -2639,6 +2796,7 @@ function frame(now) {
 
   const dt = real * timeScale;
 
+  camWatch(now);
   if (!G.paused) {
     if (G.phase === "count") {
       const before = Math.floor(G.countT / 700);
@@ -2696,6 +2854,7 @@ function render() {
   drawDebris("net");                       // inside the goal, or gone past it
   drawGoalFrame();
   drawReach();
+  drawCamTarget();                         // camera runs: where your hand is sending him
   drawKeeper();
   for (const s of shots) if (s.phase === "flight") drawFlyingBall(s);
   drawDebris("front");                     // coming back out toward us
@@ -2787,11 +2946,34 @@ function updateHUD() {
 }
 
 /* ═════════ flow ═════════ */
-function startGame() {
+// Which way the next run is played, and whose best score is on show.
+function setMode(mode) {
+  G.mode = mode;
+  G.best = bests[mode];
+  document.getElementById("best-label").textContent = mode === "cam" ? "HAND BEST" : "BEST";
+  document.getElementById("keys-hint").innerHTML = mode === "cam"
+    ? "Hand <kbd>↔</kbd> move · up jump · down splits · flick dive · <kbd>C</kbd> re-centre · <kbd>P</kbd> pause"
+    : "<kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> splits · <kbd>SPACE</kbd> dive · <kbd>P</kbd> pause";
+  document.getElementById("swap-btn").textContent = mode === "cam" ? "Back to the keyboard" : "Try it with your hand";
+  updateHUD();
+}
+
+// The picture-in-picture and the hidden touch pad follow whether a camera
+// run is actually under way.
+function syncCamLive() {
+  const live = G.mode === "cam" && (G.phase === "play" || G.phase === "count");
+  document.querySelector(".frame").classList.toggle("cam-live", live);
+}
+
+function startGame(mode) {
+  if (mode) setMode(mode);
   ac();
   G.phase = "count"; G.countT = 0; G.elapsed = 0; G.nextShot = 0;
   G.score = 0; G.saves = 0; G.run = 0; G.bestRun = 0;
-  G.lives = 3; G.paused = false; G.announced = {}; G.milestone = 0;
+  G.lives = 3; G.paused = false; G.pauseWhy = null; G.announced = {}; G.milestone = 0;
+  G.lag = G.mode === "cam" ? camDelayBudget() : 0;
+  hintsShown = HINTS[G.mode];
+  keys.clear();
   G.stats = { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 };
   shots = []; particles = []; pops = []; netHits = []; rings = []; cheer = 0; lastArrival = null;
   flashes = []; confetti = []; scuffs = []; crowdWave = null; punch = 0; poseReady = 0; shownScore = 0;
@@ -2805,19 +2987,28 @@ function startGame() {
   keeper.stamina = STAM_MAX; keeper.exhausted = false; keeper.lastUse = 9999;
   keeper.diving = false; keeper.grounded = false; keeper.getup = false;
   document.getElementById("best").classList.remove("beaten");
-  document.getElementById("start-screen").classList.add("hidden");
-  document.getElementById("over-screen").classList.add("hidden");
-  document.getElementById("pause-screen").classList.add("hidden");
+  for (const id of ["start-screen", "over-screen", "pause-screen", "cam-screen"]) {
+    document.getElementById(id).classList.add("hidden");
+  }
+  syncCamLive();
   updateHUD();
+}
+
+// Same way of playing as last time. On camera that means holding your hand
+// still again first, which also re-centres it.
+function goAgain() {
+  if (G.mode === "cam") openCamScreen(); else startGame("keys");
 }
 
 function gameOver() {
   G.phase = "over";
+  keys.clear();
+  syncCamLive();
   const beat = G.score > G.best;
   const previous = G.best;
   if (beat) {
-    G.best = G.score;
-    try { localStorage.setItem(BEST_KEY, String(G.best)); } catch (e) { /* preview sandbox */ }
+    G.best = bests[G.mode] = G.score;
+    try { localStorage.setItem(BEST_KEYS[G.mode], String(G.best)); } catch (e) { /* preview sandbox */ }
   }
   shots = [];
   sfx.whistle();
@@ -2848,7 +3039,9 @@ function gameOver() {
   if (st.hard === 0 && st.faced > 8) {
     line = "Every save was a standing one. Leap, dive or spread and they're worth double.";
   } else if (st.leaps === 0 && st.faced > 8) {
-    line = "You never left the ground. Hold W and the top of the goal opens up.";
+    line = G.mode === "cam"
+      ? "You never left the ground. Raise your hand and the top of the goal opens up."
+      : "You never left the ground. Hold W and the top of the goal opens up.";
   } else if (st.parries > st.catches * 2 && st.faced > 6) {
     line = "Plenty of hands on it, almost nothing held. A clean catch kills the rebound.";
   } else if (st.dives === 0 && st.faced > 10) {
@@ -2867,9 +3060,17 @@ function gameOver() {
   updateHUD();
 }
 
-function setPaused(v) {
+// A camera run pauses itself when it loses sight of your hand, and picks
+// up again by itself once it's back. Any other pause waits for P.
+function setPaused(v, why = "user") {
   if (G.phase !== "play" && G.phase !== "count") return;
   G.paused = v;
+  G.pauseWhy = v ? why : null;
+  const hand = v && why === "hand";
+  document.getElementById("pause-title").textContent = hand ? "WHERE'S YOUR HAND?" : "PAUSED";
+  document.getElementById("pause-sub").innerHTML = !hand ? "Press <kbd>P</kbd> to carry on."
+    : CAM.status === "error" ? CAM.msg + " Press <kbd>P</kbd> to finish this run."
+    : "Hold it back up where you started and the game carries on by itself.";
   document.getElementById("pause-screen").classList.toggle("hidden", !v);
 }
 
@@ -2881,24 +3082,44 @@ const KEYMAP = {
   "s": "s", "arrowdown": "s"
 };
 
+// During a camera run the hand is the only controller — the keys would
+// make it a different game, and camera runs keep their own record. P still
+// pauses, and C re-centres your hand on wherever it is right now.
+const camRun = () => G.mode === "cam" && (G.phase === "play" || G.phase === "count");
+const camScreenOpen = () => !document.getElementById("cam-screen").classList.contains("hidden");
+
 window.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
   const mapped = KEYMAP[k];
   if (mapped) {
     e.preventDefault();
-    const wasDown = keys.has(mapped);          // ignore the OS key-repeat
-    keys.add(mapped);
-    if (mapped === "w" && !wasDown) requestJump();
+    if (!camRun()) {
+      const wasDown = keys.has(mapped);        // ignore the OS key-repeat
+      keys.add(mapped);
+      if (mapped === "w" && !wasDown) requestJump();
+    }
   }
   if (e.code === "Space") {
     e.preventDefault();
-    if (G.phase === "menu" || G.phase === "over") startGame(); else launchDive();
+    if (camScreenOpen()) return;
+    if (G.phase === "menu") startGame("keys");
+    else if (G.phase === "over") goAgain();
+    else if (!camRun()) launchDive();
   }
-  if (k === "p") setPaused(!G.paused);
+  if (k === "p") {
+    // If the camera itself has gone mid-run there's no carrying on with the
+    // hand, so P finishes the run instead.
+    if (G.paused && G.pauseWhy === "hand" && CAM.status === "error") {
+      G.paused = false;
+      document.getElementById("pause-screen").classList.add("hidden");
+      gameOver();
+    } else setPaused(!G.paused);
+  }
+  if (k === "c" && camRun()) camRecentre();
 });
 window.addEventListener("keyup", e => {
   const k = e.key.toLowerCase();
-  if (KEYMAP[k]) keys.delete(KEYMAP[k]);
+  if (KEYMAP[k] && !camRun()) keys.delete(KEYMAP[k]);
 });
 window.addEventListener("blur", () => { keys.clear(); setPaused(true); });
 document.addEventListener("visibilitychange", () => { if (document.hidden) { keys.clear(); setPaused(true); } });
@@ -2907,7 +3128,10 @@ for (const btn of document.querySelectorAll("#pad button")) {
   const k = btn.dataset.key;
   const press = e => {
     e.preventDefault();
-    if (k === " ") { if (G.phase === "menu" || G.phase === "over") startGame(); else launchDive(); return; }
+    if (k === " ") {
+      if (G.phase === "menu") startGame("keys"); else if (G.phase === "over") goAgain(); else launchDive();
+      return;
+    }
     const wasDown = keys.has(k);
     keys.add(k);
     if (k === "w" && !wasDown) requestJump();
@@ -2919,6 +3143,613 @@ for (const btn of document.querySelectorAll("#pad button")) {
   btn.addEventListener("pointerleave", release);
 }
 
+/* ═════════ camera control ═════════
+   Play with your hand instead of the keyboard. Google's MediaPipe hand
+   tracker is loaded the first time someone asks for it (about 20 MB, which
+   the browser then caches) and runs entirely on this device. The video is
+   never uploaded or recorded.
+
+   It follows the middle of your palm rather than a fingertip: a fingertip
+   jumps about every time the finger bends, the palm doesn't. And every
+   distance is measured in palm-lengths rather than pixels, so the controls
+   feel the same whether you sit close to the camera or further back.
+
+     hand left / right    he runs to the matching spot on his line
+     hand up              jump — keep it up there for the full leap
+     hand down            the splits
+     quick sideways flick dive that way
+
+   Tracking a hand through a webcam is slower than a key press. So a camera
+   run measures that delay before kick-off and gives every shot exactly that
+   much extra time in the air, and the fairness check allows for it too.  */
+const TASKS_VERSIONS = ["1.0.1", "0.10.35"];            // pinned; the second is a fallback
+const HAND_MODELS = [
+  "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+  "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task"
+];
+const SENS_KEY = "shotstopper-cam-sens";
+// All in palm-lengths. range: how far either side of centre reaches a post.
+// up / down: how far to move for a jump or the splits. flick: palms per
+// second a flick has to hit to count as a dive.
+const SENS = [
+  { range: 1.6,  up: .95, down: .9,  flick: 27 },     // low
+  { range: 1.25, up: .8,  down: .75, flick: 21.5 },   // medium
+  { range: .95,  up: .66, down: .62, flick: 17 }      // high
+];
+const ZONE_HYST = .28;              // come back this far to leave the jump or splits zone
+const CAM_EASE = 70;                // px: inside this he eases onto the spot rather than sprinting
+const CAM_TAU = 40;
+const CALIB_MS = 900;               // hold still this long to kick off
+const LOST_MS = 1200, BACK_MS = 700;
+const HAND_LINKS = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11],
+  [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20]];
+
+const CAM = {
+  status: "off",                    // off · starting · loading · calib · live · error
+  msg: "", err: false, token: 0, pumpId: 0,
+  video: null, stream: null, tracker: null, delegate: "", okFrames: 0, reloading: false,
+  aspect: 4 / 3, lastTs: 0, lastVT: -1, lastFrameAt: 0, frameMs: 33, infer: 15, lag: 110,
+  sens: 1,
+  hand: false, lastSeen: -1e9, seenSince: 0,
+  lm: null,                         // the tracked hand's 21 points, as the tracker gave them
+  raw: null, tip: null,             // palm centre: as measured, and smoothed (x mirrored, in frame heights)
+  palm: .15, hist: [],
+  neutral: null, zone: "mid", targetX: W / 2,
+  diveAt: -1e9, jumpAt: -1e9, flash: 0, practice: null,
+  calib: [], calibK: 0, metaAt: 0
+};
+
+// One-euro filter: heavy smoothing when the hand is nearly still (kills
+// jitter), light smoothing when it's moving fast (kills lag).
+function oneEuro(minCut, beta, dCut) {
+  let x = null, d = 0, last = 0;
+  const a = (cut, dt) => { const r = 2 * Math.PI * cut * dt; return r / (r + 1); };
+  return {
+    reset() { x = null; },
+    f(v, t, unit) {                           // t in ms; speed is judged in units per second
+      if (x === null) { x = v; d = 0; last = t; return v; }
+      const dt = Math.max(.001, (t - last) / 1000); last = t;
+      d += a(dCut, dt) * ((v - x) / dt - d);
+      x += a(minCut + beta * Math.abs(d) / unit, dt) * (v - x);
+      return x;
+    }
+  };
+}
+const camFX = oneEuro(1.2, .6, 4), camFY = oneEuro(1.2, .6, 4);
+
+// Palm size, as the longer of wrist-to-knuckles and knuckle width (scaled
+// to match), so turning the hand doesn't make it look like it shrank.
+function palmOf(h) {
+  const A = CAM.aspect;
+  const d = (i, j) => Math.hypot((h[i].x - h[j].x) * A, h[i].y - h[j].y);
+  return Math.max(d(0, 9), d(5, 17) * 1.25);
+}
+function palmCentre(h) {
+  let x = 0, y = 0;
+  for (const i of [0, 5, 9, 13, 17]) { x += h[i].x; y += h[i].y; }
+  return { x: (1 - x / 5) * CAM.aspect, y: y / 5 };        // mirrored, like looking in a mirror
+}
+
+/* Take one frame's worth of tracked hands (landmarks straight from the
+   tracker) and update where the hand is. */
+function camFeed(hands, now) {
+  // With two hands in view, stay with whichever is nearest the one we
+  // were already following; otherwise take the biggest.
+  let pick = null, best = Infinity;
+  for (const h of hands || []) {
+    if (!h || h.length < 21) continue;
+    const c = palmCentre(h);
+    const score = CAM.raw && now - CAM.lastSeen < 400 ? Math.hypot(c.x - CAM.raw.x, c.y - CAM.raw.y) : -palmOf(h);
+    if (score < best) { best = score; pick = h; }
+  }
+  if (!pick) { CAM.hand = false; CAM.lm = null; return; }
+
+  const c = palmCentre(pick);
+  const tipX = (1 - pick[8].x) * CAM.aspect;                 // index fingertip: flicks show up best here
+  // Back after a gap, or suddenly somewhere else entirely (the tracker lost
+  // one hand and found another): start afresh rather than read it as a move.
+  const leapt = CAM.raw && Math.hypot(c.x - CAM.raw.x, c.y - CAM.raw.y) > 4 * CAM.palm;
+  const fresh = !CAM.hand || now - CAM.lastSeen > 400 || leapt;
+  if (fresh) { CAM.seenSince = now; CAM.hist = []; camFX.reset(); camFY.reset(); }
+  const p = clamp(palmOf(pick), .03, .7);
+  CAM.palm = fresh ? p : L(CAM.palm, p, 1 - Math.exp(-Math.max(0, now - CAM.lastSeen) / 500));
+  CAM.hand = true; CAM.lastSeen = now; CAM.lm = pick;
+  CAM.raw = c;
+  CAM.tip = { x: camFX.f(c.x, now, CAM.palm), y: camFY.f(c.y, now, CAM.palm) };
+  CAM.hist.push({ x: c.x, y: c.y, fx: tipX, t: now });
+  while (CAM.hist.length > 8 || now - CAM.hist[0].t > 300) CAM.hist.shift();
+}
+
+/* Turn the hand into what the keeper should do. Held states (jump zone,
+   splits zone) live on CAM; the moments something starts come back. */
+function camRead(now) {
+  if (!CAM.hand || !CAM.neutral) return null;
+  const S = SENS[CAM.sens], p = CAM.palm, n = CAM.neutral, h = CAM.hist, k = h.length;
+  const out = { jump: false, dive: null };
+
+  // Across: the smoothed position, so he stands still when you do.
+  const across = (CAM.tip.x - n.x) / p;
+  CAM.targetX = clamp(W / 2 + across / S.range * (GOAL.w / 2 - 20), GOAL.x - 10, GOAL.x + GOAL.w + 10);
+
+  // Speeds come from the raw positions, in palms per second: smoothing is
+  // there to steady the keeper and would only blunt a quick movement.
+  let vy = 0, slope = 0, timed = false;
+  if (k >= 3) {
+    const a = h[k - 3], c = h[k - 1];
+    const d = (c.t - a.t) / 1000;
+    if (d > .008 && d < .24) {
+      timed = true;
+      vy = (c.y - a.y) / d / p;
+      slope = (c.y - a.y) / (Math.abs(c.x - a.x) || 1e-6);
+    }
+  }
+
+  // Up and down, with hysteresis so wobbling on a line doesn't flicker
+  // between states. A quick, deliberate movement counts early.
+  const dy = (CAM.raw.y - n.y) / p;                         // positive is down
+  let zone = CAM.zone;
+  if (zone === "high" && dy > -(S.up - ZONE_HYST)) zone = "mid";
+  if (zone === "low" && dy < S.down - ZONE_HYST) zone = "mid";
+  if (zone === "mid") {
+    if (dy < -S.up || (dy < -S.up * .45 && vy < -7)) zone = "high";
+    else if (dy > S.down || (dy > S.down * .45 && vy > 7)) zone = "low";
+  }
+  if (zone === "high" && CAM.zone !== "high") out.jump = true;
+  CAM.zone = zone;
+
+  const way = timed ? camFlick(now) : 0;
+  if (way) {
+    // Flick up-and-across for a top corner, down-and-across for a low one.
+    const vert = zone === "high" ? -1 : zone === "low" ? 1 : slope < -.5 ? -1 : slope > .5 ? 1 : 0;
+    out.dive = { dx: way, dy: vert };
+  }
+  return out;
+}
+
+/* A flick is a burst of speed that ends somewhere new: either two fast
+   frames in a row the same way, or one very fast frame the hand doesn't
+   snap straight back from (a quick flick can fall between two camera
+   frames). A tracking glitch jumps out and straight back, so a fast frame
+   that's just the return leg of one doesn't count, and it has to cover real
+   distance so a twitch can't throw him on the floor. Returns -1, 0 or 1. */
+function camFlick(now) {
+  const h = CAM.hist, k = h.length, p = CAM.palm, F = SENS[CAM.sens].flick;
+  if (k < 3 || now - CAM.diveAt < 550) return 0;
+  const speed = (a, b) => { const d = (b.t - a.t) / 1000; return d > .004 && d < .12 ? (b.fx - a.fx) / d / p : NaN; };
+  const v1 = speed(h[k - 3], h[k - 2]), v2 = speed(h[k - 2], h[k - 1]);
+  if (!Number.isFinite(v1) || !Number.isFinite(v2)) return 0;
+  const v0 = k >= 4 ? speed(h[k - 4], h[k - 3]) || 0 : 0;
+  const twoFast = Math.abs(v2) >= F && Math.sign(v1) === Math.sign(v2) && Math.abs(v1) >= F * .35;
+  const oneFast = Math.abs(v1) >= F && v2 * Math.sign(v1) > -F * .3 && v0 * Math.sign(v1) > -F * .8;
+  if (!twoFast && !oneFast) return 0;
+  const way = twoFast ? Math.sign(v2) : Math.sign(v1);
+  // Distance covered since just before the burst began (a time window, so
+  // it means the same thing at 15 frames a second as at 60).
+  const from = h.find(e => e.t >= h[k - 3].t - 100) || h[0];
+  if ((h[k - 1].fx - from.fx) / p * way < .8) return 0;
+  CAM.diveAt = now;
+  return way;
+}
+
+function camApply(out, now) {
+  if (G.mode !== "cam") return;
+  const live = camRun() && !G.paused && CAM.hand;
+  const hold = (key, on) => { if (on) keys.add(key); else keys.delete(key); };
+  hold("w", live && CAM.zone === "high");
+  hold("s", live && CAM.zone === "low");
+  if (!live || !out) return;
+  if (out.jump) { CAM.jumpAt = now; requestJump(); }
+  if (out.dive) {
+    // A flick up and across can cross the jump line on its way. That
+    // jump wasn't meant, so it doesn't cost anything.
+    if (keeper.airborne && now - CAM.jumpAt < 160) refund(JUMP_COST);
+    launchDive(out.dive);
+    CAM.flash = 1;
+  }
+}
+
+/* Before kick-off: hold your hand still where it's comfortable. That spot
+   becomes the middle of the goal, and the lines are measured from it. */
+function camCalibrate(now) {
+  if (!CAM.hand) {
+    CAM.calib = []; CAM.calibK = 0;
+    setCamStatus("Hold one hand up to the camera, palm facing it.");
+    return;
+  }
+  // Practice while you're here: a flick shows up on the preview as a dive.
+  const tried = camFlick(now);
+  if (tried) CAM.practice = { way: tried, until: performance.now() + 800 };
+
+  const S = SENS[CAM.sens], p = CAM.palm, A = CAM.aspect;
+  CAM.calib.push({ x: CAM.raw.x, y: CAM.raw.y, t: now });
+  while (now - CAM.calib[0].t > CALIB_MS) CAM.calib.shift();
+  const c = CAM.calib, n = c.length;
+  const mx = c.reduce((s, e) => s + e.x, 0) / n, my = c.reduce((s, e) => s + e.y, 0) / n;
+  const wander = Math.max(...c.map(e => Math.hypot(e.x - mx, e.y - my))) / p;
+
+  let problem = "";
+  if (p < .075) problem = "Bring your hand a bit closer to the camera.";
+  else if (p > .4) problem = "Move your hand a bit further from the camera.";
+  else if (my - (S.up + .45) * p < 0) problem = "Lower your hand a little, so there's room above it to jump.";
+  else if (my + (S.down + .45) * p > 1) problem = "Raise your hand a little, so there's room below it for the splits.";
+  else if (mx - (S.range + .5) * p < 0 || mx + (S.range + .5) * p > A) problem = "Move your hand toward the middle of the picture.";
+  if (problem || wander > .3) {
+    CAM.calib = [c[n - 1]]; CAM.calibK = 0;
+    setCamStatus(problem || "Now hold it still…");
+    return;
+  }
+  CAM.calibK = clamp((now - c[0].t) / (CALIB_MS - 40), 0, 1);
+  setCamStatus(CAM.calibK > .2 ? "Hold it there…" : "Now hold it still…");
+  if (CAM.calibK >= 1) {
+    CAM.neutral = { x: mx, y: my };
+    CAM.zone = "mid"; CAM.targetX = W / 2;
+    CAM.status = "live";
+    startGame("cam");
+  }
+}
+
+function camRecentre() {
+  if (!CAM.hand || !CAM.tip) return;
+  CAM.neutral = { x: CAM.tip.x, y: CAM.raw.y };
+  CAM.zone = "mid";
+  showHint("HAND RE-CENTRED");
+}
+
+// The extra flight time a camera run gets: the measured delay from camera
+// to keeper, plus a little for the hand having to travel to a line.
+function camDelayBudget() {
+  return Math.round(clamp(CAM.lag + 60, 110, 240));
+}
+
+function setSensitivity(v) {
+  CAM.sens = v;
+  for (const b of document.querySelectorAll("#cam-sens button")) b.classList.toggle("on", +b.dataset.v === v);
+  try { localStorage.setItem(SENS_KEY, String(v)); } catch (e) { /* storage unavailable */ }
+  CAM.calib = []; CAM.calibK = 0;                  // the lines just moved: start the hold again
+}
+
+function setCamStatus(text, err = false) {
+  if (CAM.msg === text && CAM.err === err) return;
+  CAM.msg = text; CAM.err = err;
+  const el = document.getElementById("cam-status");
+  el.textContent = text;
+  el.classList.toggle("err", err);
+}
+
+function camErrorText(e) {
+  const n = e && e.name;
+  if (n === "NoMedia" || !window.isSecureContext) {
+    return "The browser won't open the camera from here. Play it from the GitHub Pages link, or from VS Code's Live Server.";
+  }
+  if (n === "NotAllowedError" || n === "SecurityError") return "Camera access was blocked. Allow it from the camera icon in the address bar, then try again.";
+  if (n === "NotFoundError" || n === "OverconstrainedError") return "Couldn't find a camera on this device.";
+  if (n === "NotReadableError" || n === "AbortError") return "Your camera is busy in another app. Close that, then try again.";
+  if (n === "Ended") return "Lost the camera. Check it's still plugged in, then try again.";
+  if (n === "Tracker") return "Couldn't load the hand tracker. Check your internet connection, then try again.";
+  return "Something went wrong starting the camera. Try again.";
+}
+
+/* ── the screen you see before a camera run ── */
+function openCamScreen() {
+  ac();
+  G.phase = "menu"; G.paused = false;
+  setMode("cam");
+  syncCamLive();
+  for (const id of ["start-screen", "over-screen", "pause-screen"]) document.getElementById(id).classList.add("hidden");
+  document.getElementById("cam-screen").classList.remove("hidden");
+  CAM.neutral = null; CAM.calib = []; CAM.calibK = 0; CAM.zone = "mid";
+  if (CAM.stream && CAM.tracker) {
+    CAM.status = "calib";
+    setCamStatus("Hold one hand up to the camera, palm facing it.");
+  } else camStart();
+}
+
+function backToKeys() {
+  camStop();
+  setMode("keys");
+  G.phase = "menu"; G.paused = false;
+  for (const id of ["cam-screen", "over-screen", "pause-screen"]) document.getElementById(id).classList.add("hidden");
+  document.getElementById("start-screen").classList.remove("hidden");
+  syncCamLive();
+}
+
+async function camStart() {
+  const my = ++CAM.token;
+  document.getElementById("cam-retry").hidden = true;
+  CAM.status = "starting";
+  setCamStatus("Asking to use your camera…");
+  try {
+    if (!CAM.stream) {
+      const stream = await camOpenStream();
+      if (my !== CAM.token) { for (const t of stream.getTracks()) t.stop(); return; }
+      await camAttach(stream);
+      if (my !== CAM.token) return;
+      camPump();
+    }
+    if (!CAM.tracker) {
+      CAM.status = "loading";
+      setCamStatus("Loading the hand tracker. The first time takes a few seconds (about 20 MB).");
+      const tracker = await loadTracker(false);
+      if (my !== CAM.token) { try { tracker.close(); } catch (e) { /* already gone */ } return; }
+      CAM.tracker = tracker;
+    }
+    CAM.status = "calib"; CAM.calib = []; CAM.calibK = 0;
+    setCamStatus("Hold one hand up to the camera, palm facing it.");
+  } catch (e) {
+    if (my === CAM.token) camFail(e);
+  }
+}
+
+async function camOpenStream() {
+  const md = navigator.mediaDevices;
+  if (!md || !md.getUserMedia) throw Object.assign(new Error("no camera API"), { name: "NoMedia" });
+  return md.getUserMedia({
+    audio: false,
+    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 60 } }
+  });
+}
+
+async function camAttach(stream) {
+  let v = CAM.video;
+  if (!v) {
+    // Some mobile browsers only deliver frames to a video that's in the
+    // page, so it's there, just invisible.
+    v = CAM.video = document.createElement("video");
+    v.muted = true; v.playsInline = true; v.autoplay = true;
+    v.setAttribute("playsinline", ""); v.setAttribute("aria-hidden", "true");
+    v.style.cssText = "position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none";
+    document.body.appendChild(v);
+  }
+  CAM.stream = stream;
+  v.srcObject = stream;
+  const track = stream.getVideoTracks()[0];
+  if (track) track.addEventListener("ended", () => { if (CAM.stream === stream) camFail({ name: "Ended" }); });
+  if (!v.videoWidth) {
+    await Promise.race([
+      new Promise(r => v.addEventListener("loadedmetadata", r, { once: true })),
+      new Promise((r, no) => setTimeout(() => no(Object.assign(new Error("no frames"), { name: "NotReadableError" })), 8000))
+    ]);
+  }
+  await v.play();
+  CAM.aspect = v.videoWidth && v.videoHeight ? v.videoWidth / v.videoHeight : 4 / 3;
+  for (const id of ["cam-big", "cam-mini"]) {
+    const cv = document.getElementById(id);
+    cv.height = Math.round(cv.width / CAM.aspect);
+  }
+  CAM.lastTs = 0; CAM.lastVT = -1; CAM.okFrames = 0;
+}
+
+// Newest pinned version first, GPU first; fall back to CPU, which is slower
+// but works everywhere.
+async function loadTracker(cpuOnly) {
+  let err = null;
+  for (const ver of TASKS_VERSIONS) {
+    const base = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${ver}`;
+    let lib, files;
+    try {
+      lib = await import(`${base}/vision_bundle.mjs`);
+      files = await lib.FilesetResolver.forVisionTasks(`${base}/wasm`);
+    } catch (e) { err = e; continue; }
+    for (const model of HAND_MODELS) {
+      for (const delegate of cpuOnly ? ["CPU"] : ["GPU", "CPU"]) {
+        try {
+          const t = await lib.HandLandmarker.createFromOptions(files, {
+            baseOptions: { modelAssetPath: model, delegate },
+            runningMode: "VIDEO", numHands: 2,
+            minHandDetectionConfidence: .6, minHandPresenceConfidence: .55, minTrackingConfidence: .5
+          });
+          CAM.delegate = delegate;
+          return t;
+        } catch (e) { err = e; }
+      }
+    }
+  }
+  console.warn("hand tracker failed to load", err);
+  throw Object.assign(new Error("tracker"), { name: "Tracker" });
+}
+
+function camStop() {
+  CAM.token++; CAM.pumpId++;
+  if (CAM.stream) for (const t of CAM.stream.getTracks()) t.stop();
+  CAM.stream = null;
+  if (CAM.video) CAM.video.srcObject = null;
+  CAM.hand = false; CAM.lm = null;
+  if (CAM.status !== "error") CAM.status = "off";
+}
+
+function camFail(e) {
+  camStop();
+  CAM.status = "error";
+  setCamStatus(camErrorText(e), true);
+  document.getElementById("cam-retry").hidden = false;
+  if (camRun()) setPaused(true, "hand");
+  camDraw();
+}
+
+// The GPU path fails on a few machines only once it's actually used. If
+// that happens before anything has worked, quietly switch to the CPU.
+function camTrackerTrouble(e) {
+  if (CAM.delegate === "GPU" && CAM.okFrames === 0 && !CAM.reloading) {
+    CAM.reloading = true;
+    const old = CAM.tracker; CAM.tracker = null;
+    try { old.close(); } catch (err) { /* already gone */ }
+    CAM.status = "loading";
+    setCamStatus("Loading the hand tracker…");
+    const my = CAM.token;
+    loadTracker(true).then(t => {
+      CAM.reloading = false;
+      if (my !== CAM.token) { try { t.close(); } catch (err) { /* already gone */ } return; }
+      CAM.tracker = t; CAM.status = "calib"; CAM.calib = [];
+    }).catch(err => { CAM.reloading = false; if (my === CAM.token) camFail(err); });
+    return;
+  }
+  console.warn("hand tracking stopped", e);
+  camFail({ name: "Tracker" });
+}
+
+// One pass per camera frame, not per screen refresh: no point tracking the
+// same picture twice.
+function camPump() {
+  const id = ++CAM.pumpId, v = CAM.video;
+  const next = () => {
+    if (id !== CAM.pumpId || !CAM.stream) return;
+    if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(step);
+    else requestAnimationFrame(now => step(now, null));
+  };
+  const step = (now, meta) => {
+    if (id !== CAM.pumpId || !CAM.stream) return;
+    camProcess(meta);
+    next();
+  };
+  next();
+}
+
+function camProcess(meta) {
+  const v = CAM.video;
+  if (!v || v.readyState < 2) return;
+  if (!meta) {                                              // no frame callbacks: skip repeats ourselves
+    if (v.currentTime === CAM.lastVT) return;
+    CAM.lastVT = v.currentTime;
+  }
+  const t0 = performance.now();
+  if (CAM.lastFrameAt) CAM.frameMs = L(CAM.frameMs, clamp(t0 - CAM.lastFrameAt, 5, 200), .1);
+  CAM.lastFrameAt = t0;
+
+  if (CAM.tracker && (CAM.status === "calib" || CAM.status === "live")) {
+    const ts = Math.max(CAM.lastTs + 1, Math.round(t0));
+    let result;
+    try { result = CAM.tracker.detectForVideo(v, ts); CAM.lastTs = ts; CAM.okFrames++; }
+    catch (e) { camTrackerTrouble(e); return; }
+    const t1 = performance.now();
+    CAM.infer = L(CAM.infer, t1 - t0, .1);
+    // How old is the picture we're reacting to? Chrome says when the frame
+    // was captured; elsewhere, estimate it.
+    const captured = meta && meta.captureTime > 0 && meta.captureTime <= t1 ? meta.captureTime : 0;
+    const pipe = captured ? t1 - captured : CAM.frameMs + (t1 - t0) + 25;
+    if (pipe > 0 && pipe < 600) CAM.lag = L(CAM.lag, pipe, .06);
+    const when = captured || t0;
+    camFeed(result && result.landmarks, when);
+    if (CAM.status === "calib") camCalibrate(when);
+    else camApply(camRead(when), when);
+  }
+  camDraw();
+}
+
+// Auto-pause when the hand's gone, auto-resume once it's been back a moment.
+function camWatch(now) {
+  if (!camRun()) return;
+  if (!G.paused && now - CAM.lastSeen > LOST_MS) setPaused(true, "hand");
+  else if (G.paused && G.pauseWhy === "hand" && CAM.status === "live" && CAM.hand && now - CAM.seenSince > BACK_MS) {
+    setPaused(false);
+  }
+}
+
+/* ── drawing the camera views ── */
+function camDraw() {
+  CAM.flash = Math.max(0, CAM.flash - .12);
+  if (camScreenOpen()) {
+    drawCamView(document.getElementById("cam-big"), true);
+    const now = performance.now();
+    if (now - CAM.metaAt > 500 && CAM.tracker && CAM.stream) {
+      CAM.metaAt = now;
+      const fps = Math.round(1000 / CAM.frameMs);
+      document.getElementById("cam-meta").textContent = fps < 24
+        ? `Your camera is only managing ${fps} frames a second. More light on your hand makes tracking a lot smoother.`
+        : `Tracking delay about ${Math.round(CAM.lag)} ms, so camera shots get ${camDelayBudget()} ms longer in the air.`;
+    }
+  }
+  if (document.querySelector(".frame").classList.contains("cam-live")) {
+    drawCamView(document.getElementById("cam-mini"), false);
+  }
+}
+
+function drawCamView(cv, big) {
+  const c = cv.getContext("2d"), w = cv.width, h = cv.height, A = CAM.aspect;
+  const u = w / (big ? 300 : 160);                            // stroke and text scale
+  const X = x => x / A * w, Y = y => y * h;
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.fillStyle = "#050b07"; c.fillRect(0, 0, w, h);
+  const v = CAM.video;
+  if (CAM.stream && v && v.readyState >= 2) {
+    c.save();
+    c.translate(w, 0); c.scale(-1, 1);                        // mirrored, like looking in a mirror
+    c.globalAlpha = big ? .9 : .75;
+    c.drawImage(v, 0, 0, w, h);
+    c.restore();
+    c.fillStyle = "rgba(3,12,6,.32)"; c.fillRect(0, 0, w, h);
+  }
+
+  // Before kick-off the lines ride along with your hand, so you can see
+  // where they'll be; once you've held still they stay put.
+  const S = SENS[CAM.sens], p = CAM.palm;
+  const n = CAM.neutral || (CAM.status === "calib" && CAM.hand && CAM.raw ? CAM.raw : null);
+  if (n) {
+    const top = Y(n.y - S.up * p), bot = Y(n.y + S.down * p);
+    const l = X(n.x - S.range * p), r = X(n.x + S.range * p);
+    c.fillStyle = `rgba(79,195,247,${CAM.zone === "high" ? .3 : .09})`; c.fillRect(0, 0, w, top);
+    c.fillStyle = `rgba(255,210,63,${CAM.zone === "low" ? .3 : .09})`; c.fillRect(0, bot, w, h - bot);
+    c.lineWidth = 1.6 * u; c.setLineDash([5 * u, 4 * u]);
+    c.strokeStyle = "rgba(79,195,247,.95)";
+    c.beginPath(); c.moveTo(0, top); c.lineTo(w, top); c.stroke();
+    c.strokeStyle = "rgba(255,210,63,.95)";
+    c.beginPath(); c.moveTo(0, bot); c.lineTo(w, bot); c.stroke();
+    c.setLineDash([]);
+    // The two posts: this far across puts him against an upright.
+    c.strokeStyle = "rgba(255,255,255,.6)"; c.lineWidth = 2.4 * u;
+    c.beginPath(); c.moveTo(l, top); c.lineTo(l, bot); c.moveTo(r, top); c.lineTo(r, bot); c.stroke();
+    c.font = `700 ${9 * u}px Inter, sans-serif`; c.textAlign = "left"; c.textBaseline = "alphabetic";
+    c.fillStyle = "#bfe9ff"; c.fillText("JUMP", 5 * u, top - 4 * u);
+    c.fillStyle = "#ffe9a3"; c.fillText("SPLITS", 5 * u, bot + 11 * u);
+  }
+
+  if (CAM.hand && CAM.lm && CAM.tip) {
+    const lm = CAM.lm, P = i => [(1 - lm[i].x) * w, lm[i].y * h];
+    c.strokeStyle = "rgba(255,255,255,.6)"; c.lineWidth = 1.5 * u; c.lineCap = "round";
+    c.beginPath();
+    for (const [a, b] of HAND_LINKS) { const pa = P(a), pb = P(b); c.moveTo(pa[0], pa[1]); c.lineTo(pb[0], pb[1]); }
+    c.stroke();
+    const tx = X(CAM.tip.x), ty = Y(CAM.tip.y);
+    if (CAM.status === "calib" && CAM.calibK > 0) {             // the hold-still ring
+      c.strokeStyle = "#3ddc84"; c.lineWidth = 3.5 * u;
+      c.beginPath(); c.arc(tx, ty, 16 * u, -Math.PI / 2, -Math.PI / 2 + CAM.calibK * 6.283); c.stroke();
+    }
+    if (CAM.flash > 0) {                                        // a flick registered as a dive
+      c.strokeStyle = `rgba(255,255,255,${CAM.flash})`; c.lineWidth = 3 * u;
+      c.beginPath(); c.arc(tx, ty, (12 + 14 * (1 - CAM.flash)) * u, 0, 6.283); c.stroke();
+    }
+    c.fillStyle = CAM.zone === "high" ? "#4fc3f7" : CAM.zone === "low" ? "#ffd23f" : "#3ddc84";
+    c.strokeStyle = "rgba(0,0,0,.6)"; c.lineWidth = 1.5 * u;
+    c.beginPath(); c.arc(tx, ty, 6 * u, 0, 6.283); c.fill(); c.stroke();
+  } else if (CAM.stream && CAM.tracker && !big) {
+    c.font = `700 ${11 * u}px Inter, sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillStyle = "rgba(255,214,215,.95)";
+    c.fillText("NO HAND", w / 2, h / 2);
+  }
+
+  if (big && CAM.practice && performance.now() < CAM.practice.until) {
+    const k = (CAM.practice.until - performance.now()) / 800;
+    c.globalAlpha = Math.min(1, k * 2.5);
+    c.font = `${30 * u}px 'Bebas Neue', Impact, sans-serif`; c.textAlign = "center"; c.textBaseline = "top";
+    c.lineWidth = 4 * u; c.strokeStyle = "rgba(0,0,0,.55)"; c.lineJoin = "round";
+    const label = CAM.practice.way < 0 ? "← DIVE" : "DIVE →";
+    c.strokeText(label, w / 2, 10 * u);
+    c.fillStyle = "#ffd23f"; c.fillText(label, w / 2, 10 * u);
+    c.globalAlpha = 1;
+  }
+}
+
+// On the pitch: a marker on the line showing where your hand is sending him,
+// coloured by what it's asking for (blue jump, gold splits).
+function drawCamTarget() {
+  if (!camRun() || !CAM.neutral) return;
+  const x = CAM.targetX, y = LINE_Y + 16;
+  const col = CAM.zone === "high" ? "79,195,247" : CAM.zone === "low" ? "255,210,63" : "255,255,255";
+  ctx.fillStyle = `rgba(${col},${CAM.hand ? .75 : .25})`;
+  ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x - 8, y + 5); ctx.lineTo(x + 8, y + 5); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+}
+
 /* Share: on phones (and Safari, and Chrome on most desktops) this opens the
    system share sheet; anywhere else it copies a ready-made brag to the
    clipboard. The link points at wherever the game is actually hosted. */
@@ -2926,7 +3757,8 @@ const GAME_URL = "https://avshr1.github.io/ShotStopperGame/";
 document.getElementById("share-btn").addEventListener("click", async e => {
   const btn = e.currentTarget;
   const url = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : GAME_URL;
-  const text = `I scored ${G.score} in Shot Stopper — ${G.saves} saves, lasted ${fmtTime(G.elapsed)}. Beat that:`;
+  const how = G.mode === "cam" ? " playing with my hand on camera" : "";
+  const text = `I scored ${G.score} in Shot Stopper${how} — ${G.saves} saves, lasted ${fmtTime(G.elapsed)}. Beat that:`;
   const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = "Share score"; }, 2200); };
   try {
     if (navigator.share) { await navigator.share({ title: "Shot Stopper", text, url }); return; }
@@ -2939,8 +3771,18 @@ document.getElementById("share-btn").addEventListener("click", async e => {
   btn.blur();
 });
 
-document.getElementById("start-btn").addEventListener("click", startGame);
-document.getElementById("again-btn").addEventListener("click", startGame);
+document.getElementById("start-btn").addEventListener("click", () => { camStop(); startGame("keys"); });
+document.getElementById("again-btn").addEventListener("click", e => { e.currentTarget.blur(); goAgain(); });
+document.getElementById("cam-btn").addEventListener("click", e => { e.currentTarget.blur(); openCamScreen(); });
+document.getElementById("cam-back").addEventListener("click", e => { e.currentTarget.blur(); backToKeys(); });
+document.getElementById("cam-retry").addEventListener("click", e => { e.currentTarget.blur(); camStart(); });
+document.getElementById("swap-btn").addEventListener("click", e => {
+  e.currentTarget.blur();
+  if (G.mode === "cam") backToKeys(); else openCamScreen();
+});
+for (const b of document.querySelectorAll("#cam-sens button")) {
+  b.addEventListener("click", () => { setSensitivity(+b.dataset.v); b.blur(); });
+}
 document.getElementById("mute-btn").addEventListener("click", e => {
   muted = !muted;
   e.currentTarget.textContent = muted ? "Sound off" : "Sound on";
@@ -2951,9 +3793,10 @@ document.getElementById("motion-btn").addEventListener("click", e => {
   e.currentTarget.textContent = reducedMotion ? "Motion: reduced" : "Motion: full";
   e.currentTarget.blur();
 });
+// Clears whichever best is on show: keyboard or camera.
 document.getElementById("reset-btn").addEventListener("click", e => {
-  G.best = 0;
-  try { localStorage.removeItem(BEST_KEY); } catch (err) { /* nothing stored */ }
+  G.best = bests[G.mode] = 0;
+  try { localStorage.removeItem(BEST_KEYS[G.mode]); } catch (err) { /* nothing stored */ }
   updateHUD();
   e.currentTarget.textContent = "Best cleared";
   setTimeout(() => { e.currentTarget.textContent = "Clear best"; }, 1400);
@@ -2965,13 +3808,19 @@ if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").m
   document.getElementById("motion-btn").textContent = "Motion: reduced";
 }
 
-// Best score survives a reload on a real server; the preview sandbox skips it.
+// Best scores survive a reload on a real server; the preview sandbox skips it.
+for (const mode of ["keys", "cam"]) {
+  try {
+    const saved = parseInt(localStorage.getItem(BEST_KEYS[mode]) || "0", 10);
+    if (Number.isFinite(saved) && saved > 0) bests[mode] = saved;
+  } catch (e) { /* storage unavailable */ }
+}
 try {
-  const saved = parseInt(localStorage.getItem(BEST_KEY) || "0", 10);
-  if (Number.isFinite(saved) && saved > 0) G.best = saved;
+  const s = parseInt(localStorage.getItem(SENS_KEY) || "1", 10);
+  if (SENS[s]) setSensitivity(s);
 } catch (e) { /* storage unavailable */ }
 
-updateHUD();
+setMode("keys");
 requestAnimationFrame(frame);
 </script>
 </body>

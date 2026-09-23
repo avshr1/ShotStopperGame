@@ -5,8 +5,9 @@ longer you survive, and it ends when you've let three past you.
 
 **Play it:** https://avshr1.github.io/ShotStopperGame/
 
-Built from scratch with vanilla JavaScript and the HTML Canvas API — no frameworks, no build step,
-no dependencies. The whole game is one self-contained `index.html`.
+Built from scratch with vanilla JavaScript and the HTML Canvas API — no frameworks, no build step.
+The whole game is one self-contained `index.html`. Apart from its two fonts, the only thing it
+ever downloads is the hand tracker, and only if you choose to play with the camera.
 
 ## How to play
 
@@ -19,6 +20,31 @@ no dependencies. The whole game is one self-contained `index.html`.
 | `P` | Pause |
 
 On a phone, an on-screen button pad appears instead.
+
+### Or play with your hand
+
+Press **Play with your hand** on the title screen and the game uses your webcam instead of the
+keyboard:
+
+| Hand | Action |
+| --- | --- |
+| Move it left and right | The keeper follows |
+| Raise it | Jump. Keep it up there for a full leap |
+| Drop it | The splits |
+| Flick it sideways, fast | Dive that way. Up-and-across for a top corner |
+
+Hold your hand still wherever it's comfortable and the game kicks off from there. Resting your
+elbow on the desk works best: small movements cover the whole goal. The setup screen shows your
+hand with the jump and splits lines drawn on it, and a practice flick shows up as a dive. If it
+loses sight of your hand mid-game it pauses itself, and it carries on when your hand is back.
+`C` re-centres, `P` pauses.
+
+Camera runs keep their own best score, separate from the keyboard one.
+
+The hand tracking is Google's MediaPipe, loaded the first time you use it (about 20 MB, then
+cached by the browser). It runs entirely on your device, and the video is never uploaded or
+recorded. The camera needs the page served over https or from localhost, so use the GitHub Pages
+link or VS Code's Live Server. Some browsers won't allow it for a file opened straight from disk.
 
 The faint ring around the keeper is your reach — if the ball touches it, you've saved it. The inner
 ring is the catch zone: hold the ball there and you keep it. Clip the outer edge and you only parry,
@@ -79,6 +105,24 @@ leaps.
 spins off the gloves, the woodwork sends the ball ricocheting out, and a parry that leads to a
 follow-up visibly bounces out to the striker who then shoots it.
 
+**The camera controls are measured in palm-lengths.** It tracks the middle of your palm rather than
+a fingertip, which jumps about whenever the finger bends. Every distance (how far to move for a
+post, how far up counts as a jump) is in multiples of your own palm size, so the controls feel the
+same whether you sit close to the camera or further back. A one-euro filter steadies the keeper
+when your hand is still without adding lag when it moves.
+
+A flick is harder to spot than it sounds, because at 30 frames a second a quick flick can fall
+almost entirely between two frames. So a dive fires on either two fast frames in a row, or one very
+fast frame that the hand doesn't snap straight back from. A tracking glitch jumps out and straight
+back, so it doesn't count. Tested across 15–60 fps with synthetic hands: no false dives from
+ordinary fast movement, glitches or jitter, and every deliberate flick caught at 30 fps.
+
+**Camera runs get time back for the tracking delay.** A webcam and a hand tracker are slower than a
+key press. Before kick-off the game measures that delay, from the moment a frame is captured to
+the moment the keeper reacts, and every shot in that run gets exactly that much extra time in the
+air. The reachability check allows for it too. With a bot playing both ways, camera and keyboard
+save rates came out level.
+
 **Everything is generated at runtime.** No image or audio files — the stadium, players and ball are
 drawn with canvas paths, and every sound effect is synthesised with the Web Audio API. The static
 grass is cached in an offscreen canvas and repainted only when the time of day has visibly shifted,
@@ -89,3 +133,4 @@ which cut the pitch's per-frame cost by about 9×.
 - HTML, CSS, JavaScript
 - HTML Canvas API
 - Web Audio API
+- MediaPipe Hand Landmarker, for camera mode only
