@@ -77,15 +77,7 @@ body{
 .frame{position:relative;border-radius:13px;overflow:hidden;box-shadow:0 20px 55px rgba(0,0,0,.6)}
 canvas{display:block;width:100%;height:auto;aspect-ratio:40/27;touch-action:none;background:#8fd0e6;outline:none}
 
-.pad{position:absolute;inset:auto 0 0 0;z-index:4;display:none;
-  justify-content:space-between;padding:12px 14px;pointer-events:none}
-.pad .group{display:flex;gap:9px;pointer-events:auto}
-.pad button{
-  width:54px;height:54px;border-radius:14px;border:1px solid rgba(255,255,255,.28);
-  background:rgba(0,0,0,.42);color:#fff;font-family:'Bebas Neue',sans-serif;
-  font-size:18px;letter-spacing:1px;backdrop-filter:blur(3px);
-  -webkit-user-select:none;user-select:none;touch-action:none;
-}
+
 /* Small phones (360px and under): drop the lines the game says again later. */
 @media (max-width:380px){
   .sub,#verdict{display:none}
@@ -96,9 +88,6 @@ canvas{display:block;width:100%;height:auto;aspect-ratio:40/27;touch-action:none
   button.go{font-size:19px;padding:9px 28px}
   .newbest{font-size:14px;margin-top:4px}
 }
-.pad button:active{background:rgba(61,220,132,.4)}
-.pad button.wide{width:70px}
-@media (pointer:coarse){ .pad{display:flex} }
 
 .sheet{
   position:absolute;inset:0;z-index:5;padding:20px;
@@ -130,9 +119,7 @@ button.go:active{transform:translateY(4px) scale(.98);box-shadow:0 2px 0 #1f8a52
 .sub{margin-top:9px;color:rgba(255,255,255,.62);font-size:13px;line-height:1.5}
 .rules{margin:16px 0;display:flex;flex-direction:column;gap:7px;text-align:left;font-size:13px;color:rgba(255,255,255,.85)}
 .rules p{display:flex;gap:11px;align-items:baseline}
-.rules i{font-style:normal;min-width:66px;flex:none}
-.rules kbd{background:rgba(255,255,255,.14);border-radius:4px;padding:2px 7px;font-size:11px;
-  font-family:inherit;color:#fff;font-weight:600}
+.rules i{font-style:normal;width:22px;flex:none;text-align:center;font-weight:700;color:var(--save)}
 .scoring{
   border:1px solid rgba(61,220,132,.3);background:rgba(61,220,132,.07);
   border-radius:10px;padding:11px 14px;font-size:13px;text-align:left;
@@ -195,8 +182,8 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 .share:hover{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.06)}
 .share:focus-visible{outline:3px solid #fff;outline-offset:3px}
 
-/* Phones: the canvas is short, so trim the cards to what fits. The keyboard
-   rules don't apply there anyway — the on-screen pad is labelled. */
+/* Phones: the canvas is short, so trim the cards to what fits. The setup
+   screen repeats the finger moves in one line. */
 @media (max-width:560px){
   .sheet{padding:10px}
   #start-screen .card,#over-screen .card{padding:12px 12px 14px;border-radius:12px}
@@ -217,16 +204,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
 /* ── camera mode ── */
 [hidden]{display:none !important}
-.start-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}
-.cam-open{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
-.cam-open .new{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:14px;letter-spacing:1.5px;
-  background:var(--stam);color:#04202c;border-radius:5px;padding:1px 6px 0;line-height:1.2}
-.over-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
-#start-screen .card{max-width:500px}           /* room for both buttons side by side */
-.linkbtn{background:none;border:none;color:rgba(255,255,255,.62);font-family:inherit;font-size:12px;cursor:pointer;
-  text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.3);padding:4px 6px}
-.linkbtn:hover{color:#fff;text-decoration-color:rgba(255,255,255,.7)}
-.linkbtn:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:4px}
+#start-screen .card{max-width:500px}
 
 #cam-screen .card{
   max-width:680px;background:linear-gradient(180deg,rgba(10,26,14,.92),rgba(4,12,6,.95));
@@ -256,13 +234,14 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 .cam-note{font-size:12px;color:rgba(255,255,255,.62);line-height:1.5;margin-top:12px}
 .cam-actions{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .cam-privacy{font-size:11px;color:rgba(255,255,255,.42);margin-top:10px}
+.pause-btn{margin-top:18px}
+#start-screen .cam-privacy{margin-top:12px}
 
 /* The little picture-in-picture while you play: your finger, and the lines
    you cross to jump and to go down. */
 .cam-mini{position:absolute;right:10px;bottom:10px;width:20%;max-width:176px;height:auto;border-radius:10px;z-index:6;
   border:1px solid rgba(255,255,255,.3);box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none;display:none}
 .frame.cam-live .cam-mini{display:block}
-.frame.cam-live .pad{display:none}
 
 @media (max-width:640px){
   .cam-grid{grid-template-columns:1fr;gap:12px}
@@ -288,12 +267,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
   .cam-row{justify-content:center;margin-top:6px}
   .cam-actions{margin-top:8px;gap:8px}
   .cam-actions .share{padding:6px 14px;font-size:12px}
-  .cam-open{padding:7px 12px;font-size:12px}
-  .cam-open .new{display:none}
-  .start-actions{gap:10px}
   .over-actions{flex-wrap:wrap;gap:8px 10px}
-  .over-row{display:contents}
-  #swap-btn{font-size:11px;padding:2px 6px}
 }
 </style>
 </head>
@@ -303,7 +277,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
   <div class="hud">
     <div class="cell big" id="score"><span>SCORE</span><b>0</b></div>
-    <div class="cell" id="best"><span id="best-label">BEST</span><b>0</b></div>
+    <div class="cell" id="best"><span>BEST</span><b>0</b></div>
     <div class="cell" id="time"><span>TIME</span><b>0:00</b></div>
     <div class="stam-wrap">
       <span>STAMINA</span>
@@ -317,40 +291,26 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
   </div>
 
   <div class="frame">
-    <canvas id="game" width="800" height="540" tabindex="0" aria-label="Goalkeeper shot-stopping game"></canvas>
+    <canvas id="game" width="800" height="540" aria-label="Goalkeeper shot-stopping game"></canvas>
     <canvas id="cam-mini" class="cam-mini" width="320" height="240" aria-hidden="true"></canvas>
-
-    <div class="pad" id="pad">
-      <div class="group">
-        <button data-key="a" aria-label="Left">◀</button>
-        <button data-key="d" aria-label="Right">▶</button>
-      </div>
-      <div class="group">
-        <button data-key="w" aria-label="Jump">JUMP</button>
-        <button data-key="s" class="wide" aria-label="Splits">SPLIT</button>
-        <button data-key=" " class="wide" aria-label="Dive">DIVE</button>
-      </div>
-    </div>
 
     <div id="start-screen" class="sheet">
       <div class="card">
         <h1 class="title">SHOT<em>STOPPER</em></h1>
-        <p class="sub">One goalkeeper. They shoot until you've let three in. It only gets faster.</p>
+        <p class="sub">One goalkeeper, played with one finger in front of your camera. They shoot until you've let three in, and it only gets faster.</p>
         <div class="rules">
-          <p><i><kbd>A</kbd> <kbd>D</kbd></i><span>Move along your line.</span></p>
-          <p><i><kbd>W</kbd></i><span>Jump. Tap for a hop, hold for a full leap — the only way to the top of the goal.</span></p>
-          <p><i><kbd>S</kbd></i><span>The splits. Wide and low, but you give up all your height.</span></p>
-          <p><i><kbd>SPACE</kbd></i><span>Dive at a corner you can't get to on your feet.</span></p>
+          <p><i>↔</i><span>Point your index finger up and move it. The keeper follows.</span></p>
+          <p><i>↑</i><span>Lift it to jump. Keep it up for a full leap — the only way to the top of the goal.</span></p>
+          <p><i>↓</i><span>Bend it down for the splits. Wide and low, but no height.</span></p>
+          <p><i>⇆</i><span>Flick it sideways to dive at a corner you can't reach on your feet.</span></p>
         </div>
         <div class="scoring">
           Save it on your feet: <b>1 point</b>.<br>
           Save it with a leap, a dive or the splits: <b>2 points</b>.
           <span class="scoring-note">Ten saves in a row wins back a ball you've let in.</span>
         </div>
-        <div class="start-actions">
-          <button id="start-btn" class="go">KICK OFF</button>
-          <button id="cam-btn" class="share cam-open" title="Uses your camera"><b class="new">NEW</b>Play with one finger</button>
-        </div>
+        <button id="start-btn" class="go">KICK OFF</button>
+        <p class="cam-privacy">Uses your camera. The video stays on your device.</p>
       </div>
     </div>
 
@@ -382,7 +342,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
         </div>
         <div class="cam-actions">
           <button id="cam-retry" class="go" hidden>TRY AGAIN</button>
-          <button id="cam-back" class="share">Use the keyboard instead</button>
+          <button id="cam-back" class="share">Back</button>
         </div>
         <p class="cam-privacy">The video stays on your device. Nothing is recorded or uploaded.</p>
       </div>
@@ -398,10 +358,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
         <p id="verdict"></p>
         <div class="over-actions">
           <button id="again-btn" class="go">GO AGAIN</button>
-          <div class="over-row">
-            <button id="share-btn" class="share">Share score</button>
-            <button id="swap-btn" class="linkbtn">Try it with one finger</button>
-          </div>
+          <button id="share-btn" class="share">Share score</button>
         </div>
       </div>
     </div>
@@ -409,14 +366,15 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
     <div id="pause-screen" class="sheet hidden">
       <div class="card">
         <h2 class="title" id="pause-title" style="font-size:44px">PAUSED</h2>
-        <p class="sub" id="pause-sub">Press <kbd>P</kbd> to carry on.</p>
+        <p class="sub" id="pause-sub">Point your finger back up where you started and the game carries on by itself.</p>
+        <button id="pause-btn" class="go pause-btn" hidden>CARRY ON</button>
       </div>
     </div>
   </div>
 
   <div class="bar">
     <div class="keys" id="keys-hint">
-      <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> splits · <kbd>SPACE</kbd> dive · <kbd>P</kbd> pause
+      Finger ↔ move · lift to jump · bend for the splits · flick to dive · take your hand away to pause
     </div>
     <div style="display:flex;gap:8px">
       <button id="motion-btn" class="chip">Motion: full</button>
@@ -442,18 +400,18 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
      leap, dive or splits save     2 points
    Ten saves in a row wins back a ball you've let in.
 
+   It's played with one finger in front of the webcam (see "camera
+   control" further down). No keyboard, no buttons during play.
+
    Four things you can do:
-     standing    balanced oval, full speed, covers the bottom of the goal
-     jump   (W)  a real leap — impulse, gravity, landing, with a float
-                 at the apex so the top corners are actually reachable
-     splits (S)  oval goes wide and flat. Owns the ground, gives up height.
-     dive (SPC)  the escape hatch for corners. Costs stamina, leaves you down.
+     standing       balanced oval, full speed, covers the bottom of the goal
+     jump   (lift)  a real leap — impulse, gravity, landing, with a float
+                    at the apex so the top corners are actually reachable
+     splits (bend)  oval goes wide and flat. Owns the ground, gives up height.
+     dive  (flick)  the escape hatch for corners. Costs stamina, leaves you down.
 
    Nothing hovers. Every vertical position comes from an impulse
    and gravity, so what you see is what's happening.
-
-   Or play it with one finger through the webcam instead (see "camera
-   control" further down). Camera runs keep their own best score.
    ═══════════════════════════════════════════════════════ */
 
 const CV = document.getElementById("game");
@@ -512,11 +470,9 @@ const LIFE_BACK_RUN = 10;
    first half-minute is a warm-up, the middle two minutes are the real
    climb, and it levels off rather than running away from you.        */
 const RAMP_MS = 180000;
-const BEST_KEY = "shotstopper-best";
-// Keyboard and camera are different games to be good at, so each keeps its
-// own record. The keyboard key is unchanged, so existing bests carry over.
-const BEST_KEYS = { keys: BEST_KEY, cam: "shotstopper-best-cam" };
-const bests = { keys: 0, cam: 0 };
+// Finger scores only. (The old keyboard version's record lived under
+// "shotstopper-best"; it was a different game to be good at, so it's left be.)
+const BEST_KEY = "shotstopper-best-cam";
 
 const PACE = {
   gap:   [2050, 540],    // ms between shots
@@ -535,8 +491,7 @@ const G = {
   phase: "menu", countT: 0, elapsed: 0, nextShot: 0,
   score: 0, best: 0, saves: 0, run: 0, bestRun: 0,
   lives: 3, paused: false, pauseWhy: null, announced: {}, milestone: 0,
-  mode: "keys",            // "keys" or "cam" — fixed for the length of a run
-  lag: 0,                  // ms of extra flight time a camera run gets for tracking delay
+  lag: 0,                  // ms of extra flight time each shot gets for the tracking delay
 
   stats: { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 }
 };
@@ -552,7 +507,7 @@ const keeper = {
   diveT: 0, groundT: 0, getupT: 0, diveTilt: 0
 };
 
-const keys = new Set();
+const held = new Set();                 // what the finger is holding right now: "jump", "split"
 let shots = [], particles = [], pops = [], crowdSeed = [], grassSeed = [], netHits = [];
 let lastArrival = null;                 // where the last on-target shot landed, and when
 let shake = 0, hurt = 0, banners = [], hintBanner = null;
@@ -565,12 +520,7 @@ function showBanner(b) {
 let timeScale = 1, slowLeft = 0;
 let themeNow = 0;
 
-// Each way of playing gets its own first-time hints, worded for its controls.
-const HINTS = {
-  keys: { low: false, high: false, dive: false, stam: false, rebound: false },
-  cam:  { low: false, high: false, dive: false, stam: false, rebound: false }
-};
-let hintsShown = HINTS.keys;
+const hintsShown = { low: false, high: false, dive: false, stam: false, rebound: false };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -701,7 +651,7 @@ const MIN_ARRIVAL_GAP = 260;        // ms — nothing arrives on top of somethin
 function band(y) { return y < HIGH_Y ? 2 : y > LOW_Y ? 0 : 1; }   // 2 high, 1 mid, 0 low
 
 // Seconds of the gap eaten by changing stance, before any running happens.
-// On camera there's also the tracking delay before he reacts at all.
+// There's also the camera's tracking delay before he reacts at all.
 function stanceCost(fromY, toY) {
   return stanceBase(fromY, toY) + G.lag / 1000;
 }
@@ -820,8 +770,8 @@ function spawnShot() {
   let kind = pickKind();
   const baseRunup = L(760, 430, h);
   const base = pace("flight", h);
-  // G.lag is zero on the keyboard. On camera every shot gets that much
-  // longer in the air, to pay back the time the tracking takes.
+  // Every shot gets G.lag longer in the air, to pay back the time the
+  // camera tracking takes.
   let flight = (kind === "chip" ? base * 1.45 : kind === "rocket" ? base * .68 : base) + G.lag;
 
   const offTarget = Math.random() < .09;           // the odd one sprayed wide
@@ -935,7 +885,13 @@ function updateShots(dt) {
       s.bx = p.x; s.by = p.y; s.br = p.r; s.shadowY = p.shadowY;
       s.trail.push({ x: p.x, y: p.y, r: p.r });
       if (s.trail.length > 12) s.trail.shift();
-      if (t >= 1) { resolve(s); shots.splice(i, 1); }
+      if (t >= 1) {
+        shots.splice(i, 1);
+        resolve(s);
+        // That was the third goal: full time has just cleared every shot,
+        // so there's nothing left in this list to carry on through.
+        if (G.phase === "over") return;
+      }
     }
   }
 }
@@ -990,7 +946,7 @@ function canSpend(n) { return !keeper.exhausted && keeper.stamina >= n; }
 
 function updateStamina(dt) {
   keeper.lastUse += dt;
-  const splitting = keeper.spread > .05 && keys.has("s");
+  const splitting = keeper.spread > .05 && held.has("split");
   if (!splitting && keeper.lastUse > REGEN_DELAY) {
     keeper.stamina = Math.min(STAM_MAX, keeper.stamina + REGEN * dt / 1000);
   }
@@ -1043,21 +999,14 @@ function onTouchDown() {
 /* ═════════ diving ═════════ */
 function groundYFor(tilt) { return LINE_Y - 12 - 22 * Math.cos(tilt); }
 
-// On the keyboard the direction comes from the keys held down; a camera
-// flick passes its own.
+// The direction comes from the flick: which way, and whether it went up or
+// down on the way across.
 function launchDive(dir) {
   if (keeper.diving) return;
   if (G.phase !== "play" && G.phase !== "count") return;
   if (!canSpend(DIVE_COST)) { keeper.denied = 1; sfx.spent(); return; }
 
-  let dx = 0, dy = 0;
-  if (dir) { dx = dir.dx; dy = dir.dy; }
-  else {
-    if (keys.has("a")) dx -= 1;
-    if (keys.has("d")) dx += 1;
-    if (keys.has("w")) dy -= 1;
-    if (keys.has("s")) dy += 1;
-  }
+  let dx = dir ? dir.dx : 0, dy = dir ? dir.dy : 0;
   if (dx === 0 && dy === 0) { dx = Math.sign(keeper.vx) || (Math.random() < .5 ? -1 : 1); dy = -.55; }
   const d = Math.hypot(dx, dy) || 1;
   const ux = dx / d, uy = dy / d;
@@ -1137,28 +1086,22 @@ function updateKeeper(dt) {
       }
     }
   } else {
-    const wantSplit = keys.has("s") && !keeper.airborne && !keeper.exhausted && keeper.stamina > 0;
+    const wantSplit = held.has("split") && !keeper.airborne && !keeper.exhausted && keeper.stamina > 0;
     if (wantSplit) {
       if (keeper.spread < .05) sfx.split();
       keeper.spread += (1 - keeper.spread) * (1 - Math.exp(-dt / 95));
       spendStamina(SPLIT_DRAIN * s);
     } else {
       keeper.spread += (0 - keeper.spread) * (1 - Math.exp(-dt / 140));
-      if (keys.has("s") && keeper.exhausted) keeper.denied = Math.max(keeper.denied, .6);
+      if (held.has("split") && keeper.exhausted) keeper.denied = Math.max(keeper.denied, .6);
     }
     if (keeper.spread < .02) keeper.spread = 0;
 
-    let dir = 0;
-    const following = G.mode === "cam" && (G.phase === "play" || G.phase === "count");
-    if (following) {
-      // Run to where the finger says: flat out from a distance, easing in over
-      // the last stretch so he settles on the spot instead of overshooting.
-      // Never faster than on the keyboard, so every shot stays as fair.
-      dir = clamp((CAM.targetX - keeper.x) / CAM_EASE, -1, 1);
-    } else {
-      if (keys.has("a")) dir -= 1;
-      if (keys.has("d")) dir += 1;
-    }
+    // Run to where the finger says: flat out from a distance, easing in over
+    // the last stretch so he settles on the spot instead of overshooting.
+    // Never faster than MOVE_SPEED, which the fairness check relies on.
+    const following = G.phase === "play" || G.phase === "count";
+    const dir = following ? clamp((CAM.targetX - keeper.x) / CAM_EASE, -1, 1) : 0;
     const authority = keeper.airborne ? AIR_CONTROL : L(1, .38, keeper.spread);
     const tau = keeper.airborne ? AIR_TAU : following ? CAM_TAU : MOVE_TAU;
     keeper.vx += (dir * MOVE_SPEED * authority - keeper.vx) * (1 - Math.exp(-dt / tau));
@@ -1166,7 +1109,7 @@ function updateKeeper(dt) {
 
     if (keeper.airborne) {
       keeper.airT += dt;
-      if (!keys.has("w") && keeper.vy < -JUMP_CUT) keeper.vy = -JUMP_CUT;
+      if (!held.has("jump") && keeper.vy < -JUMP_CUT) keeper.vy = -JUMP_CUT;   // dropped the finger early: a hop
       const g = Math.abs(keeper.vy) < HANG_BAND ? GRAVITY * HANG_G : GRAVITY;
       keeper.vy += g * s;
       keeper.y += keeper.vy * s;
@@ -1195,13 +1138,12 @@ function showHint(text) { hintBanner = { text, life: 1 }; }
 
 function maybeHint(s) {
   if (secs() > 40) return;
-  const cam = G.mode === "cam";
   if (!hintsShown.high && s.ty < GOAL.y + 100) {
-    hintsShown.high = true; showHint(cam ? "HIGH ONE — LIFT YOUR FINGER TO LEAP" : "HIGH ONE — HOLD W TO LEAP");
+    hintsShown.high = true; showHint("HIGH ONE — LIFT YOUR FINGER TO LEAP");
   } else if (!hintsShown.low && s.ty > LINE_Y - 50) {
-    hintsShown.low = true; showHint(cam ? "LOW ONE — BEND YOUR FINGER FOR THE SPLITS" : "LOW ONE — HOLD S FOR THE SPLITS");
+    hintsShown.low = true; showHint("LOW ONE — BEND YOUR FINGER FOR THE SPLITS");
   } else if (!hintsShown.dive && Math.abs(s.tx - W / 2) > 200) {
-    hintsShown.dive = true; showHint(cam ? "THAT'S A CORNER — FLICK SIDEWAYS TO DIVE" : "THAT'S A CORNER — SPACE TO DIVE");
+    hintsShown.dive = true; showHint("THAT'S A CORNER — FLICK SIDEWAYS TO DIVE");
   }
 }
 
@@ -2946,34 +2888,19 @@ function updateHUD() {
 }
 
 /* ═════════ flow ═════════ */
-// Which way the next run is played, and whose best score is on show.
-function setMode(mode) {
-  G.mode = mode;
-  G.best = bests[mode];
-  document.getElementById("best-label").textContent = mode === "cam" ? "CAM BEST" : "BEST";
-  document.getElementById("keys-hint").innerHTML = mode === "cam"
-    ? "Finger <kbd>↔</kbd> move · up jump · bend splits · flick dive · <kbd>C</kbd> re-centre · <kbd>P</kbd> pause"
-    : "<kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>S</kbd> splits · <kbd>SPACE</kbd> dive · <kbd>P</kbd> pause";
-  document.getElementById("swap-btn").textContent = mode === "cam" ? "Back to the keyboard" : "Try it with one finger";
-  updateHUD();
-}
-
-// The picture-in-picture and the hidden touch pad follow whether a camera
-// run is actually under way.
+// The picture-in-picture shows whenever a run is under way.
 function syncCamLive() {
-  const live = G.mode === "cam" && (G.phase === "play" || G.phase === "count");
-  document.querySelector(".frame").classList.toggle("cam-live", live);
+  document.querySelector(".frame").classList.toggle("cam-live", inRun());
 }
 
-function startGame(mode) {
-  if (mode) setMode(mode);
+// Called once you've held your finger still on the setup screen.
+function startGame() {
   ac();
   G.phase = "count"; G.countT = 0; G.elapsed = 0; G.nextShot = 0;
   G.score = 0; G.saves = 0; G.run = 0; G.bestRun = 0;
   G.lives = 3; G.paused = false; G.pauseWhy = null; G.announced = {}; G.milestone = 0;
-  G.lag = G.mode === "cam" ? camDelayBudget() : 0;
-  hintsShown = HINTS[G.mode];
-  keys.clear();
+  G.lag = camDelayBudget();
+  held.clear();
   G.stats = { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 };
   shots = []; particles = []; pops = []; netHits = []; rings = []; cheer = 0; lastArrival = null;
   flashes = []; confetti = []; scuffs = []; crowdWave = null; punch = 0; poseReady = 0; shownScore = 0;
@@ -2994,21 +2921,15 @@ function startGame(mode) {
   updateHUD();
 }
 
-// Same way of playing as last time. On camera that means holding your finger
-// still again first, which also re-centres it.
-function goAgain() {
-  if (G.mode === "cam") openCamScreen(); else startGame("keys");
-}
-
 function gameOver() {
   G.phase = "over";
-  keys.clear();
+  held.clear();
   syncCamLive();
   const beat = G.score > G.best;
   const previous = G.best;
   if (beat) {
-    G.best = bests[G.mode] = G.score;
-    try { localStorage.setItem(BEST_KEYS[G.mode], String(G.best)); } catch (e) { /* preview sandbox */ }
+    G.best = G.score;
+    try { localStorage.setItem(BEST_KEY, String(G.best)); } catch (e) { /* preview sandbox */ }
   }
   shots = [];
   sfx.whistle();
@@ -3039,9 +2960,7 @@ function gameOver() {
   if (st.hard === 0 && st.faced > 8) {
     line = "Every save was a standing one. Leap, dive or spread and they're worth double.";
   } else if (st.leaps === 0 && st.faced > 8) {
-    line = G.mode === "cam"
-      ? "You never left the ground. Lift your finger and the top of the goal opens up."
-      : "You never left the ground. Hold W and the top of the goal opens up.";
+    line = "You never left the ground. Lift your finger and the top of the goal opens up.";
   } else if (st.parries > st.catches * 2 && st.faced > 6) {
     line = "Plenty of hands on it, almost nothing held. A clean catch kills the rebound.";
   } else if (st.dives === 0 && st.faced > 10) {
@@ -3060,91 +2979,46 @@ function gameOver() {
   updateHUD();
 }
 
-// A camera run pauses itself when it loses sight of your finger, and picks
-// up again by itself once it's back. Any other pause waits for P.
-function setPaused(v, why = "user") {
-  if (G.phase !== "play" && G.phase !== "count") return;
+// A run pauses itself when it loses sight of your finger, and picks up again
+// by itself once it's back. Leaving the page pauses it too; that one waits
+// for you to press CARRY ON, so it doesn't restart while you're elsewhere.
+function setPaused(v, why = "away") {
+  if (!inRun()) return;
   G.paused = v;
   G.pauseWhy = v ? why : null;
-  const hand = v && why === "hand";
+  const hand = why === "hand", broken = hand && CAM.status === "error";
   document.getElementById("pause-title").textContent = hand ? "WHERE'S YOUR FINGER?" : "PAUSED";
-  document.getElementById("pause-sub").innerHTML = !hand ? "Press <kbd>P</kbd> to carry on."
-    : CAM.status === "error" ? CAM.msg + " Press <kbd>P</kbd> to finish this run."
-    : "Point it back up where you started and the game carries on by itself.";
+  document.getElementById("pause-sub").textContent = broken ? CAM.msg
+    : hand ? "Point it back up where you started and the game carries on by itself."
+    : "Get your finger back in front of the camera, then carry on.";
+  const btn = document.getElementById("pause-btn");
+  btn.hidden = hand && !broken;
+  btn.textContent = broken ? "END THIS RUN" : "CARRY ON";
   document.getElementById("pause-screen").classList.toggle("hidden", !v);
 }
 
-/* ═════════ input ═════════ */
-const KEYMAP = {
-  "a": "a", "arrowleft": "a",
-  "d": "d", "arrowright": "d",
-  "w": "w", "arrowup": "w",
-  "s": "s", "arrowdown": "s"
-};
-
-// During a camera run the finger is the only controller — the keys would
-// make it a different game, and camera runs keep their own record. P still
-// pauses, and C re-centres your finger on wherever it is right now.
-const camRun = () => G.mode === "cam" && (G.phase === "play" || G.phase === "count");
+/* ═════════ input ═════════
+   There isn't any, beyond the finger: no keyboard, and during play no
+   buttons either. Menus use ordinary buttons.                          */
+const inRun = () => G.phase === "play" || G.phase === "count";
 const camScreenOpen = () => !document.getElementById("cam-screen").classList.contains("hidden");
 
-window.addEventListener("keydown", e => {
-  const k = e.key.toLowerCase();
-  const mapped = KEYMAP[k];
-  if (mapped) {
-    e.preventDefault();
-    if (!camRun()) {
-      const wasDown = keys.has(mapped);        // ignore the OS key-repeat
-      keys.add(mapped);
-      if (mapped === "w" && !wasDown) requestJump();
-    }
-  }
-  if (e.code === "Space") {
-    e.preventDefault();
-    if (camScreenOpen()) return;
-    if (G.phase === "menu") startGame("keys");
-    else if (G.phase === "over") goAgain();
-    else if (!camRun()) launchDive();
-  }
-  if (k === "p") {
-    // If the camera itself has gone mid-run there's no carrying on with the
-    // hand, so P finishes the run instead.
-    if (G.paused && G.pauseWhy === "hand" && CAM.status === "error") {
-      G.paused = false;
-      document.getElementById("pause-screen").classList.add("hidden");
-      gameOver();
-    } else setPaused(!G.paused);
-  }
-  if (k === "c" && camRun()) camRecentre();
-});
-window.addEventListener("keyup", e => {
-  const k = e.key.toLowerCase();
-  if (KEYMAP[k] && !camRun()) keys.delete(KEYMAP[k]);
-});
-window.addEventListener("blur", () => { keys.clear(); setPaused(true); });
-document.addEventListener("visibilitychange", () => { if (document.hidden) { keys.clear(); setPaused(true); } });
+window.addEventListener("blur", () => { held.clear(); setPaused(true); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) { held.clear(); setPaused(true); } });
 
-for (const btn of document.querySelectorAll("#pad button")) {
-  const k = btn.dataset.key;
-  const press = e => {
-    e.preventDefault();
-    if (k === " ") {
-      if (G.phase === "menu") startGame("keys"); else if (G.phase === "over") goAgain(); else launchDive();
-      return;
-    }
-    const wasDown = keys.has(k);
-    keys.add(k);
-    if (k === "w" && !wasDown) requestJump();
-  };
-  const release = e => { e.preventDefault(); if (k !== " ") keys.delete(k); };
-  btn.addEventListener("pointerdown", press);
-  btn.addEventListener("pointerup", release);
-  btn.addEventListener("pointercancel", release);
-  btn.addEventListener("pointerleave", release);
-}
+document.getElementById("pause-btn").addEventListener("click", e => {
+  e.currentTarget.blur();
+  if (!G.paused) return;
+  if (G.pauseWhy === "hand" && CAM.status === "error") {
+    // The camera itself has gone, so there's no carrying on: finish the run.
+    G.paused = false;
+    document.getElementById("pause-screen").classList.add("hidden");
+    gameOver();
+  } else setPaused(false);
+});
 
 /* ═════════ camera control ═════════
-   Play with one finger instead of the keyboard. Google's MediaPipe hand
+   The whole game is played with one finger. Google's MediaPipe hand
    tracker is loaded the first time someone asks for it (about 20 MB, which
    the browser then caches) and runs entirely on this device. The video is
    never uploaded or recorded.
@@ -3179,6 +3053,7 @@ const SENS = [
 ];
 const ZONE_HYST = .22;              // come back this far to leave the jump or splits zone
 const CAM_EASE = 70;                // px: inside this he eases onto the spot rather than sprinting
+const DEAD_BAND = 4;                // px of fingertip wobble that doesn't move him at all
 const CAM_TAU = 40;
 const CALIB_MS = 900;               // hold still this long to kick off
 const LOST_MS = 1200, BACK_MS = 700;
@@ -3256,7 +3131,7 @@ function camFeed(hands, now) {
   CAM.raw = c;
   CAM.tip = { x: camFX.f(c.x, now, CAM.palm), y: camFY.f(c.y, now, CAM.palm) };
   CAM.hist.push({ x: c.x, y: c.y, t: now });
-  while (CAM.hist.length > 8 || now - CAM.hist[0].t > 300) CAM.hist.shift();
+  while (CAM.hist.length > 16 || now - CAM.hist[0].t > 300) CAM.hist.shift();
 }
 
 /* Turn the finger into what the keeper should do. Held states (jump zone,
@@ -3267,8 +3142,12 @@ function camRead(now) {
   const out = { jump: false, dive: null };
 
   // Across: the smoothed position, so he stands still when you do.
+  // A small dead band on top soaks up the wobble a fingertip has even when
+  // you hold it still; real movement drags the target along with it.
   const across = (CAM.tip.x - n.x) / p;
-  CAM.targetX = clamp(W / 2 + across / S.range * (GOAL.w / 2 - 20), GOAL.x - 10, GOAL.x + GOAL.w + 10);
+  const want = clamp(W / 2 + across / S.range * (GOAL.w / 2 - 20), GOAL.x - 10, GOAL.x + GOAL.w + 10);
+  const slack = want - CAM.targetX;
+  if (Math.abs(slack) > DEAD_BAND) CAM.targetX = want - Math.sign(slack) * DEAD_BAND;
 
   // Speeds come from the raw positions, in palms per second: smoothing is
   // there to steady the keeper and would only blunt a quick movement.
@@ -3312,30 +3191,44 @@ function camRead(now) {
    that's just the return leg of one doesn't count, and it has to cover real
    distance so a twitch can't throw him on the floor. Returns -1, 0 or 1. */
 function camFlick(now) {
-  const h = CAM.hist, k = h.length, p = CAM.palm, S = SENS[CAM.sens], F = S.flick;
-  if (k < 3 || now - CAM.diveAt < 550) return 0;
+  // Speeds are taken about 33 ms apart whatever the camera's frame rate (a
+  // 60 fps camera uses every other frame), so "sudden" means the same thing
+  // everywhere. Slower cameras average a flick's speed down over each longer
+  // frame, so the bar comes down a little with them (up to 15% at 15 fps).
+  const h = CAM.hist, p = CAM.palm, S = SENS[CAM.sens];
+  const step = Math.max(1, Math.round(30 / CAM.frameMs));
+  const F = S.flick * clamp(1 - (CAM.frameMs * step - 34) * .006, .85, 1);
+  const at = i => h[h.length - 1 - i * step];                // 0 = newest, 1 = a step before...
+  if (!at(2) || now - CAM.diveAt < 550) return 0;
   const speed = (a, b) => { const d = (b.t - a.t) / 1000; return d > .004 && d < .12 ? (b.x - a.x) / d / p : NaN; };
-  const v1 = speed(h[k - 3], h[k - 2]), v2 = speed(h[k - 2], h[k - 1]);
+  const v1 = speed(at(2), at(1)), v2 = speed(at(1), at(0));
   if (!Number.isFinite(v1) || !Number.isFinite(v2)) return 0;
-  const v0 = k >= 4 ? speed(h[k - 4], h[k - 3]) || 0 : 0;
+  const v0 = at(3) ? speed(at(3), at(2)) || 0 : 0;
   const twoFast = Math.abs(v2) >= F && Math.sign(v1) === Math.sign(v2) && Math.abs(v1) >= F * .35;
-  const oneFast = Math.abs(v1) >= F && v2 * Math.sign(v1) > -F * .3 && v0 * Math.sign(v1) > -F * .8;
+  const oneFast = Math.abs(v1) >= F && v2 * Math.sign(v1) > -F * .5 && v0 * Math.sign(v1) > -F * .8;
   if (!twoFast && !oneFast) return 0;
   const way = twoFast ? Math.sign(v2) : Math.sign(v1);
+  // And it's sudden: a flick's speed leaps up from one step to the next,
+  // where even a very quick ordinary move builds up over several. (Well
+  // past the bar, it's a flick however it built up: ordinary moves never
+  // get that fast.)
+  const a0 = Math.max(0, v0 * way), a1 = v1 * way, a2 = v2 * way;
+  const leap = Math.max(a1 - a0, twoFast ? a2 - Math.max(0, a1) : 0);
+  const peak = Math.max(a1, twoFast ? a2 : 0);
+  if (peak < F * 1.2 && leap < F * .6) return 0;
   // Distance covered since just before the burst began (a time window, so
   // it means the same thing at 15 frames a second as at 60).
-  const from = h.find(e => e.t >= h[k - 3].t - 100) || h[0];
-  if ((h[k - 1].x - from.x) / p * way < S.range * .7) return 0;
+  const from = h.find(e => e.t >= at(2).t - 100) || h[0];
+  if ((at(0).x - from.x) / p * way < S.range * .7) return 0;
   CAM.diveAt = now;
   return way;
 }
 
 function camApply(out, now) {
-  if (G.mode !== "cam") return;
-  const live = camRun() && !G.paused && CAM.hand;
-  const hold = (key, on) => { if (on) keys.add(key); else keys.delete(key); };
-  hold("w", live && CAM.zone === "high");
-  hold("s", live && CAM.zone === "low");
+  const live = inRun() && !G.paused && CAM.hand;
+  const hold = (what, on) => { if (on) held.add(what); else held.delete(what); };
+  hold("jump", live && CAM.zone === "high");
+  hold("split", live && CAM.zone === "low");
   if (!live || !out) return;
   if (out.jump) { CAM.jumpAt = now; requestJump(); }
   if (out.dive) {
@@ -3386,18 +3279,11 @@ function camCalibrate(now) {
     CAM.neutral = { x: mx, y: my };
     CAM.zone = "mid"; CAM.targetX = W / 2;
     CAM.status = "live";
-    startGame("cam");
+    startGame();
   }
 }
 
-function camRecentre() {
-  if (!CAM.hand || !CAM.tip) return;
-  CAM.neutral = { x: CAM.tip.x, y: CAM.raw.y };
-  CAM.zone = "mid";
-  showHint("FINGER RE-CENTRED");
-}
-
-// The extra flight time a camera run gets: the measured delay from camera
+// The extra flight time each run gets: the measured delay from camera
 // to keeper, plus a little for the finger having to travel to a line.
 function camDelayBudget() {
   return Math.round(clamp(CAM.lag + 60, 110, 240));
@@ -3431,11 +3317,10 @@ function camErrorText(e) {
   return "Something went wrong starting the camera. Try again.";
 }
 
-/* ── the screen you see before a camera run ── */
+/* ── the setup screen you see before every run ── */
 function openCamScreen() {
   ac();
   G.phase = "menu"; G.paused = false;
-  setMode("cam");
   syncCamLive();
   for (const id of ["start-screen", "over-screen", "pause-screen"]) document.getElementById(id).classList.add("hidden");
   document.getElementById("cam-screen").classList.remove("hidden");
@@ -3446,9 +3331,8 @@ function openCamScreen() {
   } else camStart();
 }
 
-function backToKeys() {
+function backToTitle() {
   camStop();
-  setMode("keys");
   G.phase = "menu"; G.paused = false;
   for (const id of ["cam-screen", "over-screen", "pause-screen"]) document.getElementById(id).classList.add("hidden");
   document.getElementById("start-screen").classList.remove("hidden");
@@ -3564,7 +3448,7 @@ function camFail(e) {
   CAM.status = "error";
   setCamStatus(camErrorText(e), true);
   document.getElementById("cam-retry").hidden = false;
-  if (camRun()) setPaused(true, "hand");
+  if (inRun()) setPaused(true, "hand");
   camDraw();
 }
 
@@ -3639,7 +3523,7 @@ function camProcess(meta) {
 
 // Auto-pause when the hand's gone, auto-resume once it's been back a moment.
 function camWatch(now) {
-  if (!camRun()) return;
+  if (!inRun()) return;
   if (!G.paused && now - CAM.lastSeen > LOST_MS) setPaused(true, "hand");
   else if (G.paused && G.pauseWhy === "hand" && CAM.status === "live" && CAM.hand && now - CAM.seenSince > BACK_MS) {
     setPaused(false);
@@ -3748,7 +3632,7 @@ function drawCamView(cv, big) {
 // On the pitch: a marker on the line showing where your finger is sending him,
 // coloured by what it's asking for (blue jump, gold splits).
 function drawCamTarget() {
-  if (!camRun() || !CAM.neutral) return;
+  if (!inRun() || !CAM.neutral) return;
   const x = CAM.targetX, y = LINE_Y + 16;
   const col = CAM.zone === "high" ? "79,195,247" : CAM.zone === "low" ? "255,210,63" : "255,255,255";
   ctx.fillStyle = `rgba(${col},${CAM.hand ? .75 : .25})`;
@@ -3764,8 +3648,7 @@ const GAME_URL = "https://avshr1.github.io/ShotStopperGame/";
 document.getElementById("share-btn").addEventListener("click", async e => {
   const btn = e.currentTarget;
   const url = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : GAME_URL;
-  const how = G.mode === "cam" ? " playing with one finger on camera" : "";
-  const text = `I scored ${G.score} in Shot Stopper${how} — ${G.saves} saves, lasted ${fmtTime(G.elapsed)}. Beat that:`;
+  const text = `I scored ${G.score} in Shot Stopper, playing with one finger — ${G.saves} saves, lasted ${fmtTime(G.elapsed)}. Beat that:`;
   const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = "Share score"; }, 2200); };
   try {
     if (navigator.share) { await navigator.share({ title: "Shot Stopper", text, url }); return; }
@@ -3778,15 +3661,12 @@ document.getElementById("share-btn").addEventListener("click", async e => {
   btn.blur();
 });
 
-document.getElementById("start-btn").addEventListener("click", () => { camStop(); startGame("keys"); });
-document.getElementById("again-btn").addEventListener("click", e => { e.currentTarget.blur(); goAgain(); });
-document.getElementById("cam-btn").addEventListener("click", e => { e.currentTarget.blur(); openCamScreen(); });
-document.getElementById("cam-back").addEventListener("click", e => { e.currentTarget.blur(); backToKeys(); });
+// KICK OFF and GO AGAIN both lead to the setup screen: hold your finger
+// still there and the run starts, centred on wherever your finger is.
+document.getElementById("start-btn").addEventListener("click", e => { e.currentTarget.blur(); openCamScreen(); });
+document.getElementById("again-btn").addEventListener("click", e => { e.currentTarget.blur(); openCamScreen(); });
+document.getElementById("cam-back").addEventListener("click", e => { e.currentTarget.blur(); backToTitle(); });
 document.getElementById("cam-retry").addEventListener("click", e => { e.currentTarget.blur(); camStart(); });
-document.getElementById("swap-btn").addEventListener("click", e => {
-  e.currentTarget.blur();
-  if (G.mode === "cam") backToKeys(); else openCamScreen();
-});
 for (const b of document.querySelectorAll("#cam-sens button")) {
   b.addEventListener("click", () => { setSensitivity(+b.dataset.v); b.blur(); });
 }
@@ -3800,10 +3680,9 @@ document.getElementById("motion-btn").addEventListener("click", e => {
   e.currentTarget.textContent = reducedMotion ? "Motion: reduced" : "Motion: full";
   e.currentTarget.blur();
 });
-// Clears whichever best is on show: keyboard or camera.
 document.getElementById("reset-btn").addEventListener("click", e => {
-  G.best = bests[G.mode] = 0;
-  try { localStorage.removeItem(BEST_KEYS[G.mode]); } catch (err) { /* nothing stored */ }
+  G.best = 0;
+  try { localStorage.removeItem(BEST_KEY); } catch (err) { /* nothing stored */ }
   updateHUD();
   e.currentTarget.textContent = "Best cleared";
   setTimeout(() => { e.currentTarget.textContent = "Clear best"; }, 1400);
@@ -3815,21 +3694,18 @@ if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").m
   document.getElementById("motion-btn").textContent = "Motion: reduced";
 }
 
-// Best scores survive a reload on a real server; the preview sandbox skips it.
-for (const mode of ["keys", "cam"]) {
-  try {
-    const saved = parseInt(localStorage.getItem(BEST_KEYS[mode]) || "0", 10);
-    if (Number.isFinite(saved) && saved > 0) bests[mode] = saved;
-  } catch (e) { /* storage unavailable */ }
-}
+// Best score survives a reload on a real server; the preview sandbox skips it.
+try {
+  const saved = parseInt(localStorage.getItem(BEST_KEY) || "0", 10);
+  if (Number.isFinite(saved) && saved > 0) G.best = saved;
+} catch (e) { /* storage unavailable */ }
 try {
   const s = parseInt(localStorage.getItem(SENS_KEY) || "1", 10);
   if (SENS[s]) setSensitivity(s);
 } catch (e) { /* storage unavailable */ }
 
-setMode("keys");
+updateHUD();
 requestAnimationFrame(frame);
 </script>
 </body>
 </html>
-

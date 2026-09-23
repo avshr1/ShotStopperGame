@@ -1,45 +1,31 @@
 # Shot Stopper
 
-A browser-based goalkeeper arcade game. You face a continuous shooting drill that speeds up the
-longer you survive, and it ends when you've let three past you.
+A browser-based goalkeeper arcade game you play with one finger in front of your webcam. You face a
+continuous shooting drill that speeds up the longer you survive, and it ends when you've let three
+past you.
 
 **Play it:** https://avshr1.github.io/ShotStopperGame/
 
 Built from scratch with vanilla JavaScript and the HTML Canvas API — no frameworks, no build step.
 The whole game is one self-contained `index.html`. Apart from its two fonts, the only thing it
-ever downloads is the hand tracker, and only if you choose to play with the camera.
+ever downloads is the hand tracker.
 
 ## How to play
 
-| Key | Action |
-| --- | --- |
-| `A` `D` | Move along your line |
-| `W` | Jump — tap for a hop, hold for a full leap |
-| `S` | Drop into the splits |
-| `SPACE` | Dive |
-| `P` | Pause |
-
-On a phone, an on-screen button pad appears instead.
-
-### Or play with one finger
-
-Press **Play with one finger** on the title screen and the game uses your webcam instead of the
-keyboard. Point your index finger up at the camera:
+Press **Kick off**, allow the camera, and point your index finger up at it:
 
 | Finger | Action |
 | --- | --- |
 | Move it left and right | The keeper follows your fingertip |
-| Lift it | Jump. Keep it up there for a full leap |
+| Lift it | Jump. Flick it up for a hop, keep it up for a full leap |
 | Bend it down | The splits |
 | Flick it sideways, fast | Dive that way. Up-and-across for a top corner |
 
-Hold your finger still wherever it's comfortable and the game kicks off from there. Resting your
-elbow on the desk works best: small movements cover the whole goal. The setup screen shows your
-hand with the steering finger picked out and the jump and splits lines drawn on it, and a practice
-flick shows up as a dive. If it loses sight of your finger mid-game it pauses itself, and it
-carries on when your finger is back. `C` re-centres, `P` pauses.
-
-Camera runs keep their own best score, separate from the keyboard one.
+There are no keyboard controls. Hold your finger still wherever it's comfortable and the game
+kicks off from there. Resting your elbow on the desk works best: small movements cover the whole
+goal. The setup screen shows your hand with the steering finger picked out and the jump and splits
+lines drawn on it, and a practice flick shows up as a dive. To pause, take your hand away; the game
+carries on when your finger is back.
 
 The hand tracking is Google's MediaPipe, loaded the first time you use it (about 20 MB, then
 cached by the browser). It runs entirely on your device, and the video is never uploaded or
@@ -78,8 +64,9 @@ exactly what stops the ball.
 
 **Jumping is real physics.** A jump is one upward impulse with gravity applied each frame and a
 landing. Gravity softens to 46% near the apex, which buys about four tenths of a second of hang time —
-enough that a top-corner save is possible, not so much that mistiming the jump is free. Releasing `W`
-early cuts the rise short, so tap and hold give different heights.
+enough that a top-corner save is possible, not so much that mistiming the jump is free. Dropping your
+finger straight back down cuts the rise short, so a quick flick up is a hop and holding it up is the
+full leap.
 
 **Shots are checked for reachability before they're taken.** Targets used to be chosen at random and
 independently, which meant the game could ask for the top-left corner and then the bottom-right
@@ -115,14 +102,16 @@ lag when it moves.
 A flick is harder to spot than it sounds, because at 30 frames a second a quick flick can fall
 almost entirely between two frames. So a dive fires on either two fast frames in a row, or one very
 fast frame that the finger doesn't snap straight back from. A tracking glitch jumps out and straight
-back, so it doesn't count. Tested across 15–60 fps with synthetic hands: no false dives from
-ordinary fast movement, glitches or jitter, and every full flick caught at 30 fps.
+back, so it doesn't count. It also has to be sudden: a flick's speed leaps up from one frame to the
+next, where even a very quick ordinary move builds up over several. Tested across 15–60 fps with
+synthetic hands: no false dives from ordinary fast movement, glitches or jitter, and every full
+flick caught at 30 fps.
 
 **Camera runs get time back for the tracking delay.** A webcam and a hand tracker are slower than a
 key press. Before kick-off the game measures that delay, from the moment a frame is captured to
 the moment the keeper reacts, and every shot in that run gets exactly that much extra time in the
-air. The reachability check allows for it too. With a bot playing both ways, camera and keyboard
-save rates came out level.
+air. The reachability check allows for it too. In bot tests, save rates through the camera came out
+level with instant key presses.
 
 **Everything is generated at runtime.** No image or audio files — the stadium, players and ball are
 drawn with canvas paths, and every sound effect is synthesised with the Web Audio API. The static
@@ -134,4 +123,4 @@ which cut the pitch's per-frame cost by about 9×.
 - HTML, CSS, JavaScript
 - HTML Canvas API
 - Web Audio API
-- MediaPipe Hand Landmarker, for camera mode only
+- MediaPipe Hand Landmarker
