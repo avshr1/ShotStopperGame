@@ -173,7 +173,9 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 .streak.chase{background:rgba(79,195,247,.2);border-color:rgba(79,195,247,.6);color:#d6f2ff}
 .scoring-note{display:block;margin-top:6px;padding-top:6px;border-top:1px solid rgba(61,220,132,.2);
   color:rgba(255,255,255,.7);font-size:12px}
-.over-actions{display:flex;flex-direction:column;align-items:center;gap:10px}
+.over-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px 12px}
+#again-btn{background-image:linear-gradient(90deg,rgba(255,255,255,.5) var(--hold,0%),transparent var(--hold,0%))}
+.again-hint{font-size:11px;color:rgba(255,255,255,.5);margin-top:9px}
 .share{
   background:none;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85);
   border-radius:30px;padding:8px 22px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;
@@ -221,6 +223,11 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 .cam-status{position:absolute;left:0;right:0;bottom:0;padding:18px 10px 8px;font-size:12px;font-weight:600;line-height:1.35;
   background:linear-gradient(0deg,rgba(0,0,0,.8),rgba(0,0,0,0));color:#fff;text-align:center}
 .cam-status.err{color:#ffd6d7}
+.cam-load{position:absolute;left:10px;right:10px;bottom:46px;height:5px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
+.cam-load i{display:block;height:100%;width:0;background:var(--save);border-radius:3px;transition:width .2s}
+.cam-load.wait i{width:30%;animation:camWait 1.2s ease-in-out infinite}
+@keyframes camWait{0%{transform:translateX(-100%)}100%{transform:translateX(340%)}}
+@media (prefers-reduced-motion:reduce){.cam-load.wait i{animation:none;width:100%;opacity:.4}}
 .cam-meta{font-size:11px;color:rgba(255,255,255,.45);margin-top:6px;min-height:15px;text-align:center}
 .cam-rules{display:flex;flex-direction:column;gap:8px;font-size:13px;color:rgba(255,255,255,.86)}
 .cam-rules p{display:flex;gap:10px;align-items:baseline;line-height:1.4}
@@ -242,6 +249,9 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 .cam-mini{position:absolute;right:10px;bottom:10px;width:20%;max-width:176px;height:auto;border-radius:10px;z-index:6;
   border:1px solid rgba(255,255,255,.3);box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none;display:none}
 .frame.cam-live .cam-mini{display:block}
+.warm-skip{position:absolute;top:10px;right:10px;z-index:6;display:none;padding:6px 14px;font-size:12px;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(3px)}
+.frame.warming .warm-skip{display:block}
 
 @media (max-width:640px){
   .cam-grid{grid-template-columns:1fr;gap:12px}
@@ -293,6 +303,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
   <div class="frame">
     <canvas id="game" width="800" height="540" aria-label="Goalkeeper shot-stopping game"></canvas>
     <canvas id="cam-mini" class="cam-mini" width="320" height="240" aria-hidden="true"></canvas>
+    <button id="warm-skip" class="share warm-skip">Skip warm-up</button>
 
     <div id="start-screen" class="sheet">
       <div class="card">
@@ -310,7 +321,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
           <span class="scoring-note">Ten saves in a row wins back a ball you've let in.</span>
         </div>
         <button id="start-btn" class="go">KICK OFF</button>
-        <p class="cam-privacy">Uses your camera. The video stays on your device.</p>
+        <p class="cam-privacy" id="life-line">Uses your camera. The video stays on your device.</p>
       </div>
     </div>
 
@@ -321,6 +332,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
           <div>
             <div class="cam-view">
               <canvas id="cam-big" width="600" height="450" aria-label="Your camera, mirrored, with your tracked finger drawn over it"></canvas>
+              <div class="cam-load" id="cam-load" hidden><i></i></div>
               <div class="cam-status" id="cam-status" aria-live="polite">Starting your camera…</div>
             </div>
             <div class="cam-meta" id="cam-meta"></div>
@@ -335,6 +347,11 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
             <div class="cam-row"><span>SENSITIVITY</span>
               <div class="seg" id="cam-sens" role="group" aria-label="Sensitivity">
                 <button data-v="0">Low</button><button data-v="1" class="on">Medium</button><button data-v="2">High</button>
+              </div>
+            </div>
+            <div class="cam-row"><span>WARM-UP FIRST</span>
+              <div class="seg" id="cam-warm" role="group" aria-label="Warm up before the run">
+                <button data-v="1" class="on">On</button><button data-v="0">Off</button>
               </div>
             </div>
             <p class="cam-note">Rest your elbow on the desk: small finger movements cover the whole goal. Try a flick to see it register, then hold your finger still wherever feels comfortable to kick off.</p>
@@ -360,6 +377,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
           <button id="again-btn" class="go">GO AGAIN</button>
           <button id="share-btn" class="share">Share score</button>
         </div>
+        <p class="again-hint" id="again-hint" hidden>…or lift your finger past the blue line and hold it there</p>
       </div>
     </div>
 
@@ -374,7 +392,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 
   <div class="bar">
     <div class="keys" id="keys-hint">
-      Finger ↔ move · lift to jump · bend for the splits · flick to dive · take your hand away to pause
+      Finger ↔ move · lift to jump · bend for the splits · flick to dive · <kbd>P</kbd> or take your hand away to pause
     </div>
     <div style="display:flex;gap:8px">
       <button id="motion-btn" class="chip">Motion: full</button>
@@ -490,7 +508,7 @@ let reducedMotion = false;
 const G = {
   phase: "menu", countT: 0, elapsed: 0, nextShot: 0,
   score: 0, best: 0, saves: 0, run: 0, bestRun: 0,
-  lives: 3, paused: false, pauseWhy: null, announced: {}, milestone: 0,
+  lives: 3, paused: false, pauseWhy: null, announced: {}, milestone: 0, overAt: 0,
   lag: 0,                  // ms of extra flight time each shot gets for the tracking delay
 
   stats: { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 }
@@ -957,7 +975,7 @@ function updateStamina(dt) {
 
 /* ═════════ jumping ═════════ */
 function requestJump() {
-  if (G.phase !== "play" && G.phase !== "count") return;
+  if (!inRun()) return;
   if (keeper.diving) return;
   if (keeper.airborne || keeper.landLock > 0) { keeper.jumpBuffer = JUMP_BUFFER_MS; return; }
   doJump();
@@ -1003,7 +1021,7 @@ function groundYFor(tilt) { return LINE_Y - 12 - 22 * Math.cos(tilt); }
 // down on the way across.
 function launchDive(dir) {
   if (keeper.diving) return;
-  if (G.phase !== "play" && G.phase !== "count") return;
+  if (!inRun()) return;
   if (!canSpend(DIVE_COST)) { keeper.denied = 1; sfx.spent(); return; }
 
   let dx = dir ? dir.dx : 0, dy = dir ? dir.dy : 0;
@@ -1100,7 +1118,7 @@ function updateKeeper(dt) {
     // Run to where the finger says: flat out from a distance, easing in over
     // the last stretch so he settles on the spot instead of overshooting.
     // Never faster than MOVE_SPEED, which the fairness check relies on.
-    const following = G.phase === "play" || G.phase === "count";
+    const following = inRun();
     const dir = following ? clamp((CAM.targetX - keeper.x) / CAM_EASE, -1, 1) : 0;
     const authority = keeper.airborne ? AIR_CONTROL : L(1, .38, keeper.spread);
     const tau = keeper.airborne ? AIR_TAU : following ? CAM_TAU : MOVE_TAU;
@@ -2642,6 +2660,7 @@ function drawEffects() {
 }
 
 function drawOverlayText() {
+  if (G.phase === "warmup") drawWarmup();
   ctx.textAlign = "center"; ctx.lineJoin = "round";
   if (G.phase === "count") {
     const step = Math.floor(G.countT / 700);
@@ -2722,6 +2741,115 @@ function drawBloom() {
   ctx.restore();
 }
 
+/* ═════════ warm-up ═════════
+   The first time through (and whenever it's switched on), there's a short
+   practice before the countdown: no shots, stamina topped up, and each of
+   the four moves ticked off as you do it. Controls you've tried once are
+   controls you'll use when it counts.                                    */
+const WARM_KEY = "shotstopper-warmup";          // "1" to warm up before the next run
+const WARM_STEPS = [
+  { title: "REACH BOTH POSTS", sub: "Move your finger left and right. The keeper follows it." },
+  { title: "LIFT YOUR FINGER", sub: "Up past the blue line to jump. Keep it up for a full leap." },
+  { title: "BEND IT DOWN", sub: "Down past the gold line for the splits." },
+  { title: "FLICK IT SIDEWAYS", sub: "A quick flick, left or right, to dive." }
+];
+let warmWanted = true;
+let warm = null;                                 // { step, posts: {l, r}, doneAt, finishedAt }
+
+function warmupStart() {
+  warm = { step: 0, posts: { l: false, r: false }, doneAt: 0, finishedAt: 0 };
+  G.phase = "warmup";
+}
+
+function updateWarmup(dt) {
+  keeper.stamina = STAM_MAX; keeper.exhausted = false;      // nothing to ration yet
+  const w = warm;
+  if (w.finishedAt) {                                       // "READY" for a moment, then the countdown
+    if (performance.now() - w.finishedAt > 1100) warmupEnd(true);
+    return;
+  }
+  if (w.doneAt) {                                           // a beat to see the tick before moving on
+    if (performance.now() - w.doneAt < 650) return;
+    w.doneAt = 0; w.step++;
+    if (w.step >= WARM_STEPS.length) { w.finishedAt = performance.now(); sfx.milestone(); spawnConfetti(60); }
+    return;
+  }
+  let done = false;
+  if (w.step === 0) {
+    if (keeper.x < GOAL.x + 70 && !w.posts.l) { w.posts.l = true; sfx.tick(1); }
+    if (keeper.x > GOAL.x + GOAL.w - 70 && !w.posts.r) { w.posts.r = true; sfx.tick(1); }
+    done = w.posts.l && w.posts.r;
+  } else if (w.step === 1) done = keeper.airborne && STAND_Y - keeper.y > 50;
+  else if (w.step === 2) done = keeper.spread > .8;
+  else done = keeper.diving;
+  if (done) {
+    w.doneAt = performance.now();
+    sfx.unlock();
+    pops.push({ text: "NICE!", x: keeper.x, y: keeper.y - 70, color: "#3ddc84", size: 28, life: 1 });
+    burst(keeper.x, keeper.y - 40, 16, ["#3ddc84", "#ffffff", "#d9fbe6"]);
+  }
+}
+
+// Finished (or skipped): into the usual countdown. Doing all four once
+// switches it off for next time; it can be switched back on in setup.
+function warmupEnd(finished) {
+  if (G.phase !== "warmup") return;
+  warm = null;
+  if (finished) setWarmWanted(false);
+  G.phase = "count"; G.countT = 0;
+  keeper.stamina = STAM_MAX;
+  syncCamLive();
+}
+
+function setWarmWanted(v) {
+  warmWanted = v;
+  for (const b of document.querySelectorAll("#cam-warm button")) b.classList.toggle("on", (b.dataset.v === "1") === v);
+  try { localStorage.setItem(WARM_KEY, v ? "1" : "0"); } catch (e) { /* storage unavailable */ }
+}
+
+function drawWarmup() {
+  const w = warm;
+  if (!w) return;
+  const i = Math.min(w.step, WARM_STEPS.length - 1), st = WARM_STEPS[i];
+  const ready = !!w.finishedAt, ticked = !!w.doneAt;
+  ctx.save();
+  ctx.textAlign = "center"; ctx.lineJoin = "round";
+  // In front of the goal: nobody's out there during the warm-up, and it
+  // keeps the words clear of the keeper and the crossbar.
+  const top = LINE_Y + 34;
+  const band = ctx.createLinearGradient(0, 0, W, 0);
+  band.addColorStop(0, "rgba(0,0,0,0)"); band.addColorStop(.22, "rgba(0,0,0,.5)");
+  band.addColorStop(.78, "rgba(0,0,0,.5)"); band.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = band; ctx.fillRect(0, top, W, 88);
+  // WARM-UP  ● ● ○ ○
+  ctx.font = "700 10px Inter, sans-serif"; ctx.fillStyle = "rgba(255,255,255,.65)";
+  ctx.fillText("WARM-UP", W / 2 - 34, top + 20);
+  for (let k = 0; k < WARM_STEPS.length; k++) {
+    const doneK = k < w.step || (k === w.step && (ticked || ready));
+    ctx.beginPath(); ctx.arc(W / 2 + 14 + k * 14, top + 16.5, 4.2, 0, 6.283);
+    ctx.fillStyle = doneK ? "#3ddc84" : k === w.step ? "rgba(255,255,255,.9)" : "rgba(255,255,255,.25)";
+    ctx.fill();
+  }
+  ctx.font = "42px 'Bebas Neue', Impact, sans-serif";
+  ctx.lineWidth = 5; ctx.strokeStyle = "rgba(0,0,0,.5)";
+  const title = ready ? "READY? HERE THEY COME" : st.title;
+  ctx.strokeText(title, W / 2, top + 58);
+  ctx.fillStyle = ready || ticked ? "#3ddc84" : "#ffffff";
+  ctx.fillText(title, W / 2, top + 58);
+  ctx.font = "600 12px Inter, sans-serif"; ctx.fillStyle = "rgba(255,255,255,.85)";
+  ctx.fillText(ready ? "You've got all four. Good luck." : st.sub, W / 2, top + 77);
+  // Step one: a target at each post, lit once you've reached it.
+  if (w.step === 0 && !ready) {
+    for (const [x, hit] of [[GOAL.x + 40, w.posts.l], [GOAL.x + GOAL.w - 40, w.posts.r]]) {
+      ctx.beginPath(); ctx.ellipse(x, LINE_Y + 10, 26, 8, 0, 0, 6.283);
+      ctx.fillStyle = hit ? "rgba(61,220,132,.45)" : "rgba(255,255,255,.14)"; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = hit ? "#3ddc84" : "rgba(255,255,255,.6)";
+      ctx.setLineDash(hit ? [] : [5, 4]); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+  ctx.restore();
+}
+
 /* ═════════ loop ═════════ */
 let last = performance.now();
 
@@ -2747,6 +2875,9 @@ function frame(now) {
       if (after !== before && after <= 3) sfx.tick(3 - after);
       updateKeeper(dt); updateStamina(dt);
       if (G.countT >= 2800) { G.phase = "play"; G.nextShot = 400; }
+    } else if (G.phase === "warmup") {
+      updateKeeper(dt); updateStamina(dt); updateWarmup(dt);
+      updateLiveHUD();
     } else if (G.phase === "play") {
       G.elapsed += dt;
       checkUnlocks();
@@ -2890,7 +3021,9 @@ function updateHUD() {
 /* ═════════ flow ═════════ */
 // The picture-in-picture shows whenever a run is under way.
 function syncCamLive() {
-  document.querySelector(".frame").classList.toggle("cam-live", inRun());
+  const f = document.querySelector(".frame");
+  f.classList.toggle("cam-live", inRun());
+  f.classList.toggle("warming", G.phase === "warmup");
 }
 
 // Called once you've held your finger still on the setup screen.
@@ -2901,6 +3034,7 @@ function startGame() {
   G.lives = 3; G.paused = false; G.pauseWhy = null; G.announced = {}; G.milestone = 0;
   G.lag = camDelayBudget();
   held.clear();
+  warm = null;
   G.stats = { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 };
   shots = []; particles = []; pops = []; netHits = []; rings = []; cheer = 0; lastArrival = null;
   flashes = []; confetti = []; scuffs = []; crowdWave = null; punch = 0; poseReady = 0; shownScore = 0;
@@ -2917,14 +3051,20 @@ function startGame() {
   for (const id of ["start-screen", "over-screen", "pause-screen", "cam-screen"]) {
     document.getElementById(id).classList.add("hidden");
   }
+  if (warmWanted) warmupStart();
   syncCamLive();
   updateHUD();
 }
 
 function gameOver() {
   G.phase = "over";
+  G.overAt = performance.now();
   held.clear();
   syncCamLive();
+  document.getElementById("again-hint").hidden = !(CAM.stream && CAM.status === "live");
+  recordLifetime();
+  const isBest = G.score > G.best;
+  setTimeout(() => { if (G.phase === "over") makeScoreCard(isBest); }, 350);
   const beat = G.score > G.best;
   const previous = G.best;
   if (beat) {
@@ -2980,42 +3120,92 @@ function gameOver() {
 }
 
 // A run pauses itself when it loses sight of your finger, and picks up again
-// by itself once it's back. Leaving the page pauses it too; that one waits
-// for you to press CARRY ON, so it doesn't restart while you're elsewhere.
+// by itself once it's back. P pauses it too, and so does leaving the page;
+// those wait for P (or CARRY ON), so it doesn't restart while you're away.
 function setPaused(v, why = "away") {
   if (!inRun()) return;
   G.paused = v;
   G.pauseWhy = v ? why : null;
   const hand = why === "hand", broken = hand && CAM.status === "error";
   document.getElementById("pause-title").textContent = hand ? "WHERE'S YOUR FINGER?" : "PAUSED";
-  document.getElementById("pause-sub").textContent = broken ? CAM.msg
+  document.getElementById("pause-sub").innerHTML = broken ? CAM.msg + " Press <kbd>P</kbd> or END THIS RUN."
     : hand ? "Point it back up where you started and the game carries on by itself."
-    : "Get your finger back in front of the camera, then carry on.";
+    : why === "key" ? "Press <kbd>P</kbd> again, or CARRY ON, when you're ready."
+    : "Get your finger back in front of the camera, then press <kbd>P</kbd> or CARRY ON.";
   const btn = document.getElementById("pause-btn");
   btn.hidden = hand && !broken;
   btn.textContent = broken ? "END THIS RUN" : "CARRY ON";
   document.getElementById("pause-screen").classList.toggle("hidden", !v);
 }
 
-/* ═════════ input ═════════
-   There isn't any, beyond the finger: no keyboard, and during play no
-   buttons either. Menus use ordinary buttons.                          */
-const inRun = () => G.phase === "play" || G.phase === "count";
-const camScreenOpen = () => !document.getElementById("cam-screen").classList.contains("hidden");
-
-window.addEventListener("blur", () => { held.clear(); setPaused(true); });
-document.addEventListener("visibilitychange", () => { if (document.hidden) { held.clear(); setPaused(true); } });
-
-document.getElementById("pause-btn").addEventListener("click", e => {
-  e.currentTarget.blur();
+// What CARRY ON (or P) does from a pause. If the camera itself has gone
+// there's no carrying on, so it finishes the run instead.
+function unpause() {
   if (!G.paused) return;
   if (G.pauseWhy === "hand" && CAM.status === "error") {
-    // The camera itself has gone, so there's no carrying on: finish the run.
     G.paused = false;
     document.getElementById("pause-screen").classList.add("hidden");
     gameOver();
   } else setPaused(false);
+}
+
+/* ═════════ input ═════════
+   The finger does everything in play. The one key is P, to pause; menus
+   use ordinary buttons.                                                 */
+const inRun = () => G.phase === "play" || G.phase === "count" || G.phase === "warmup";
+const camScreenOpen = () => !document.getElementById("cam-screen").classList.contains("hidden");
+
+window.addEventListener("keydown", e => {
+  if (e.key.toLowerCase() !== "p" || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!inRun()) return;
+  e.preventDefault();
+  if (G.paused) unpause(); else setPaused(true, "key");
 });
+window.addEventListener("blur", () => { held.clear(); setPaused(true); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) { held.clear(); setPaused(true); } });
+
+document.getElementById("pause-btn").addEventListener("click", e => { e.currentTarget.blur(); unpause(); });
+
+/* ═════════ all-time ═════════
+   A few running totals, kept in the browser, shown on the title card. */
+const LIFE_KEY = "shotstopper-life";
+function lifetime() {
+  try { return Object.assign({ games: 0, saves: 0, bestRun: 0, ms: 0 }, JSON.parse(localStorage.getItem(LIFE_KEY) || "{}")); }
+  catch (e) { return { games: 0, saves: 0, bestRun: 0, ms: 0 }; }
+}
+function recordLifetime() {
+  const L = lifetime();
+  L.games++; L.saves += G.saves; L.bestRun = Math.max(L.bestRun, G.bestRun); L.ms += G.elapsed;
+  try { localStorage.setItem(LIFE_KEY, JSON.stringify(L)); } catch (e) { /* storage unavailable */ }
+  showLifetime();
+}
+function showLifetime() {
+  const L = lifetime(), el = document.getElementById("life-line");
+  if (!L.games) return;
+  const mins = Math.round(L.ms / 60000);
+  el.textContent = `${L.games} game${L.games === 1 ? "" : "s"} · ${L.saves} saves · longest run ${L.bestRun}` +
+    (mins >= 2 ? ` · ${mins} minutes in goal` : "") + " · uses your camera";
+}
+
+/* Go again without reaching for the mouse: at full time, lift your finger
+   past the jump line and hold it there. The GO AGAIN button fills as you
+   hold, so it's never a surprise, and it can't happen in the first moment
+   after the whistle. */
+const AGAIN_MS = 1000, AGAIN_AFTER = 1500;
+function camAgain(now) {
+  const ready = G.phase === "over" && CAM.hand && CAM.zone === "high" && !document.hidden &&
+    now - G.overAt > AGAIN_AFTER && !document.getElementById("over-screen").classList.contains("hidden");
+  if (!ready) { CAM.againSince = 0; setAgainFill(0); return; }
+  if (!CAM.againSince) CAM.againSince = now;
+  const k = clamp((now - CAM.againSince) / AGAIN_MS, 0, 1);
+  setAgainFill(k);
+  if (k >= 1) { CAM.againSince = 0; setAgainFill(0); sfx.tick(0); openCamScreen(); }
+}
+function setAgainFill(k) {
+  if (CAM.againK === k) return;
+  CAM.againK = k;
+  document.getElementById("again-btn").style.setProperty("--hold", (k * 100).toFixed(1) + "%");
+}
 
 /* ═════════ camera control ═════════
    The whole game is played with one finger. Google's MediaPipe hand
@@ -3053,6 +3243,7 @@ const SENS = [
 ];
 const ZONE_HYST = .22;              // come back this far to leave the jump or splits zone
 const CAM_EASE = 70;                // px: inside this he eases onto the spot rather than sprinting
+const SAG_MS = 7000, SAG_MAX = .33;     // how slowly, and how far, the resting height is followed
 const DEAD_BAND = 4;                // px of fingertip wobble that doesn't move him at all
 const CAM_TAU = 40;
 const CALIB_MS = 900;               // hold still this long to kick off
@@ -3072,7 +3263,9 @@ const CAM = {
   palm: .15, hist: [],
   neutral: null, zone: "mid", targetX: W / 2,
   diveAt: -1e9, jumpAt: -1e9, flash: 0, practice: null,
-  calib: [], calibK: 0, metaAt: 0
+  calib: [], calibK: 0, metaAt: 0,
+  progress: null, modelBytes: null, engines: {},
+  home: null, lastRead: 0, againK: 0, againSince: 0
 };
 
 // One-euro filter: heavy smoothing when the hand is nearly still (kills
@@ -3174,6 +3367,17 @@ function camRead(now) {
   }
   if (zone === "high" && CAM.zone !== "high") out.jump = true;
   CAM.zone = zone;
+
+  // Arms sink over a long run. While the finger's resting near the middle
+  // (not reaching for a line, not moving much), the centre drifts after it
+  // over several seconds, so the lines stay where your hand actually rests.
+  // Never more than a third of a palm from where you started.
+  const since = CAM.lastRead ? clamp(now - CAM.lastRead, 0, 100) : 0;
+  CAM.lastRead = now;
+  if (zone === "mid" && Math.abs(dy) < .35 && Math.abs(vy) < 1.5 && CAM.home) {
+    const y = n.y + (CAM.raw.y - n.y) * (1 - Math.exp(-since / SAG_MS));
+    n.y = clamp(y, CAM.home.y - SAG_MAX * p, CAM.home.y + SAG_MAX * p);
+  }
 
   const way = timed ? camFlick(now) : 0;
   if (way) {
@@ -3277,7 +3481,8 @@ function camCalibrate(now) {
   setCamStatus(CAM.calibK > .2 ? "Hold it there…" : "Now hold it still…");
   if (CAM.calibK >= 1) {
     CAM.neutral = { x: mx, y: my };
-    CAM.zone = "mid"; CAM.targetX = W / 2;
+    CAM.home = { x: mx, y: my };
+    CAM.zone = "mid"; CAM.targetX = W / 2; CAM.lastRead = 0;
     CAM.status = "live";
     startGame();
   }
@@ -3344,6 +3549,7 @@ async function camStart() {
   document.getElementById("cam-retry").hidden = true;
   CAM.status = "starting";
   setCamStatus("Asking to use your camera…");
+  ensureTracker().catch(() => { /* reported below, once we're waiting on it */ });
   try {
     if (!CAM.stream) {
       const stream = await camOpenStream();
@@ -3354,11 +3560,12 @@ async function camStart() {
     }
     if (!CAM.tracker) {
       CAM.status = "loading";
-      setCamStatus("Loading the hand tracker. The first time takes a few seconds (about 20 MB).");
-      const tracker = await loadTracker(false);
-      if (my !== CAM.token) { try { tracker.close(); } catch (e) { /* already gone */ } return; }
-      CAM.tracker = tracker;
+      setCamStatus("Loading the hand tracker…");
+      showLoadProgress();
+      await ensureTracker();                        // kept even if you back out: it's cached for next time
+      if (my !== CAM.token) return;
     }
+    document.getElementById("cam-load").hidden = true;
     CAM.status = "calib"; CAM.calib = []; CAM.calibK = 0;
     setCamStatus("Point one finger up at the camera, palm facing it.");
   } catch (e) {
@@ -3406,9 +3613,13 @@ async function camAttach(stream) {
 }
 
 // Newest pinned version first, GPU first; fall back to CPU, which is slower
-// but works everywhere.
+// but works everywhere. The two big downloads (the tracker's engine and the
+// hand model, about 20 MB together) are fetched here rather than left to
+// the library, so there's a real progress bar and each is only fetched once.
+// If that fails for any reason the library just loads them itself.
 async function loadTracker(cpuOnly) {
   let err = null;
+  CAM.progress = { got: 0, total: 0, parts: 0 };
   for (const ver of TASKS_VERSIONS) {
     const base = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${ver}`;
     let lib, files;
@@ -3416,11 +3627,20 @@ async function loadTracker(cpuOnly) {
       lib = await import(`${base}/vision_bundle.mjs`);
       files = await lib.FilesetResolver.forVisionTasks(`${base}/wasm`);
     } catch (e) { err = e; continue; }
-    for (const model of HAND_MODELS) {
+    const [engine, model] = await Promise.all([
+      CAM.engines[ver] ? Promise.resolve(null) : fetchBytes(files && files.wasmBinaryPath, 11.8e6).catch(() => null),
+      CAM.modelBytes ? Promise.resolve(CAM.modelBytes) : fetchBytes(HAND_MODELS[0], 7.8e6).catch(() => null)
+    ]);
+    if (engine) CAM.engines[ver] = URL.createObjectURL(new Blob([engine], { type: "application/wasm" }));
+    if (CAM.engines[ver]) files = Object.assign({}, files, { wasmBinaryPath: CAM.engines[ver] });
+    if (model) CAM.modelBytes = model;
+    // A copy each time, so a failed attempt can't spoil the one we've kept.
+    const sources = model ? [{ modelAssetBuffer: new Uint8Array(model) }] : HAND_MODELS.map(p => ({ modelAssetPath: p }));
+    for (const src of sources) {
       for (const delegate of cpuOnly ? ["CPU"] : ["GPU", "CPU"]) {
         try {
           const t = await lib.HandLandmarker.createFromOptions(files, {
-            baseOptions: { modelAssetPath: model, delegate },
+            baseOptions: Object.assign({ delegate }, src),
             runningMode: "VIDEO", numHands: 2,
             minHandDetectionConfidence: .6, minHandPresenceConfidence: .55, minTrackingConfidence: .5
           });
@@ -3432,6 +3652,63 @@ async function loadTracker(cpuOnly) {
   }
   console.warn("hand tracker failed to load", err);
   throw Object.assign(new Error("tracker"), { name: "Tracker" });
+}
+
+// Download a file, reporting bytes as they arrive. `guess` stands in for the
+// size when the server doesn't say.
+async function fetchBytes(url, guess) {
+  if (!url) throw new Error("no url");
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const P = CAM.progress;
+  P.total += +res.headers.get("content-length") || guess;
+  P.parts++;
+  if (!res.body || !res.body.getReader) {
+    const whole = new Uint8Array(await res.arrayBuffer());
+    P.got += whole.length; showLoadProgress();
+    return whole;
+  }
+  const reader = res.body.getReader(), chunks = [];
+  let n = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value); n += value.length; P.got += value.length;
+    showLoadProgress();
+  }
+  const out = new Uint8Array(n);
+  let at = 0;
+  for (const c of chunks) { out.set(c, at); at += c.length; }
+  return out;
+}
+
+function showLoadProgress() {
+  const P = CAM.progress, bar = document.getElementById("cam-load");
+  bar.hidden = CAM.status !== "loading";
+  bar.classList.toggle("wait", !P || !P.total);           // nothing arriving yet: just show it's busy
+  if (!P || !P.total) return;
+  const pct = clamp(Math.round(P.got / P.total * 100), 0, 100);
+  bar.firstElementChild.style.width = pct + "%";
+  if (CAM.status === "loading") setCamStatus(`Loading the hand tracker… ${pct}%` + (P.got < 1e6 ? " (about 20 MB, only the first time)" : ""));
+}
+
+// One shared load. It starts quietly a moment after the page opens, so by
+// the time you've read the title card and pressed KICK OFF it's usually
+// ready; if not, the setup screen shows how far along it is.
+let trackerLoad = null;
+function ensureTracker() {
+  if (CAM.tracker) return Promise.resolve(CAM.tracker);
+  if (!trackerLoad) {
+    trackerLoad = loadTracker(false)
+      .then(t => { CAM.tracker = t; return t; })
+      .finally(() => { trackerLoad = null; });
+  }
+  return trackerLoad;
+}
+function preloadTracker() {
+  const c = navigator.connection;
+  if (c && c.saveData) return;                         // data saver on: wait until they ask
+  ensureTracker().catch(() => { /* tried again, visibly, on KICK OFF */ });
 }
 
 function camStop() {
@@ -3516,7 +3793,7 @@ function camProcess(meta) {
     const when = captured || t0;
     camFeed(result && result.landmarks, when);
     if (CAM.status === "calib") camCalibrate(when);
-    else camApply(camRead(when), when);
+    else { camApply(camRead(when), when); camAgain(when); }
   }
   camDraw();
 }
@@ -3641,22 +3918,100 @@ function drawCamTarget() {
   ctx.fill(); ctx.stroke();
 }
 
-/* Share: on phones (and Safari, and Chrome on most desktops) this opens the
-   system share sheet; anywhere else it copies a ready-made brag to the
-   clipboard. The link points at wherever the game is actually hosted. */
+/* ═════════ sharing ═════════
+   At full time a score card is drawn in the background: the last moment of
+   the run behind your score, a few stats and the link. It's made ahead of
+   time because some browsers only allow sharing straight from the click.
+
+   Share score then hands the picture and a ready-made brag to the phone's
+   share sheet. Where that can't take pictures it shares the text, and on a
+   desktop without a share sheet it saves the picture and copies the text. */
 const GAME_URL = "https://avshr1.github.io/ShotStopperGame/";
+const gameUrl = () => /^https?:$/.test(location.protocol) ? location.origin + location.pathname : GAME_URL;
+const bragText = () =>
+  `I scored ${G.score} in Shot Stopper, playing with one finger — ${G.saves} saves, lasted ${fmtTime(G.elapsed)}. Beat that:`;
+let scoreCard = null;                          // { file, run } for the run that just ended
+let cardRun = 0;
+
+async function makeScoreCard(isBest) {
+  const run = ++cardRun;
+  scoreCard = null;
+  try { await Promise.all(["120px 'Bebas Neue'", "600 20px Inter", "700 20px Inter"].map(f => document.fonts.load(f))); }
+  catch (e) { /* fall back to system fonts */ }
+  const cw = 1200, ch = 675, c = document.createElement("canvas");
+  c.width = cw; c.height = ch;
+  const x = c.getContext("2d");
+  // the last moment of the run, dimmed toward the left where the words go
+  const sh = CV.height * cw / CV.width;
+  x.drawImage(CV, 0, -Math.max(0, (sh - ch) * .25), cw, sh);
+  let g = x.createLinearGradient(0, 0, cw, 0);
+  g.addColorStop(0, "rgba(4,14,7,.94)"); g.addColorStop(.55, "rgba(4,14,7,.72)"); g.addColorStop(1, "rgba(4,14,7,.35)");
+  x.fillStyle = g; x.fillRect(0, 0, cw, ch);
+  g = x.createLinearGradient(0, 0, 0, 150);                 // the stand and any banner text, dimmed
+  g.addColorStop(0, "rgba(4,14,7,.85)"); g.addColorStop(1, "rgba(4,14,7,0)");
+  x.fillStyle = g; x.fillRect(0, 0, cw, 150);
+  g = x.createLinearGradient(0, ch - 140, 0, ch);
+  g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,.6)");
+  x.fillStyle = g; x.fillRect(0, ch - 140, cw, 140);
+  const bebas = n => `${n}px 'Bebas Neue', Impact, sans-serif`;
+  x.textBaseline = "alphabetic"; x.textAlign = "left";
+  x.font = bebas(58); x.fillStyle = "#f4f8f2"; x.fillText("SHOT", 72, 104);
+  x.fillStyle = "#3ddc84"; x.fillText("STOPPER", 72 + x.measureText("SHOT ").width, 104);
+  x.font = bebas(260); x.fillStyle = "#3ddc84";
+  x.shadowColor = "rgba(61,220,132,.45)"; x.shadowBlur = 40;
+  x.fillText(String(G.score), 64, 372);
+  x.shadowBlur = 0;
+  x.font = "700 18px Inter, sans-serif"; x.fillStyle = "rgba(255,255,255,.6)";
+  x.fillText("P O I N T S", 74, 410);
+  if (isBest) {
+    x.font = bebas(30);
+    const w = x.measureText("NEW BEST").width + 34;
+    x.fillStyle = "#ffd23f"; x.beginPath(); x.roundRect(72, 432, w, 42, 21); x.fill();
+    x.fillStyle = "#241c00"; x.fillText("NEW BEST", 89, 464);
+  }
+  const st = G.stats, pct = st.faced ? Math.round(G.saves / st.faced * 100) : 0;
+  const rows = [["SAVES", G.saves], ["SAVE RATE", pct + "%"], ["LASTED", fmtTime(G.elapsed)], ["BEST RUN", G.bestRun], ["TWO-POINTERS", st.hard]];
+  rows.forEach(([k, v], i) => {
+    const y = 170 + i * 78;
+    x.font = "700 15px Inter, sans-serif"; x.fillStyle = "rgba(255,255,255,.55)"; x.textAlign = "left";
+    x.fillText(k, 700, y);
+    x.font = bebas(52); x.fillStyle = "#ffffff"; x.textAlign = "right";
+    x.fillText(String(v), 1128, y + 14);
+    x.fillStyle = "rgba(255,255,255,.12)"; x.fillRect(700, y + 30, 428, 1.5);
+  });
+  x.textAlign = "left";
+  x.font = "600 22px Inter, sans-serif"; x.fillStyle = "#ffffff";
+  x.fillText("Played with one finger. Beat that.", 72, ch - 64);
+  x.font = "600 17px Inter, sans-serif"; x.fillStyle = "rgba(255,255,255,.6)";
+  x.fillText(gameUrl().replace(/^https?:\/\//, "").replace(/\/$/, ""), 72, ch - 34);
+  const blob = await new Promise(r => c.toBlob(r, "image/jpeg", .92));   // a sixth the size of a PNG
+  if (!blob || run !== cardRun) return;
+  scoreCard = { file: new File([blob], `shot-stopper-${G.score}.jpg`, { type: "image/jpeg" }), run };
+}
+
+function saveFile(file) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file); a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
 document.getElementById("share-btn").addEventListener("click", async e => {
   const btn = e.currentTarget;
-  const url = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : GAME_URL;
-  const text = `I scored ${G.score} in Shot Stopper, playing with one finger — ${G.saves} saves, lasted ${fmtTime(G.elapsed)}. Beat that:`;
-  const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = "Share score"; }, 2200); };
+  const text = bragText(), url = gameUrl(), file = scoreCard && scoreCard.file;
+  const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = "Share score"; }, 2600); };
   try {
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], text: `${text} ${url}` });
+      return;
+    }
     if (navigator.share) { await navigator.share({ title: "Shot Stopper", text, url }); return; }
+    if (file) saveFile(file);
     await navigator.clipboard.writeText(`${text} ${url}`);
-    done("Copied — paste it anywhere");
+    done(file ? "Picture saved, text copied" : "Copied — paste it anywhere");
   } catch (err) {
     if (err && err.name === "AbortError") return;          // they closed the share sheet
-    done("Couldn't copy — screenshot it instead");
+    if (file) { saveFile(file); done("Picture saved"); } else done("Couldn't copy — screenshot it instead");
   }
   btn.blur();
 });
@@ -3667,6 +4022,10 @@ document.getElementById("start-btn").addEventListener("click", e => { e.currentT
 document.getElementById("again-btn").addEventListener("click", e => { e.currentTarget.blur(); openCamScreen(); });
 document.getElementById("cam-back").addEventListener("click", e => { e.currentTarget.blur(); backToTitle(); });
 document.getElementById("cam-retry").addEventListener("click", e => { e.currentTarget.blur(); camStart(); });
+document.getElementById("warm-skip").addEventListener("click", e => { e.currentTarget.blur(); warmupEnd(false); });
+for (const b of document.querySelectorAll("#cam-warm button")) {
+  b.addEventListener("click", () => { setWarmWanted(b.dataset.v === "1"); b.blur(); });
+}
 for (const b of document.querySelectorAll("#cam-sens button")) {
   b.addEventListener("click", () => { setSensitivity(+b.dataset.v); b.blur(); });
 }
@@ -3699,13 +4058,20 @@ try {
   const saved = parseInt(localStorage.getItem(BEST_KEY) || "0", 10);
   if (Number.isFinite(saved) && saved > 0) G.best = saved;
 } catch (e) { /* storage unavailable */ }
+try { setWarmWanted(localStorage.getItem(WARM_KEY) !== "0"); } catch (e) { /* storage unavailable */ }
 try {
   const s = parseInt(localStorage.getItem(SENS_KEY) || "1", 10);
   if (SENS[s]) setSensitivity(s);
 } catch (e) { /* storage unavailable */ }
 
+showLifetime();
 updateHUD();
 requestAnimationFrame(frame);
+window.addEventListener("load", () => {
+  const idle = window.requestIdleCallback || (f => setTimeout(f, 1));
+  setTimeout(() => idle(preloadTracker), 1200);
+});
 </script>
 </body>
 </html>
+

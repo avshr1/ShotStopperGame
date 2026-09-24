@@ -21,14 +21,22 @@ Press **Kick off**, allow the camera, and point your index finger up at it:
 | Bend it down | The splits |
 | Flick it sideways, fast | Dive that way. Up-and-across for a top corner |
 
-There are no keyboard controls. Hold your finger still wherever it's comfortable and the game
+The only key is `P`, to pause. Hold your finger still wherever it's comfortable and the game
 kicks off from there. Resting your elbow on the desk works best: small movements cover the whole
 goal. The setup screen shows your hand with the steering finger picked out and the jump and splits
-lines drawn on it, and a practice flick shows up as a dive. To pause, take your hand away; the game
-carries on when your finger is back.
+lines drawn on it, and a practice flick shows up as a dive.
 
-The hand tracking is Google's MediaPipe, loaded the first time you use it (about 20 MB, then
-cached by the browser). It runs entirely on your device, and the video is never uploaded or
+- **Warm-up.** The first time, there's a short practice before any shots: reach both posts, jump,
+  do the splits, dive. Each ticks off as you do it. It switches itself off once you've done it, and
+  there's a switch to bring it back on the setup screen.
+- **Pausing.** Press `P`, or just take your hand away. A hand-away pause carries on by itself when
+  your finger's back; a `P` pause waits for `P`.
+- **Going again.** At full time, lift your finger past the blue line and hold it there. The GO AGAIN
+  button fills up as you hold, and then you're off again, no mouse needed.
+
+The hand tracking is Google's MediaPipe. It starts downloading quietly as soon as the page opens
+(about 20 MB the first time, then cached by the browser), so it's usually ready by the time you
+press Kick off; if not, the setup screen shows a progress bar. It runs entirely on your device, and the video is never uploaded or
 recorded. The camera needs the page served over https or from localhost, so use the GitHub Pages
 link or VS Code's Live Server. Some browsers won't allow it for a file opened straight from disk.
 
@@ -49,8 +57,12 @@ before the ball does.
 - Save it with a leap, a dive or the splits — **2 points**
 - Ten saves in a row wins back a ball you've let in
 
-Three goals conceded ends the run. Your best score is saved in the browser, and the end screen has a
-button to share your score.
+Three goals conceded ends the run. Your best score and a few all-time totals (games, saves, longest
+run) are saved in the browser.
+
+**Share score** makes a picture of your result: the final moment of the run, your score and stats,
+and the link. On a phone it opens the share sheet with the picture attached, ready to send; on a
+computer it saves the picture and copies a brag you can paste alongside it.
 
 ## Implementation notes
 
@@ -106,6 +118,11 @@ back, so it doesn't count. It also has to be sudden: a flick's speed leaps up fr
 next, where even a very quick ordinary move builds up over several. Tested across 15–60 fps with
 synthetic hands: no false dives from ordinary fast movement, glitches or jitter, and every full
 flick caught at 30 fps.
+
+**Arms sink.** Over a few minutes most people's resting hand drifts down a little, which would
+creep the splits line toward it. While your finger rests near the middle, the centre follows it
+very slowly, never more than a third of a palm from where you started, so the lines stay where
+your hand actually is. A finger held deliberately low, or moving about, doesn't drag them.
 
 **Camera runs get time back for the tracking delay.** A webcam and a hand tracker are slower than a
 key press. Before kick-off the game measures that delay, from the moment a frame is captured to
