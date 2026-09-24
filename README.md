@@ -36,18 +36,19 @@ lines drawn on it, and a practice flick shows up as a dive.
 
 ### Reading the ball
 
-From behind the striker, a shot heading for the top corner looks as if it's already there halfway
-through its flight, so each shot carries three honest cues to where it is and when it lands:
+From behind the striker, "how high" and "how far" both show up as "higher on the screen", so a
+shot bound for the top corner can look as if it's already there with half its flight to go. The
+game sorts that out the way a real pitch would, without ever giving away where the ball is going:
 
-- **Its shadow.** A dark shadow on the grass, joined to the ball by a line. The ball arrives when
-  the shadow reaches the goal line under the keeper's feet, and the longer the line, the higher it is.
-- **A ring where it's going.** Partway through the flight a ring appears where the ball will cross
-  the goal, and closes on it at exactly the moment it arrives. **Blue** means you'll need to leap:
-  lift your finger as the ring closes on the dotted line inside it. **Gold** means it's low.
-  **White** means you can stay on your feet. The centre turns green whenever you're covering it.
-  Shots going wide don't get a ring.
-- **Sound.** Each ball whooshes with a rising pitch that peaks as it arrives, and a blue ring ticks
-  at the moment to lift.
+- **Its shadow.** Every ball has a dark shadow on the grass, joined to it by a thin line. The ball
+  is at you when its shadow reaches the goal line. A long line with the shadow still far out means
+  a high ball that's nowhere near yet.
+- **Mowing bands.** The grass is mowed in bands across the pitch, each 2.75 m deep: two bands to
+  the six-yard line, six to the edge of the box. Watch the shadow cross them and you can see how
+  far the ball has come and how fast it's closing.
+- **A flight that keeps coming.** Shots climb as they travel, most of it late, the way a struck
+  ball rises, so a ball is visibly still on its way right up until it arrives.
+- **Sound.** Each ball whooshes, rising in pitch and peaking as it arrives.
 
 The hand tracking is Google's MediaPipe. It starts downloading quietly as soon as the page opens
 (about 20 MB the first time, then cached by the browser), so it's usually ready by the time you
@@ -138,11 +139,6 @@ flick caught at 30 fps.
 creep the splits line toward it. While your finger rests near the middle, the centre follows it
 very slowly, never more than a third of a palm from where you started, so the lines stay where
 your hand actually is. A finger held deliberately low, or moving about, doesn't drag them.
-
-**The moment to lift is measured, not guessed.** Running the keeper's actual jump physics against
-balls crossing at every height shows he can save a top-corner ball if he leaves the ground anywhere
-from about 0.17 to 0.8 seconds before it arrives. The dotted line sits in the middle of that, plus
-the camera's delay, so lifting on the line, or reacting a moment after it, both get there.
 
 **Camera runs get time back for the tracking delay.** A webcam and a hand tracker are slower than a
 key press. Before kick-off the game measures that delay, from the moment a frame is captured to

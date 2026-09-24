@@ -538,7 +538,7 @@ function showBanner(b) {
 let timeScale = 1, slowLeft = 0;
 let themeNow = 0;
 
-const hintsShown = { ring: false, low: false, high: false, dive: false, stam: false, rebound: false };
+const hintsShown = { shadow: false, low: false, high: false, dive: false, stam: false, rebound: false };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -605,8 +605,7 @@ const sfx = {
   record(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .35, { type: "triangle", gain: .13, delay: i * .1 })); },
   lifeBack(){ [587, 740, 880, 1175].forEach((f, i) => tone(f, .26, { type: "sine", gain: .14, delay: i * .07 })); noise(.6, { gain: .1, freq: 800, q: .3, sweepTo: 1800, delay: .1 }); },
   whistle(){ tone(1750, .18, { type: "square", gain: .12 }); tone(1750, .3, { type: "square", gain: .12, delay: .24 }); },
-  tick(n) { tone(n === 0 ? 900 : 540, .14, { type: "square", gain: .1 }); },
-  lift()  { tone(1180, .06, { type: "sine", gain: .07 }); tone(1570, .08, { type: "sine", gain: .06, delay: .045 }); }
+  tick(n) { tone(n === 0 ? 900 : 540, .14, { type: "square", gain: .1 }); }
 };
 
 /* ═════════ look: afternoon → dusk → floodlights ═════════ */
@@ -832,7 +831,6 @@ function spawnShot() {
     bx: sx, by: sy + 36 - r0, br: r0, shadowY: sy + 36,
     trail: [], spin: Math.random() * 6.28, rebound: false, look: newLook()
   };
-  prepareGuide(s);
   shots.push(s);
   maybeHint(s);
 }
@@ -859,7 +857,6 @@ function spawnRebound(from) {
     feed: { x: from.bx, y: from.by, r: from.br },
     trail: [], spin: Math.random() * 6.28, rebound: true, look: newLook()
   });
-  prepareGuide(shots[shots.length - 1]);
   pops.push({ text: "REBOUND!", x: from.bx, y: from.by - 40, color: "#ffd23f", size: 24, life: 1 });
   sfx.scramble();
   if (!hintsShown.rebound) {
@@ -869,120 +866,40 @@ function spawnRebound(from) {
   return true;
 }
 
-// Only the start of the path changed: it now leaves from where the ball was
-// actually sitting. Where and when it arrives — all the game logic cares
-// about — is exactly as before.
+// Where the ball is, t of the way through its flight. It travels along the
+// grass at a steady speed (that's its shadow), and climbs from the boot to
+// its crossing height as it goes, most of the climb coming later, the way a
+// struck ball rises. So it's visibly still on its way right up until it
+// arrives, rather than reaching goal height halfway and then hanging there.
+// Where and when it arrives, all the game logic cares about, is unchanged.
 function ballAt(s, t) {
-  const e = Math.pow(t, .87);
-  const lift = s.kind === "chip" ? 54 : 22;
+  const groundY = s.gy0 + (LINE_Y + 10 - s.gy0) * t;
+  const h0 = s.gy0 - s.by0, h1 = LINE_Y + 10 - s.ty;       // height at the boot, and crossing the line
+  const chip = s.kind === "chip";
+  const rise = chip ? t : Math.pow(t, 1.45);
+  const arc = (chip ? 54 : 10) * Math.sin(Math.PI * t);
   return {
-    x: s.sx + (s.tx - s.sx) * e + s.bend * Math.sin(Math.PI * t),
-    y: s.by0 + (s.ty - s.by0) * e - lift * Math.sin(Math.PI * t),
-    r: L(s.r0, 6.5, e),
-    shadowY: s.gy0 + (LINE_Y + 10 - s.gy0) * e
+    x: s.sx + (s.tx - s.sx) * t + s.bend * Math.sin(Math.PI * t),
+    y: groundY - (h0 + (h1 - h0) * rise + arc),
+    r: L(s.r0, 6.5, t),
+    shadowY: groundY
   };
 }
 
 /* ═════════ reading the ball ═════════
-   From behind the striker, a ball heading for the top corner looks as if
-   it's already there halfway through its flight: how high it is and how
-   far it's got both show up as "higher on the screen". So every shot now
-   carries three honest readings of where it is and when it lands:
+   From behind the striker, "how high" and "how far" both show up as
+   "higher on the screen", so a ball bound for the top corner can look as
+   if it's already there with half its flight still to go. What sorts that
+   out here is what a real ball on a real pitch gives you, and none of it
+   gives away where it's going:
 
-     its shadow on the grass, joined to the ball by a line — the ball
-     arrives when the shadow reaches the goal line under the keeper;
-     a ring where it will cross the goal, which appears partway through
-     the flight and closes on the ball at the exact moment it arrives
-     (blue: you'll need to leap; gold: it's low; white: stay on your feet),
-     with a line inside the blue ones that means "lift now";
-     a whoosh that rises in pitch and peaks as it arrives, and a tick at
-     the moment to lift.
-
-   None of it moves the ball or changes when it lands: it only shows it. */
-const GUIDE_R0 = 46;                          // the ring's size when it first appears
-const LEAP_Y = STAND_Y - 24 - REACH_Y + 2;    // crossing above this, you can't reach it on your feet
-// ms before arrival to leave the ground. He can save a top-corner ball
-// leaving it anywhere from about 0.17 s to 0.8 s early; this is the middle,
-// so lifting on the line, or reacting a moment after it, both get there.
-const LIFT_LEAD = 460;
-
-// What a shot will ask of you, and when its ring shows and its lift moment
-// comes, as fractions of its flight. Curlers keep their ring back a little
-// longer, so the bend still has to be read.
-function prepareGuide(s) {
-  s.need = s.ty < LEAP_Y ? "leap" : s.ty > LOW_Y ? "low" : "stand";
-  s.pLift = clamp(1 - (LIFT_LEAD + G.lag) / s.flight, 0, 1);
-  const show = s.kind === "curl" ? .45 : .3;
-  s.pShow = s.need === "leap" ? Math.max(0, Math.min(show, s.pLift - .15)) : show;
-  s.lifted = false; s.liftFlash = 0;
-}
-
-// The ring's radius at flight fraction p: shrinks at a steady rate from its
-// first size down to the ball's own size on arrival, so how far it has left
-// to close is how long you've got.
-const RING_END = 8;
-function ringRadius(s, p) {
-  return RING_END + (GUIDE_R0 - RING_END) * clamp((1 - p) / Math.max(.05, 1 - s.pShow), 0, 1);
-}
-
-function drawShotGuides() {
-  const now = performance.now();
-  for (const s of shots) {
-    if (s.phase !== "flight" || s.offTarget) continue;         // no ring: it's going wide
-    const p = clamp(s.t / s.flight, 0, 1);
-    if (p < s.pShow) continue;
-    const show = clamp((p - s.pShow) / .1, 0, 1);
-    const col = s.need === "leap" ? "79,195,247" : s.need === "low" ? "255,210,63" : "255,255,255";
-    const x = s.tx, y = s.ty, R = ringRadius(s, p);
-    ctx.save();
-    ctx.globalAlpha = show;
-    // where it'll cross: a small fixed target with four ticks. It fills
-    // green whenever his reach, as he is right now, covers that spot.
-    const covered = ovalDepth(x, y, RING_END - 2) < 1;
-    if (covered) {
-      ctx.fillStyle = "rgba(61,220,132,.55)";
-      ctx.beginPath(); ctx.arc(x, y, RING_END, 0, 6.283); ctx.fill();
-    }
-    ctx.strokeStyle = covered ? "rgba(61,220,132,.95)" : `rgba(${col},.55)`; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(x, y, RING_END, 0, 6.283); ctx.stroke();
-    ctx.beginPath();
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      ctx.moveTo(x + dx * (RING_END + 3), y + dy * (RING_END + 3));
-      ctx.lineTo(x + dx * (RING_END + 7), y + dy * (RING_END + 7));
-    }
-    ctx.stroke();
-    // for a leap: the lift line, and a flash when the ring reaches it
-    if (s.need === "leap") {
-      const RL = ringRadius(s, s.pLift);
-      if (s.liftFlash > 0) {
-        ctx.fillStyle = `rgba(${col},${s.liftFlash * .35})`;
-        ctx.beginPath(); ctx.arc(x, y, RL * (1 + (1 - s.liftFlash) * .35), 0, 6.283); ctx.fill();
-      }
-      if (!s.lifted) {
-        ctx.setLineDash([4, 4]); ctx.lineDashOffset = reducedMotion ? 0 : -now / 60;
-        ctx.strokeStyle = `rgba(${col},.8)`; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.arc(x, y, RL, 0, 6.283); ctx.stroke();
-        ctx.setLineDash([]);
-      }
-    }
-    // the closing ring, with a dark edge so it reads against the white net
-    const late = clamp((p - .6) / .4, 0, 1);
-    ctx.strokeStyle = "rgba(0,0,0,.28)"; ctx.lineWidth = 4.5 + late * 1.5;
-    ctx.beginPath(); ctx.arc(x, y, R, 0, 6.283); ctx.stroke();
-    ctx.strokeStyle = `rgba(${col},${.6 + late * .38})`;
-    ctx.lineWidth = 2 + late * 1.5;
-    ctx.shadowColor = `rgba(${col},.6)`; ctx.shadowBlur = 6 * late;
-    ctx.beginPath(); ctx.arc(x, y, R, 0, 6.283); ctx.stroke();
-    ctx.shadowBlur = 0;
-    // up or down, for the ones that need it
-    if (s.need !== "stand") {
-      const up = s.need === "leap", cy = up ? y - R - 9 : y + R + 9, d = up ? -1 : 1;
-      ctx.fillStyle = `rgba(${col},${up && s.lifted ? .95 : .7})`;
-      ctx.beginPath(); ctx.moveTo(x, cy + d * 5); ctx.lineTo(x - 6, cy - d * 3); ctx.lineTo(x + 6, cy - d * 3); ctx.closePath(); ctx.fill();
-    }
-    ctx.restore();
-  }
-}
+     its shadow on the grass, tied to the ball by a line: the ball is at
+     the keeper when its shadow reaches the goal line;
+     mowing bands across the pitch, each 2.75 m deep, so the shadow ticks
+     across them as it comes (two bands to the six-yard line, six to the
+     edge of the box);
+     a flight that keeps climbing right to the end instead of hanging;
+     a whoosh that rises and peaks as it arrives.                        */
 
 /* The whoosh: one looping noise per ball, steered every frame from where
    the ball is in its flight, so it stays in step through slow motion and
@@ -1007,7 +924,7 @@ function whooshSteer(s, quiet) {
   const w = s.whoosh;
   if (!w) return;
   const t = AC.currentTime, p = clamp(s.t / s.flight, 0, 1);
-  const loud = s.kind === "rocket" ? 1.35 : s.offTarget ? .6 : 1;
+  const loud = s.kind === "rocket" ? 1.35 : 1;
   w.g.gain.setTargetAtTime(quiet || muted ? 0 : (.006 + .055 * p * p) * loud, t, .03);
   w.bp.frequency.setTargetAtTime(380 + 2300 * p * p, t, .03);
 }
@@ -1033,6 +950,7 @@ function updateShots(dt) {
         s.phase = "flight"; s.t = 0; s.trail = [];
         sfx.kick(); shake = Math.max(shake, 2);
         whooshStart(s);
+        if (!hintsShown.shadow) { hintsShown.shadow = true; showHint("WATCH ITS SHADOW: THE BALL'S AT YOU WHEN THE SHADOW REACHES THE GOAL LINE"); }
         // A divot's worth of turf off the boot.
         for (let k = 0; k < 7; k++) {
           particles.push({
@@ -1048,11 +966,6 @@ function updateShots(dt) {
       s.bx = p.x; s.by = p.y; s.br = p.r; s.shadowY = p.shadowY;
       s.trail.push({ x: p.x, y: p.y, r: p.r });
       if (s.trail.length > 12) s.trail.shift();
-      s.liftFlash = Math.max(0, s.liftFlash - dt / 320);
-      if (!s.ringShown && !s.offTarget && t >= s.pShow) { s.ringShown = true; ringHint(s); }
-      if (s.need === "leap" && !s.lifted && !s.offTarget && t >= s.pLift) {
-        s.lifted = true; s.liftFlash = 1; sfx.lift();
-      }
       if (t >= 1) {
         whooshStop(s);
         shots.splice(i, 1);
@@ -1310,22 +1223,13 @@ function showHint(text) {
   hintBanner = { text, life: 1 };
 }
 
-// Ring hints wait for the ring itself to appear, so the words and the thing
-// they're about are on screen together.
-function ringHint(s) {
-  if (secs() > 45) return;
-  if (!hintsShown.ring) {
-    hintsShown.ring = true; showHint("THE RING SHOWS WHERE IT'S GOING, AND CLOSES AS IT ARRIVES");
-  } else if (!hintsShown.high && s.need === "leap") {
-    hintsShown.high = true; showHint("BLUE RING: LIFT YOUR FINGER AS IT CLOSES ON THE DOTTED LINE");
-  } else if (!hintsShown.low && s.need === "low") {
-    hintsShown.low = true; showHint("GOLD RING: IT'S LOW. BEND YOUR FINGER FOR THE SPLITS");
-  }
-}
-
 function maybeHint(s) {
-  if (secs() > 40 || s.offTarget) return;
-  if (!hintsShown.dive && hintsShown.ring && Math.abs(s.tx - W / 2) > 200) {
+  if (secs() > 40) return;
+  if (!hintsShown.high && s.ty < GOAL.y + 100) {
+    hintsShown.high = true; showHint("HIGH ONE — LIFT YOUR FINGER TO LEAP");
+  } else if (!hintsShown.low && s.ty > LINE_Y - 50) {
+    hintsShown.low = true; showHint("LOW ONE — BEND YOUR FINGER FOR THE SPLITS");
+  } else if (!hintsShown.dive && Math.abs(s.tx - W / 2) > 200) {
     hintsShown.dive = true; showHint("THAT'S A CORNER — FLICK SIDEWAYS TO DIVE");
   }
 }
@@ -1909,7 +1813,7 @@ function drawPitchBase() {
   const vx = W / 2, vy = -1100;
   const k = (top - vy) / (H - vy);
   const n = 14, sw = (W + 520) / n;
-  ctx.fillStyle = "rgba(255,255,255,.055)";
+  ctx.fillStyle = "rgba(255,255,255,.035)";
   for (let i = 0; i < n; i += 2) {
     const b0 = -260 + i * sw, b1 = b0 + sw;
     ctx.beginPath();
@@ -1917,9 +1821,16 @@ function drawPitchBase() {
     ctx.lineTo(vx + (b1 - vx) * k, top); ctx.lineTo(vx + (b0 - vx) * k, top);
     ctx.fill();
   }
-  ctx.fillStyle = "rgba(0,24,0,.055)";
-  for (let i = 0; i < 9; i += 2) {
-    const y0 = top + (H - top) * Math.pow(i / 9, 1.3), y1 = top + (H - top) * Math.pow((i + 1) / 9, 1.3);
+  // Mowing bands across the pitch, 2.75 m deep, lined up on the goal line so
+  // the six-yard line falls two bands out and the edge of the box six. From
+  // behind the goal they're the ruler you judge a shot by: its shadow ticks
+  // across them as it comes, showing how far it's got and how fast it's
+  // closing, the way road markings do when you're driving.
+  const BAND = 200 / 6;
+  for (let i = -8; i < 8; i++) {
+    const y0 = Math.max(top, LINE_Y + i * BAND), y1 = Math.min(H, LINE_Y + (i + 1) * BAND);
+    if (y1 <= y0) continue;
+    ctx.fillStyle = (i & 1) ? "rgba(0,28,0,.075)" : "rgba(255,255,255,.065)";
     ctx.fillRect(0, y0, W, y1 - y0);
   }
   if (!grassTex) buildGrassTex();
@@ -2257,7 +2168,10 @@ function drawReach() {
   let near = 0;
   for (const s of shots) {
     if (s.phase !== "flight") continue;
-    near = Math.max(near, clamp(2.4 - ovalDepth(s.bx, s.by, s.br), 0, 1));
+    // Only once it's nearly at him in depth: a ball that merely passes in
+    // front of him on screen, still well out, mustn't look like it's here.
+    const close = clamp((s.t / s.flight - .78) / .22, 0, 1);
+    near = Math.max(near, clamp(2.4 - ovalDepth(s.bx, s.by, s.br), 0, 1) * close);
   }
   const heatGlow = Math.max(near, keeper.reachPulse);
   const tint = keeper.spread > .4 ? "255,210,63"
@@ -3013,7 +2927,7 @@ function drawWarmup() {
   ctx.fillStyle = ready || ticked ? "#3ddc84" : "#ffffff";
   ctx.fillText(title, W / 2, top + 58);
   ctx.font = "600 12px Inter, sans-serif"; ctx.fillStyle = "rgba(255,255,255,.85)";
-  ctx.fillText(ready ? "You've got all four. Now watch the rings: each one closes as its ball arrives." : st.sub, W / 2, top + 77);
+  ctx.fillText(ready ? "You've got all four. Watch each ball's shadow: it's at you when it reaches the goal line." : st.sub, W / 2, top + 77);
   // Step one: a target at each post, lit once you've reached it.
   if (w.step === 0 && !ready) {
     for (const [x, hit] of [[GOAL.x + 40, w.posts.l], [GOAL.x + GOAL.w - 40, w.posts.r]]) {
@@ -3123,7 +3037,6 @@ function render() {
   // Feedback sits above the night grade so it never gets dimmed.
   ctx.save();
   applyPunch();                 // world-space feedback moves with the camera
-  drawShotGuides();             // where each ball will cross, closing as it arrives
   drawRings();
   drawFlashes();
   drawEffects();
