@@ -538,7 +538,7 @@ function showBanner(b) {
 let timeScale = 1, slowLeft = 0;
 let themeNow = 0;
 
-const hintsShown = { low: false, high: false, dive: false, stam: false, rebound: false };
+const hintsShown = { ring: false, low: false, high: false, dive: false, stam: false, rebound: false };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -605,7 +605,8 @@ const sfx = {
   record(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .35, { type: "triangle", gain: .13, delay: i * .1 })); },
   lifeBack(){ [587, 740, 880, 1175].forEach((f, i) => tone(f, .26, { type: "sine", gain: .14, delay: i * .07 })); noise(.6, { gain: .1, freq: 800, q: .3, sweepTo: 1800, delay: .1 }); },
   whistle(){ tone(1750, .18, { type: "square", gain: .12 }); tone(1750, .3, { type: "square", gain: .12, delay: .24 }); },
-  tick(n) { tone(n === 0 ? 900 : 540, .14, { type: "square", gain: .1 }); }
+  tick(n) { tone(n === 0 ? 900 : 540, .14, { type: "square", gain: .1 }); },
+  lift()  { tone(1180, .06, { type: "sine", gain: .07 }); tone(1570, .08, { type: "sine", gain: .06, delay: .045 }); }
 };
 
 /* ═════════ look: afternoon → dusk → floodlights ═════════ */
@@ -831,6 +832,7 @@ function spawnShot() {
     bx: sx, by: sy + 36 - r0, br: r0, shadowY: sy + 36,
     trail: [], spin: Math.random() * 6.28, rebound: false, look: newLook()
   };
+  prepareGuide(s);
   shots.push(s);
   maybeHint(s);
 }
@@ -857,6 +859,7 @@ function spawnRebound(from) {
     feed: { x: from.bx, y: from.by, r: from.br },
     trail: [], spin: Math.random() * 6.28, rebound: true, look: newLook()
   });
+  prepareGuide(shots[shots.length - 1]);
   pops.push({ text: "REBOUND!", x: from.bx, y: from.by - 40, color: "#ffd23f", size: 24, life: 1 });
   sfx.scramble();
   if (!hintsShown.rebound) {
@@ -880,6 +883,147 @@ function ballAt(s, t) {
   };
 }
 
+/* ═════════ reading the ball ═════════
+   From behind the striker, a ball heading for the top corner looks as if
+   it's already there halfway through its flight: how high it is and how
+   far it's got both show up as "higher on the screen". So every shot now
+   carries three honest readings of where it is and when it lands:
+
+     its shadow on the grass, joined to the ball by a line — the ball
+     arrives when the shadow reaches the goal line under the keeper;
+     a ring where it will cross the goal, which appears partway through
+     the flight and closes on the ball at the exact moment it arrives
+     (blue: you'll need to leap; gold: it's low; white: stay on your feet),
+     with a line inside the blue ones that means "lift now";
+     a whoosh that rises in pitch and peaks as it arrives, and a tick at
+     the moment to lift.
+
+   None of it moves the ball or changes when it lands: it only shows it. */
+const GUIDE_R0 = 46;                          // the ring's size when it first appears
+const LEAP_Y = STAND_Y - 24 - REACH_Y + 2;    // crossing above this, you can't reach it on your feet
+// ms before arrival to leave the ground. He can save a top-corner ball
+// leaving it anywhere from about 0.17 s to 0.8 s early; this is the middle,
+// so lifting on the line, or reacting a moment after it, both get there.
+const LIFT_LEAD = 460;
+
+// What a shot will ask of you, and when its ring shows and its lift moment
+// comes, as fractions of its flight. Curlers keep their ring back a little
+// longer, so the bend still has to be read.
+function prepareGuide(s) {
+  s.need = s.ty < LEAP_Y ? "leap" : s.ty > LOW_Y ? "low" : "stand";
+  s.pLift = clamp(1 - (LIFT_LEAD + G.lag) / s.flight, 0, 1);
+  const show = s.kind === "curl" ? .45 : .3;
+  s.pShow = s.need === "leap" ? Math.max(0, Math.min(show, s.pLift - .15)) : show;
+  s.lifted = false; s.liftFlash = 0;
+}
+
+// The ring's radius at flight fraction p: shrinks at a steady rate from its
+// first size down to the ball's own size on arrival, so how far it has left
+// to close is how long you've got.
+const RING_END = 8;
+function ringRadius(s, p) {
+  return RING_END + (GUIDE_R0 - RING_END) * clamp((1 - p) / Math.max(.05, 1 - s.pShow), 0, 1);
+}
+
+function drawShotGuides() {
+  const now = performance.now();
+  for (const s of shots) {
+    if (s.phase !== "flight" || s.offTarget) continue;         // no ring: it's going wide
+    const p = clamp(s.t / s.flight, 0, 1);
+    if (p < s.pShow) continue;
+    const show = clamp((p - s.pShow) / .1, 0, 1);
+    const col = s.need === "leap" ? "79,195,247" : s.need === "low" ? "255,210,63" : "255,255,255";
+    const x = s.tx, y = s.ty, R = ringRadius(s, p);
+    ctx.save();
+    ctx.globalAlpha = show;
+    // where it'll cross: a small fixed target with four ticks. It fills
+    // green whenever his reach, as he is right now, covers that spot.
+    const covered = ovalDepth(x, y, RING_END - 2) < 1;
+    if (covered) {
+      ctx.fillStyle = "rgba(61,220,132,.55)";
+      ctx.beginPath(); ctx.arc(x, y, RING_END, 0, 6.283); ctx.fill();
+    }
+    ctx.strokeStyle = covered ? "rgba(61,220,132,.95)" : `rgba(${col},.55)`; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, RING_END, 0, 6.283); ctx.stroke();
+    ctx.beginPath();
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      ctx.moveTo(x + dx * (RING_END + 3), y + dy * (RING_END + 3));
+      ctx.lineTo(x + dx * (RING_END + 7), y + dy * (RING_END + 7));
+    }
+    ctx.stroke();
+    // for a leap: the lift line, and a flash when the ring reaches it
+    if (s.need === "leap") {
+      const RL = ringRadius(s, s.pLift);
+      if (s.liftFlash > 0) {
+        ctx.fillStyle = `rgba(${col},${s.liftFlash * .35})`;
+        ctx.beginPath(); ctx.arc(x, y, RL * (1 + (1 - s.liftFlash) * .35), 0, 6.283); ctx.fill();
+      }
+      if (!s.lifted) {
+        ctx.setLineDash([4, 4]); ctx.lineDashOffset = reducedMotion ? 0 : -now / 60;
+        ctx.strokeStyle = `rgba(${col},.8)`; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.arc(x, y, RL, 0, 6.283); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+    // the closing ring, with a dark edge so it reads against the white net
+    const late = clamp((p - .6) / .4, 0, 1);
+    ctx.strokeStyle = "rgba(0,0,0,.28)"; ctx.lineWidth = 4.5 + late * 1.5;
+    ctx.beginPath(); ctx.arc(x, y, R, 0, 6.283); ctx.stroke();
+    ctx.strokeStyle = `rgba(${col},${.6 + late * .38})`;
+    ctx.lineWidth = 2 + late * 1.5;
+    ctx.shadowColor = `rgba(${col},.6)`; ctx.shadowBlur = 6 * late;
+    ctx.beginPath(); ctx.arc(x, y, R, 0, 6.283); ctx.stroke();
+    ctx.shadowBlur = 0;
+    // up or down, for the ones that need it
+    if (s.need !== "stand") {
+      const up = s.need === "leap", cy = up ? y - R - 9 : y + R + 9, d = up ? -1 : 1;
+      ctx.fillStyle = `rgba(${col},${up && s.lifted ? .95 : .7})`;
+      ctx.beginPath(); ctx.moveTo(x, cy + d * 5); ctx.lineTo(x - 6, cy - d * 3); ctx.lineTo(x + 6, cy - d * 3); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+/* The whoosh: one looping noise per ball, steered every frame from where
+   the ball is in its flight, so it stays in step through slow motion and
+   pauses. Rising pitch, peaking on arrival. */
+let noiseLoop = null;
+function whooshStart(s) {
+  const a = AC;
+  if (!a || a.state !== "running") return;
+  if (!noiseLoop) {
+    noiseLoop = a.createBuffer(1, a.sampleRate, a.sampleRate);
+    const d = noiseLoop.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const src = a.createBufferSource(); src.buffer = noiseLoop; src.loop = true;
+  const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 1.3; bp.frequency.value = 380;
+  const g = a.createGain(); g.gain.value = 0;
+  src.connect(bp).connect(g).connect(a.destination);
+  src.start();
+  s.whoosh = { src, bp, g };
+}
+function whooshSteer(s, quiet) {
+  const w = s.whoosh;
+  if (!w) return;
+  const t = AC.currentTime, p = clamp(s.t / s.flight, 0, 1);
+  const loud = s.kind === "rocket" ? 1.35 : s.offTarget ? .6 : 1;
+  w.g.gain.setTargetAtTime(quiet || muted ? 0 : (.006 + .055 * p * p) * loud, t, .03);
+  w.bp.frequency.setTargetAtTime(380 + 2300 * p * p, t, .03);
+}
+function whooshStop(s) {
+  const w = s.whoosh;
+  if (!w) return;
+  s.whoosh = null;
+  try { w.g.gain.setTargetAtTime(0, AC.currentTime, .015); w.src.stop(AC.currentTime + .08); } catch (e) { /* already stopped */ }
+}
+function stopAllWhooshes() { for (const s of shots) whooshStop(s); }
+function steerWhooshes() {
+  if (!AC) return;
+  const quiet = G.paused || G.phase !== "play";
+  for (const s of shots) if (s.whoosh) whooshSteer(s, quiet);
+}
+
 function updateShots(dt) {
   for (let i = shots.length - 1; i >= 0; i--) {
     const s = shots[i];
@@ -888,6 +1032,7 @@ function updateShots(dt) {
       if (s.t >= s.runup) {
         s.phase = "flight"; s.t = 0; s.trail = [];
         sfx.kick(); shake = Math.max(shake, 2);
+        whooshStart(s);
         // A divot's worth of turf off the boot.
         for (let k = 0; k < 7; k++) {
           particles.push({
@@ -903,7 +1048,13 @@ function updateShots(dt) {
       s.bx = p.x; s.by = p.y; s.br = p.r; s.shadowY = p.shadowY;
       s.trail.push({ x: p.x, y: p.y, r: p.r });
       if (s.trail.length > 12) s.trail.shift();
+      s.liftFlash = Math.max(0, s.liftFlash - dt / 320);
+      if (!s.ringShown && !s.offTarget && t >= s.pShow) { s.ringShown = true; ringHint(s); }
+      if (s.need === "leap" && !s.lifted && !s.offTarget && t >= s.pLift) {
+        s.lifted = true; s.liftFlash = 1; sfx.lift();
+      }
       if (t >= 1) {
+        whooshStop(s);
         shots.splice(i, 1);
         resolve(s);
         // That was the third goal: full time has just cleared every shot,
@@ -1152,15 +1303,29 @@ function updateKeeper(dt) {
 }
 
 /* ═════════ hints ═════════ */
-function showHint(text) { hintBanner = { text, life: 1 }; }
+// A hint that's still being read isn't cut off by the next one: it waits.
+let hintQueue = [];
+function showHint(text) {
+  if (hintBanner && hintBanner.life > .3) { if (!hintQueue.includes(text)) hintQueue.push(text); return; }
+  hintBanner = { text, life: 1 };
+}
+
+// Ring hints wait for the ring itself to appear, so the words and the thing
+// they're about are on screen together.
+function ringHint(s) {
+  if (secs() > 45) return;
+  if (!hintsShown.ring) {
+    hintsShown.ring = true; showHint("THE RING SHOWS WHERE IT'S GOING, AND CLOSES AS IT ARRIVES");
+  } else if (!hintsShown.high && s.need === "leap") {
+    hintsShown.high = true; showHint("BLUE RING: LIFT YOUR FINGER AS IT CLOSES ON THE DOTTED LINE");
+  } else if (!hintsShown.low && s.need === "low") {
+    hintsShown.low = true; showHint("GOLD RING: IT'S LOW. BEND YOUR FINGER FOR THE SPLITS");
+  }
+}
 
 function maybeHint(s) {
-  if (secs() > 40) return;
-  if (!hintsShown.high && s.ty < GOAL.y + 100) {
-    hintsShown.high = true; showHint("HIGH ONE — LIFT YOUR FINGER TO LEAP");
-  } else if (!hintsShown.low && s.ty > LINE_Y - 50) {
-    hintsShown.low = true; showHint("LOW ONE — BEND YOUR FINGER FOR THE SPLITS");
-  } else if (!hintsShown.dive && Math.abs(s.tx - W / 2) > 200) {
+  if (secs() > 40 || s.offTarget) return;
+  if (!hintsShown.dive && hintsShown.ring && Math.abs(s.tx - W / 2) > 200) {
     hintsShown.dive = true; showHint("THAT'S A CORNER — FLICK SIDEWAYS TO DIVE");
   }
 }
@@ -1388,6 +1553,7 @@ function updateEffects(dt) {
     if (b.life <= 0) banners.shift();
   }
   if (hintBanner) { hintBanner.life -= dt / 2600; if (hintBanner.life <= 0) hintBanner = null; }
+  if ((!hintBanner || hintBanner.life < .3) && hintQueue.length) hintBanner = { text: hintQueue.shift(), life: 1 };
 
   // Afternoon slides into a floodlit night as the ramp climbs.
   const wantTheme = clamp(G.elapsed / 70000, 0, 2);
@@ -1913,12 +2079,19 @@ function drawGroundShadows() {
 
   for (const s of shots) if (strikerVisible(s)) drawStrikerShadow(s, cs);
 
-  // Balls in flight: straight down, not with the sun. It's a height gauge
-  // first and a shadow second, so it has to sit directly under the ball.
+  // Balls in flight: straight down, not with the sun. It's the one honest
+  // answer to "how far has it got?", so it's drawn to be seen: dark, a
+  // clear core, softening and spreading as the ball climbs. The ball lands
+  // on you when this reaches the goal line under the keeper's feet.
   for (const s of shots) {
     if (s.phase !== "flight") continue;
-    ctx.fillStyle = `rgba(0,0,0,${.22 + TH.lights * .1})`;
-    ctx.beginPath(); ctx.ellipse(s.bx, s.shadowY, s.br * 1.15, s.br * .35, 0, 0, 6.283); ctx.fill();
+    const up = clamp((s.shadowY - s.by) / 240, 0, 1);         // 0 on the grass, 1 up at the bar
+    const w = s.br * (1.5 + up * .7), h = w * .36;
+    const a = (.46 + TH.lights * .12) * (1 - up * .35);
+    ctx.fillStyle = `rgba(0,0,0,${a * .45})`;
+    ctx.beginPath(); ctx.ellipse(s.bx, s.shadowY, w * 1.55, h * 1.55, 0, 0, 6.283); ctx.fill();
+    ctx.fillStyle = `rgba(0,0,0,${a})`;
+    ctx.beginPath(); ctx.ellipse(s.bx, s.shadowY, w, h, 0, 0, 6.283); ctx.fill();
   }
 }
 
@@ -2538,14 +2711,17 @@ function drawBallAt(x, y, r, spin) {
 
 function drawFlyingBall(s) {
   // (Its ground shadow is drawn in drawGroundShadows, under the keeper.)
-  // Tether from ball to shadow: the longer it is, the higher the shot.
-  const gap = s.shadowY - s.by;
-  if (gap > 30) {
-    ctx.strokeStyle = `rgba(255,255,255,${clamp(gap / 210, 0, 1) * .32})`;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 4]);
+  // A line from the ball down to its shadow ties the two together, so you
+  // read the ball as "this high, over that spot on the grass". The longer
+  // it is, the higher the shot; where it meets the grass is how far it's got.
+  const gap = s.shadowY - s.by - s.br;
+  if (gap > 4) {
+    const a = .3 + TH.lights * .1 + clamp(gap / 200, 0, 1) * .12;
+    ctx.strokeStyle = `rgba(255,255,255,${a})`;
+    ctx.lineWidth = 1.3;
     ctx.beginPath(); ctx.moveTo(s.bx, s.by + s.br); ctx.lineTo(s.bx, s.shadowY); ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.fillStyle = `rgba(255,255,255,${a + .25})`;
+    ctx.beginPath(); ctx.arc(s.bx, s.shadowY, 1.8, 0, 6.283); ctx.fill();
   }
 
   const col = s.kind === "rocket" ? "255,170,60"
@@ -2837,7 +3013,7 @@ function drawWarmup() {
   ctx.fillStyle = ready || ticked ? "#3ddc84" : "#ffffff";
   ctx.fillText(title, W / 2, top + 58);
   ctx.font = "600 12px Inter, sans-serif"; ctx.fillStyle = "rgba(255,255,255,.85)";
-  ctx.fillText(ready ? "You've got all four. Good luck." : st.sub, W / 2, top + 77);
+  ctx.fillText(ready ? "You've got all four. Now watch the rings: each one closes as its ball arrives." : st.sub, W / 2, top + 77);
   // Step one: a target at each post, lit once you've reached it.
   if (w.step === 0 && !ready) {
     for (const [x, hit] of [[GOAL.x + 40, w.posts.l], [GOAL.x + GOAL.w - 40, w.posts.r]]) {
@@ -2867,6 +3043,7 @@ function frame(now) {
   const dt = real * timeScale;
 
   camWatch(now);
+  steerWhooshes();
   if (!G.paused) {
     if (G.phase === "count") {
       const before = Math.floor(G.countT / 700);
@@ -2946,6 +3123,7 @@ function render() {
   // Feedback sits above the night grade so it never gets dimmed.
   ctx.save();
   applyPunch();                 // world-space feedback moves with the camera
+  drawShotGuides();             // where each ball will cross, closing as it arrives
   drawRings();
   drawFlashes();
   drawEffects();
@@ -3035,11 +3213,12 @@ function startGame() {
   G.lag = camDelayBudget();
   held.clear();
   warm = null;
+  stopAllWhooshes();
   G.stats = { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 };
   shots = []; particles = []; pops = []; netHits = []; rings = []; cheer = 0; lastArrival = null;
   flashes = []; confetti = []; scuffs = []; crowdWave = null; punch = 0; poseReady = 0; shownScore = 0;
   debris = []; glance = null;
-  shake = 0; hurt = 0; banners = []; hintBanner = null;
+  shake = 0; hurt = 0; banners = []; hintBanner = null; hintQueue = [];
   slowLeft = 0; timeScale = 1; themeNow = 0;
   keeper.x = W / 2; keeper.y = STAND_Y;
   keeper.vx = keeper.vy = 0; keeper.tilt = 0; keeper.spread = 0; keeper.holding = 0;
@@ -3071,6 +3250,7 @@ function gameOver() {
     G.best = G.score;
     try { localStorage.setItem(BEST_KEY, String(G.best)); } catch (e) { /* preview sandbox */ }
   }
+  stopAllWhooshes();
   shots = [];
   sfx.whistle();
 
@@ -4074,4 +4254,3 @@ window.addEventListener("load", () => {
 </script>
 </body>
 </html>
-

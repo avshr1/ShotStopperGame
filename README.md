@@ -34,6 +34,21 @@ lines drawn on it, and a practice flick shows up as a dive.
 - **Going again.** At full time, lift your finger past the blue line and hold it there. The GO AGAIN
   button fills up as you hold, and then you're off again, no mouse needed.
 
+### Reading the ball
+
+From behind the striker, a shot heading for the top corner looks as if it's already there halfway
+through its flight, so each shot carries three honest cues to where it is and when it lands:
+
+- **Its shadow.** A dark shadow on the grass, joined to the ball by a line. The ball arrives when
+  the shadow reaches the goal line under the keeper's feet, and the longer the line, the higher it is.
+- **A ring where it's going.** Partway through the flight a ring appears where the ball will cross
+  the goal, and closes on it at exactly the moment it arrives. **Blue** means you'll need to leap:
+  lift your finger as the ring closes on the dotted line inside it. **Gold** means it's low.
+  **White** means you can stay on your feet. The centre turns green whenever you're covering it.
+  Shots going wide don't get a ring.
+- **Sound.** Each ball whooshes with a rising pitch that peaks as it arrives, and a blue ring ticks
+  at the moment to lift.
+
 The hand tracking is Google's MediaPipe. It starts downloading quietly as soon as the page opens
 (about 20 MB the first time, then cached by the browser), so it's usually ready by the time you
 press Kick off; if not, the setup screen shows a progress bar. It runs entirely on your device, and the video is never uploaded or
@@ -123,6 +138,11 @@ flick caught at 30 fps.
 creep the splits line toward it. While your finger rests near the middle, the centre follows it
 very slowly, never more than a third of a palm from where you started, so the lines stay where
 your hand actually is. A finger held deliberately low, or moving about, doesn't drag them.
+
+**The moment to lift is measured, not guessed.** Running the keeper's actual jump physics against
+balls crossing at every height shows he can save a top-corner ball if he leaves the ground anywhere
+from about 0.17 to 0.8 seconds before it arrives. The dotted line sits in the middle of that, plus
+the camera's delay, so lifting on the line, or reacting a moment after it, both get there.
 
 **Camera runs get time back for the tracking delay.** A webcam and a hand tracker are slower than a
 key press. Before kick-off the game measures that delay, from the moment a frame is captured to
