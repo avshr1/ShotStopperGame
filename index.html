@@ -950,7 +950,7 @@ function updateShots(dt) {
         s.phase = "flight"; s.t = 0; s.trail = [];
         sfx.kick(); shake = Math.max(shake, 2);
         whooshStart(s);
-        if (!hintsShown.shadow) { hintsShown.shadow = true; showHint("WATCH ITS SHADOW: THE BALL'S AT YOU WHEN THE SHADOW REACHES THE GOAL LINE"); }
+        if (!hintsShown.shadow) { hintsShown.shadow = true; showHint("WATCH THE SHADOW — IT'S AT YOU WHEN IT HITS THE LINE"); }
         // A divot's worth of turf off the boot.
         for (let k = 0; k < 7; k++) {
           particles.push({
