@@ -538,7 +538,7 @@ function showBanner(b) {
 let timeScale = 1, slowLeft = 0;
 let themeNow = 0;
 
-const hintsShown = { shadow: false, low: false, high: false, dive: false, stam: false, rebound: false };
+const hintsShown = { track: false, shadow: false, low: false, high: false, dive: false, stam: false, rebound: false };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -1183,9 +1183,12 @@ function updateKeeper(dt) {
     // the last stretch so he settles on the spot instead of overshooting.
     // Never faster than MOVE_SPEED, which the fairness check relies on.
     const following = inRun();
-    const dir = following ? clamp((CAM.targetX - keeper.x) / CAM_EASE, -1, 1) : 0;
     const authority = keeper.airborne ? AIR_CONTROL : L(1, .38, keeper.spread);
     const tau = keeper.airborne ? AIR_TAU : following ? CAM_TAU : MOVE_TAU;
+    // (Easing in over a shorter stretch on the ground than in the air: in
+    // the air he answers more slowly, and would sail past.)
+    const ease = keeper.airborne ? CAM_EASE_AIR : CAM_EASE;
+    const dir = following ? clamp((CAM.targetX - keeper.x) / ease, -1, 1) : 0;
     keeper.vx += (dir * MOVE_SPEED * authority - keeper.vx) * (1 - Math.exp(-dt / tau));
     keeper.x += keeper.vx * s;
 
@@ -3342,12 +3345,16 @@ const SENS = [
   { range: .75,  up: .52, down: .45, flick: 16 }      // high
 ];
 const ZONE_HYST = .22;              // come back this far to leave the jump or splits zone
-const CAM_EASE = 70;                // px: inside this he eases onto the spot rather than sprinting
+// px: inside this he eases onto the spot rather than sprinting. Short
+// enough that small corrections are snappy (a 40 px nudge lands in about a
+// quarter of a second after the camera sees it), long enough not to overshoot.
+const CAM_EASE = 40, CAM_EASE_AIR = 70;
 const SAG_MS = 7000, SAG_MAX = .33;     // how slowly, and how far, the resting height is followed
 const DEAD_BAND = 4;                // px of fingertip wobble that doesn't move him at all
 const CAM_TAU = 40;
 const CALIB_MS = 900;               // hold still this long to kick off
 const LOST_MS = 1200, BACK_MS = 700;
+const GRACE_MS = 200;               // a tracking gap shorter than this doesn't let go of anything
 const HAND_LINKS = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11],
   [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20]];
 
@@ -3357,7 +3364,7 @@ const CAM = {
   video: null, stream: null, tracker: null, delegate: "", okFrames: 0, reloading: false,
   aspect: 4 / 3, lastTs: 0, lastVT: -1, lastFrameAt: 0, frameMs: 33, infer: 15, lag: 110,
   sens: 1,
-  hand: false, lastSeen: -1e9, seenSince: 0,
+  hand: false, lastSeen: -1e9, seenSince: 0, coast: false, loss: 0,   // loss: share of frames lately where it lost the hand for a moment
   lm: null,                         // the tracked hand's 21 points, as the tracker gave them
   raw: null, tip: null,             // index fingertip: as measured, and smoothed (x mirrored, in frame heights)
   palm: .15, hist: [],
@@ -3410,7 +3417,15 @@ function camFeed(hands, now) {
     const score = CAM.raw && now - CAM.lastSeen < 400 ? Math.hypot(c.x - CAM.raw.x, c.y - CAM.raw.y) : -palmOf(h);
     if (score < best) { best = score; pick = h; }
   }
-  if (!pick) { CAM.hand = false; CAM.lm = null; return; }
+  if (!pick) {
+    // The tracker loses the hand for a frame or two now and then, most of
+    // all mid-flick, when it's a blur. A gap that short isn't the hand
+    // going away: carry on as it was (still leaping, still in the splits,
+    // the flick still being tracked) and pick it back up where it left off.
+    if (CAM.hand && now - CAM.lastSeen < GRACE_MS) { CAM.coast = true; CAM.loss = L(CAM.loss, 1, .05); return; }
+    CAM.hand = false; CAM.coast = false; CAM.lm = null; return;
+  }
+  CAM.coast = false; CAM.loss = L(CAM.loss, 0, .05);
 
   const c = fingertip(pick);
   // Back after a gap, or suddenly somewhere else entirely (the tracker lost
@@ -3431,8 +3446,9 @@ function camFeed(hands, now) {
    splits zone) live on CAM; the moments something starts come back. */
 function camRead(now) {
   if (!CAM.hand || !CAM.neutral) return null;
-  const S = SENS[CAM.sens], p = CAM.palm, n = CAM.neutral, h = CAM.hist, k = h.length;
   const out = { jump: false, dive: null };
+  if (CAM.coast) return out;                  // lost for a moment: hold everything as it was
+  const S = SENS[CAM.sens], p = CAM.palm, n = CAM.neutral, h = CAM.hist, k = h.length;
 
   // Across: the smoothed position, so he stands still when you do.
   // A small dead band on top soaks up the wobble a fingertip has even when
@@ -3504,10 +3520,22 @@ function camFlick(now) {
   const F = S.flick * clamp(1 - (CAM.frameMs * step - 34) * .006, .85, 1);
   const at = i => h[h.length - 1 - i * step];                // 0 = newest, 1 = a step before...
   if (!at(2) || now - CAM.diveAt < 550) return 0;
-  const speed = (a, b) => { const d = (b.t - a.t) / 1000; return d > .004 && d < .12 ? (b.x - a.x) / d / p : NaN; };
-  const v1 = speed(at(2), at(1)), v2 = speed(at(1), at(0));
+  const speed = (a, b, any) => {
+    const d = (b.t - a.t) / 1000;
+    return d > .004 && (any || d < .12) ? (b.x - a.x) / d / p : NaN;
+  };
+  let v1 = speed(at(2), at(1));
+  const v2 = speed(at(1), at(0));
   if (!Number.isFinite(v1) || !Number.isFinite(v2)) return 0;
-  const v0 = at(3) ? speed(at(3), at(2)) || 0 : 0;
+  // A flick is often a blur the tracker loses for a frame or two. Across
+  // that gap the speed is an average over longer than the flick took, so
+  // it reads slow. If the hand's come to rest right after (a flick stops
+  // dead; an ordinary sweep is still going), read it up to match.
+  const gap = at(1).t - at(2).t;
+  if (gap > CAM.frameMs * step * 1.5 && gap < 110 && Math.abs(v2) < F * .35) v1 *= 1.15;
+  // How fast it was already going (over however long a gap there was), so
+  // a move that was already under way doesn't pass for a sudden one.
+  const v0 = at(3) ? speed(at(3), at(2), true) || 0 : 0;
   const twoFast = Math.abs(v2) >= F && Math.sign(v1) === Math.sign(v2) && Math.abs(v1) >= F * .35;
   const oneFast = Math.abs(v1) >= F && v2 * Math.sign(v1) > -F * .5 && v0 * Math.sign(v1) > -F * .8;
   if (!twoFast && !oneFast) return 0;
@@ -3816,7 +3844,7 @@ function camStop() {
   if (CAM.stream) for (const t of CAM.stream.getTracks()) t.stop();
   CAM.stream = null;
   if (CAM.video) CAM.video.srcObject = null;
-  CAM.hand = false; CAM.lm = null;
+  CAM.hand = false; CAM.coast = false; CAM.lm = null;
   if (CAM.status !== "error") CAM.status = "off";
 }
 
@@ -3901,6 +3929,13 @@ function camProcess(meta) {
 // Auto-pause when the hand's gone, auto-resume once it's been back a moment.
 function camWatch(now) {
   if (!inRun()) return;
+  // Patchy tracking is nearly always the light: say so, once.
+  if (G.phase === "play" && !G.paused && !hintsShown.track && CAM.hand && secs() > 4 &&
+      (CAM.loss > .2 || CAM.frameMs > 62)) {
+    hintsShown.track = true;
+    showHint(CAM.frameMs > 62 ? "CAMERA RUNNING SLOW — MORE LIGHT ON YOUR HAND HELPS"
+                              : "LOSING YOUR HAND NOW AND THEN — MORE LIGHT HELPS");
+  }
   if (!G.paused && now - CAM.lastSeen > LOST_MS) setPaused(true, "hand");
   else if (G.paused && G.pauseWhy === "hand" && CAM.status === "live" && CAM.hand && now - CAM.seenSince > BACK_MS) {
     setPaused(false);

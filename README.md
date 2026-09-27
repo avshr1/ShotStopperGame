@@ -135,6 +135,21 @@ next, where even a very quick ordinary move builds up over several. Tested acros
 synthetic hands: no false dives from ordinary fast movement, glitches or jitter, and every full
 flick caught at 30 fps.
 
+**The tracker blinks, and it's worst mid-flick.** Every so often the hand tracker loses the hand
+for a frame or two, most often during a flick, when the hand is a blur. That used to count as the
+hand going away: one lost frame let go of a leap (cutting it to a hop), dropped you out of the
+splits, and threw away the flick in progress. Now a gap under 0.2 s is treated as the tracker
+blinking: everything carries on as it was, and the hand is picked up where it left off. A flick
+lost to blur is judged on how far the finger got and whether it stopped dead, as a flick does,
+rather than sweeping on like an ordinary move. With a frame lost mid-flick, catches went from 0%
+to 100% at 30 fps, with no extra false dives. If tracking stays patchy, the game suggests more
+light, since that's nearly always the cause.
+
+**The keeper settles quickly.** He runs flat out toward where your finger points, then eases onto
+the spot over the last 40 px (it was 70), so small corrections land about 20% sooner without him
+sailing past. In the air he still eases over the longer stretch, because he answers more slowly
+there.
+
 **Arms sink.** Over a few minutes most people's resting hand drifts down a little, which would
 creep the splits line toward it. While your finger rests near the middle, the centre follows it
 very slowly, never more than a third of a palm from where you started, so the lines stay where
