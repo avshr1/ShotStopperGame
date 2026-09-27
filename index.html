@@ -1306,10 +1306,14 @@ function onSave(s, depth) {
   if (leaping) G.stats.leaps++;
   if (split) G.stats.splits++;
 
-  const text = diving ? (clean ? "WHAT A SAVE!" : "FLYING SAVE!")
-             : leaping ? (clean ? "UP AND CLAIMS IT!" : "TIPPED OVER!")
-             : split ? (clean ? "BIG SPREAD!" : "STRONG LEG!")
-             : clean ? "CAUGHT IT!" : "SAVED!";
+  // A few ways of saying each, so a long run doesn't read the same line
+  // twenty times. Only just got a touch to it? That gets its own call.
+  const pick = a => a[Math.random() * a.length | 0];
+  const text = whisker && !clean ? pick(["FINGERTIPS!", "JUST GOT A TOUCH!", "BY A WHISKER!"])
+             : diving ? (clean ? pick(["WHAT A SAVE!", "FULL STRETCH!", "SPECTACULAR!"]) : pick(["FLYING SAVE!", "PUSHED AWAY!"]))
+             : leaping ? (clean ? pick(["UP AND CLAIMS IT!", "CLAIMED!"]) : pick(["TIPPED OVER!", "TIPPED AWAY!"]))
+             : split ? (clean ? pick(["BIG SPREAD!", "SMOTHERED!"]) : pick(["STRONG LEG!", "BLOCKED WITH THE BOOT!"]))
+             : clean ? pick(["CAUGHT IT!", "SAFE HANDS!", "GOT IT!"]) : pick(["SAVED!", "PARRIED!", "BEATEN AWAY!"]);
   pops.push({ text, x: s.bx, y: s.by - 14, color: hard ? "#ffd23f" : "#3ddc84", size: hard ? 30 : 24, life: 1 });
   pops.push({ text: "+" + pts, x: s.bx, y: s.by + 18, color: "#ffffff", size: hard ? 24 : 18, life: 1 });
   burst(s.bx, s.by, clean ? 14 : 22, hard ? ["#ffffff", "#ffd23f", "#fff4c4"] : ["#ffffff", "#3ddc84", "#d9fbe6"]);
@@ -2742,9 +2746,12 @@ function drawEffects() {
     ctx.globalAlpha = a;
     ctx.font = `${p.size * pop}px 'Bebas Neue', Impact, sans-serif`;
     ctx.lineWidth = 4; ctx.strokeStyle = "rgba(0,0,0,.55)";
-    ctx.strokeText(p.text, p.x, p.y);
+    // Kept on screen: a call-out for a save in the corner doesn't run off the edge.
+    const half = ctx.measureText(p.text).width / 2 + 6;
+    const x = clamp(p.x, half, W - half);
+    ctx.strokeText(p.text, x, p.y);
     ctx.fillStyle = p.color;
-    ctx.fillText(p.text, p.x, p.y);
+    ctx.fillText(p.text, x, p.y);
   }
   ctx.globalAlpha = 1;
 }
