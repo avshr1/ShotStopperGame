@@ -88,8 +88,8 @@ the setup screen:
 | Keeper | Tier | Unlock | What he does better |
 | --- | --- | --- | --- |
 | Rookie | 4 | — | The baseline |
-| Bulwark | 3 | Score 40 in a run | Commands his box: 20% more reach, and a bigger catch zone, so most parries become catches and fewer shots come back as rebounds |
-| Panther | 2 | Score 80 in a run | Cat-quick: 25% faster across the goal, 14% more reach, up off the floor quicker after a dive, and 40% less stamina for everything |
+| Bulwark | 3 | Score 10 in a run | Commands his box: 20% more reach, and a bigger catch zone, so most parries become catches and fewer shots come back as rebounds |
+| Panther | 2 | Score 15 in a run | Cat-quick: 25% faster across the goal, 14% more reach, up off the floor quicker after a dive, and 40% less stamina for everything |
 
 The better keepers are only ever better than the Rookie, never worse. That matters because every
 shot is checked for fairness against the Rookie's reach and speed, so a better keeper can only turn
