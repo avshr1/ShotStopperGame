@@ -38,8 +38,21 @@ lines drawn on it, and a practice flick shows up as a dive.
 
 From behind the striker, "how high" and "how far" both show up as "higher on the screen", so a
 shot bound for the top corner can look as if it's already there with half its flight to go. The
-game sorts that out the way a real pitch would, without ever giving away where the ball is going:
+game sorts that out without ever giving away where the ball is going:
 
+- **The shot tracer.** Like the tracer TV draws over a golf shot: the arc the ball has flown, the
+  dotted track its shadow has run along the grass, and a faint pane between them. How tall the
+  pane is tells you how high the ball is; how far the track has run toward the goal line tells you
+  how far it's come. It only shows where the ball has been, and it gets brighter as the ball closes
+  in. When a shot's over, its tracer lingers a moment in green for a save or red for a goal.
+- **The ripple.** Half a second before a ball arrives (plus the camera's delay), its shadow ripples
+  on the grass and the line up to the ball glows gold. That's the moment to make your move. It
+  comes at the same point for every shot, high or low, on target or not, so it tells you when and
+  never where. The timing is measured: a leap to a top corner works if the keeper leaves the ground
+  0.1–0.9 s before the ball arrives, and a dive 0.16–0.48 s, so reacting to the ripple in a normal
+  0.15–0.3 s covers all of them.
+- The tracer and the ripple can be switched off on the setup screen (**Shot tracer: Off**) for the
+  purist version: the ball, its shadow and the bands, nothing else.
 - **Its shadow.** Every ball has a dark shadow on the grass, joined to it by a thin line. The ball
   is at you when its shadow reaches the goal line. A long line with the shadow still far out means
   a high ball that's nowhere near yet.

@@ -275,6 +275,9 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
   .cam-rules p:nth-child(3)::after{content:"splits"}
   .cam-rules p:nth-child(4)::after{content:"flick to dive"}
   .cam-row{justify-content:center;margin-top:6px}
+  .cam-opts{display:flex;flex-wrap:wrap;justify-content:center;column-gap:10px}
+  .cam-opts .cam-row{gap:5px;letter-spacing:.06em}
+  .cam-opts .seg button{padding:4px 8px}
   .cam-actions{margin-top:8px;gap:8px}
   .cam-actions .share{padding:6px 14px;font-size:12px}
   .over-actions{flex-wrap:wrap;gap:8px 10px}
@@ -349,10 +352,17 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
                 <button data-v="0">Low</button><button data-v="1" class="on">Medium</button><button data-v="2">High</button>
               </div>
             </div>
+            <div class="cam-opts">
+            <div class="cam-row"><span>SHOT TRACER</span>
+              <div class="seg" id="cam-guides" role="group" aria-label="Draw each shot's flight and its cue to move">
+                <button data-v="1" class="on">On</button><button data-v="0">Off</button>
+              </div>
+            </div>
             <div class="cam-row"><span>WARM-UP FIRST</span>
               <div class="seg" id="cam-warm" role="group" aria-label="Warm up before the run">
                 <button data-v="1" class="on">On</button><button data-v="0">Off</button>
               </div>
+            </div>
             </div>
             <p class="cam-note">Rest your elbow on the desk: small finger movements cover the whole goal. Try a flick to see it register, then hold your finger still wherever feels comfortable to kick off.</p>
           </div>
@@ -947,10 +957,13 @@ function updateShots(dt) {
     s.t += dt;
     if (s.phase === "runup") {
       if (s.t >= s.runup) {
-        s.phase = "flight"; s.t = 0; s.trail = [];
+        s.phase = "flight"; s.t = 0; s.trail = []; s.path = [];
         sfx.kick(); shake = Math.max(shake, 2);
         whooshStart(s);
-        if (!hintsShown.shadow) { hintsShown.shadow = true; showHint("WATCH THE SHADOW — IT'S AT YOU WHEN IT HITS THE LINE"); }
+        if (!hintsShown.shadow) {
+          hintsShown.shadow = true;
+          showHint(guides ? "WHEN ITS SHADOW RIPPLES, MAKE YOUR MOVE" : "WATCH THE SHADOW — IT'S AT YOU WHEN IT HITS THE LINE");
+        }
         // A divot's worth of turf off the boot.
         for (let k = 0; k < 7; k++) {
           particles.push({
@@ -964,12 +977,31 @@ function updateShots(dt) {
       const t = Math.min(1, s.t / s.flight);
       const p = ballAt(s, t);
       s.bx = p.x; s.by = p.y; s.br = p.r; s.shadowY = p.shadowY;
+      // The moment to commit: its shadow ripples on the grass, right where
+      // it is. It says when, never where, and it's the same for every shot,
+      // high or low, on target or not.
+      if (!s.cued && guides && t >= cueFrac(s)) {
+        s.cued = true; s.cueGlow = 1;
+        cuePulses.push({ x: p.x, y: p.shadowY, life: 1 });
+      }
+      if (s.cueGlow) s.cueGlow = Math.max(0, s.cueGlow - dt / 480);
       s.trail.push({ x: p.x, y: p.y, r: p.r });
       if (s.trail.length > 12) s.trail.shift();
+      // The whole flight so far, for the tracer: where the ball's been, and
+      // the spot on the grass under it each time.
+      const lp = s.path[s.path.length - 1];
+      if (!lp || Math.abs(p.x - lp.x) + Math.abs(p.y - lp.y) + Math.abs(p.shadowY - lp.g) > 3) {
+        s.path.push({ x: p.x, y: p.y, g: p.shadowY });
+        if (s.path.length > 200) s.path.shift();
+      }
       if (t >= 1) {
         whooshStop(s);
         shots.splice(i, 1);
         resolve(s);
+        // Its tracer lingers a moment, green for a save, red for a goal.
+        const P = tracerPts(s);
+        if (P && P.length > 2) tracerGhosts.push({ P, life: 1,
+          col: s.result === "save" ? "61,220,132" : s.result === "goal" ? "255,90,95" : shotColor(s) });
         // That was the third goal: full time has just cleared every shot,
         // so there's nothing left in this list to carry on through.
         if (G.phase === "over") return;
@@ -1277,6 +1309,7 @@ function resolve(s) {
 }
 
 function onSave(s, depth) {
+  s.result = "save";
   G.saves++; G.run++;
   G.bestRun = Math.max(G.bestRun, G.run);
 
@@ -1380,6 +1413,7 @@ function missNote(s, depth) {
 }
 
 function onConcede(s, depth) {
+  s.result = "goal";
   G.lives--; G.run = 0; G.stats.conceded++;
   hurt = 1; shake = Math.max(shake, 13);
   netHits.push({ x: s.bx, y: s.by, life: 1 });
@@ -1426,6 +1460,14 @@ function updateEffects(dt) {
   for (let i = rings.length - 1; i >= 0; i--) {
     rings[i].life -= dt / 520;
     if (rings[i].life <= 0) rings.splice(i, 1);
+  }
+  for (let i = cuePulses.length - 1; i >= 0; i--) {
+    cuePulses[i].life -= dt / 480;
+    if (cuePulses[i].life <= 0) cuePulses.splice(i, 1);
+  }
+  for (let i = tracerGhosts.length - 1; i >= 0; i--) {
+    tracerGhosts[i].life -= dt / 650;
+    if (tracerGhosts[i].life <= 0) tracerGhosts.splice(i, 1);
   }
   for (let i = flashes.length - 1; i >= 0; i--) {
     flashes[i].life -= dt / 240;
@@ -1475,6 +1517,15 @@ function updateEffects(dt) {
 let TH = currentTheme();
 let cheer = 0;                  // crowd excitement — saves and goals kick it up
 let rings = [];                 // expanding shockwaves on saves, goals and the woodwork
+let tracerGhosts = [];          // tracers of shots just finished, fading out
+let cuePulses = [];             // ripples under a ball at the moment to commit
+// How long before a ball arrives its shadow ripples. Measured on the
+// keeper: a leap to the top corner works if he leaves the ground 0.1 to 0.9 s
+// before the ball gets there, a dive to a top corner 0.2 to 0.48 s, to a low
+// one 0.16 to 0.36 s. So the cue comes the camera's delay plus half a second
+// early: react to it in the usual 0.15 to 0.3 s and every one of those works.
+const CUE_LEAD = 500;
+const cueFrac = s => clamp(1 - (CUE_LEAD + G.lag) / s.flight, .3, .92);
 let flashes = [];               // bright star-bursts where glove meets ball
 let confetti = [];              // milestones and new records
 let scuffs = [];                // marks left in the turf by dives and landings
@@ -2630,6 +2681,74 @@ function drawBallAt(x, y, r, spin) {
   ctx.beginPath(); ctx.ellipse(x - r * .35, y - r * .4, r * .28, r * .16, -.6, 0, 6.283); ctx.fill();
 }
 
+/* The tracer: the flight so far, as TV draws it over a golf shot. The arc
+   the ball has flown, the track its shadow has run along the grass, and a
+   faint pane between the two. It turns "higher on the screen" back into
+   two separate things you can see at a glance: how high the ball is (the
+   height of the pane) and how far it's come (how far the track has run
+   toward the goal line). It only ever shows where the ball has been. */
+function shotColor(s) {
+  return s.kind === "rocket" ? "255,170,60" : s.kind === "curl" ? "120,200,255"
+       : s.kind === "rebound" ? "255,120,120" : "255,255,255";
+}
+// Brighter as it closes in, so the one about to arrive stands out.
+function tracerHeat(s) {
+  const p = clamp(s.t / s.flight, 0, 1);
+  return .7 + .6 * clamp((p - .45) / .55, 0, 1);
+}
+function tracerPts(s) {
+  return s.path && s.path.length ? s.path.concat([{ x: s.bx, y: s.by, g: s.shadowY }]) : null;
+}
+function drawTracerPane(P, col, k) {
+  if (!P || P.length < 3) return;
+  const a = P[0], b = P[P.length - 1];
+  // the pane
+  const pg = ctx.createLinearGradient(a.x, a.g, b.x, b.g);
+  pg.addColorStop(0, `rgba(${col},0)`); pg.addColorStop(1, `rgba(${col},${(.24 + TH.lights * .04) * k})`);
+  ctx.fillStyle = pg;
+  ctx.beginPath(); ctx.moveTo(P[0].x, P[0].g);
+  for (const q of P) ctx.lineTo(q.x, q.y);
+  for (let i = P.length - 1; i >= 0; i--) ctx.lineTo(P[i].x, P[i].g);
+  ctx.closePath(); ctx.fill();
+  // the shadow's track along the grass
+  ctx.save();
+  ctx.lineCap = "round"; ctx.setLineDash([2, 5]);
+  const tg = ctx.createLinearGradient(a.x, a.g, b.x, b.g);
+  tg.addColorStop(0, "rgba(0,0,0,0)"); tg.addColorStop(1, `rgba(0,0,0,${Math.min(.6, .42 * k)})`);
+  ctx.strokeStyle = tg; ctx.lineWidth = 2;
+  ctx.beginPath(); P.forEach((q, i) => i ? ctx.lineTo(q.x, q.g) : ctx.moveTo(q.x, q.g)); ctx.stroke();
+  ctx.restore();
+}
+function drawTracerArc(P, col, k) {
+  if (!P || P.length < 3) return;
+  const a = P[0], b = P[P.length - 1];
+  const g = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+  g.addColorStop(0, `rgba(${col},0)`); g.addColorStop(1, `rgba(${col},${Math.min(1, .6 * k)})`);
+  ctx.save();
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.strokeStyle = g; ctx.lineWidth = 1.6;
+  ctx.beginPath(); P.forEach((q, i) => i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)); ctx.stroke();
+  ctx.restore();
+}
+function drawTracerPanes() {
+  if (!guides) return;
+  for (const c of cuePulses) {
+    const e = 1 - c.life, rx = 8 + e * 44;
+    ctx.strokeStyle = `rgba(255,236,170,${.9 * c.life})`; ctx.lineWidth = 1 + 2.4 * c.life;
+    ctx.beginPath(); ctx.ellipse(c.x, c.y, rx, rx * .34, 0, 0, 6.283); ctx.stroke();
+    if (e > .25) {
+      ctx.strokeStyle = `rgba(255,236,170,${.5 * c.life})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.ellipse(c.x, c.y, rx * .6, rx * .6 * .34, 0, 0, 6.283); ctx.stroke();
+    }
+  }
+  for (const t of tracerGhosts) drawTracerPane(t.P, t.col, t.life * t.life * 1.3);
+  for (const s of shots) if (s.phase === "flight") drawTracerPane(tracerPts(s), shotColor(s), tracerHeat(s));
+}
+function drawTracerGhostArcs() {
+  if (!guides) return;
+  for (const t of tracerGhosts) drawTracerArc(t.P, t.col, t.life * t.life * 1.6);
+}
+
 function drawFlyingBall(s) {
   // (Its ground shadow is drawn in drawGroundShadows, under the keeper.)
   // A line from the ball down to its shadow ties the two together, so you
@@ -2638,17 +2757,16 @@ function drawFlyingBall(s) {
   const gap = s.shadowY - s.by - s.br;
   if (gap > 4) {
     const a = .3 + TH.lights * .1 + clamp(gap / 200, 0, 1) * .12;
-    ctx.strokeStyle = `rgba(255,255,255,${a})`;
-    ctx.lineWidth = 1.3;
+    const cg = s.cueGlow || 0;                // the line lights up with the ripple
+    ctx.strokeStyle = cg > 0 ? `rgba(255,${L(255, 226, cg)},${L(255, 140, cg)},${a + cg * .5})` : `rgba(255,255,255,${a})`;
+    ctx.lineWidth = 1.3 + cg * 1.6;
     ctx.beginPath(); ctx.moveTo(s.bx, s.by + s.br); ctx.lineTo(s.bx, s.shadowY); ctx.stroke();
     ctx.fillStyle = `rgba(255,255,255,${a + .25})`;
     ctx.beginPath(); ctx.arc(s.bx, s.shadowY, 1.8, 0, 6.283); ctx.fill();
   }
 
-  const col = s.kind === "rocket" ? "255,170,60"
-            : s.kind === "curl" ? "120,200,255"
-            : s.kind === "rebound" ? "255,120,120"
-            : "255,255,255";
+  const col = shotColor(s);
+  if (guides) drawTracerArc(tracerPts(s), col, tracerHeat(s));
 
   // Trails are drawn as one tapering ribbon plus a soft glow, so they read
   // as speed rather than a string of beads.
@@ -2673,6 +2791,10 @@ function drawFlyingBall(s) {
     gl.addColorStop(0, `rgba(${col},${glowA})`); gl.addColorStop(1, `rgba(${col},0)`);
     ctx.fillStyle = gl; ctx.fillRect(s.bx - s.br * 2.6, s.by - s.br * 2.6, s.br * 5.2, s.br * 5.2);
   }
+  // A soft dark edge, so a white ball still stands out against the white
+  // net and the painted lines.
+  ctx.fillStyle = "rgba(0,0,0,.3)";
+  ctx.beginPath(); ctx.arc(s.bx, s.by + .6, s.br + 2.2, 0, 6.283); ctx.fill();
   drawBallAt(s.bx, s.by, s.br, s.spin + performance.now() / 90);
 }
 
@@ -2901,6 +3023,16 @@ function warmupEnd(finished) {
   syncCamLive();
 }
 
+// The shot tracer and its ripple cue can be switched off for the purist
+// version: then it's the ball, its shadow and the bands, nothing more.
+const GUIDES_KEY = "shotstopper-tracer";
+let guides = true;
+function setGuides(v) {
+  guides = v;
+  for (const b of document.querySelectorAll("#cam-guides button")) b.classList.toggle("on", (b.dataset.v === "1") === v);
+  try { localStorage.setItem(GUIDES_KEY, v ? "1" : "0"); } catch (e) { /* storage unavailable */ }
+}
+
 function setWarmWanted(v) {
   warmWanted = v;
   for (const b of document.querySelectorAll("#cam-warm button")) b.classList.toggle("on", (b.dataset.v === "1") === v);
@@ -3028,8 +3160,10 @@ function render() {
   drawDebris("net");                       // inside the goal, or gone past it
   drawGoalFrame();
   drawReach();
+  drawTracerPanes();
   drawCamTarget();                         // camera runs: where your finger is sending him
   drawKeeper();
+  drawTracerGhostArcs();
   for (const s of shots) if (s.phase === "flight") drawFlyingBall(s);
   drawDebris("front");                     // coming back out toward us
   // Strikers nearest the camera go on top of the ones further up the pitch.
@@ -3138,7 +3272,7 @@ function startGame() {
   warm = null;
   stopAllWhooshes();
   G.stats = { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 };
-  shots = []; particles = []; pops = []; netHits = []; rings = []; cheer = 0; lastArrival = null;
+  shots = []; particles = []; pops = []; netHits = []; rings = []; tracerGhosts = []; cuePulses = []; cheer = 0; lastArrival = null;
   flashes = []; confetti = []; scuffs = []; crowdWave = null; punch = 0; poseReady = 0; shownScore = 0;
   debris = []; glance = null;
   shake = 0; hurt = 0; banners = []; hintBanner = null; hintQueue = [];
@@ -4161,6 +4295,9 @@ document.getElementById("warm-skip").addEventListener("click", e => { e.currentT
 for (const b of document.querySelectorAll("#cam-warm button")) {
   b.addEventListener("click", () => { setWarmWanted(b.dataset.v === "1"); b.blur(); });
 }
+for (const b of document.querySelectorAll("#cam-guides button")) {
+  b.addEventListener("click", () => { setGuides(b.dataset.v === "1"); b.blur(); });
+}
 for (const b of document.querySelectorAll("#cam-sens button")) {
   b.addEventListener("click", () => { setSensitivity(+b.dataset.v); b.blur(); });
 }
@@ -4194,6 +4331,7 @@ try {
   if (Number.isFinite(saved) && saved > 0) G.best = saved;
 } catch (e) { /* storage unavailable */ }
 try { setWarmWanted(localStorage.getItem(WARM_KEY) !== "0"); } catch (e) { /* storage unavailable */ }
+try { setGuides(localStorage.getItem(GUIDES_KEY) !== "0"); } catch (e) { /* storage unavailable */ }
 try {
   const s = parseInt(localStorage.getItem(SENS_KEY) || "1", 10);
   if (SENS[s]) setSensitivity(s);
@@ -4209,3 +4347,4 @@ window.addEventListener("load", () => {
 </script>
 </body>
 </html>
+
