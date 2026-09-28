@@ -80,6 +80,23 @@ the splits all drain stamina, so you can't spam them.
 Watch the striker. In his last stride he leans the way he's aiming, so a good read gets you moving
 before the ball does.
 
+## Keepers
+
+You start as the **Rookie**. Two better keepers unlock as you score, and you pick who's in goal on
+the setup screen:
+
+| Keeper | Tier | Unlock | What he does better |
+| --- | --- | --- | --- |
+| Rookie | 4 | — | The baseline |
+| Bulwark | 3 | Score 40 in a run | Commands his box: 20% more reach, and a bigger catch zone, so most parries become catches and fewer shots come back as rebounds |
+| Panther | 2 | Score 80 in a run | Cat-quick: 25% faster across the goal, 14% more reach, up off the floor quicker after a dive, and 40% less stamina for everything |
+
+The better keepers are only ever better than the Rookie, never worse. That matters because every
+shot is checked for fairness against the Rookie's reach and speed, so a better keeper can only turn
+more of them into saves. With a bot playing the first two minutes of a run, goals let in per minute
+went 3.7 (Rookie), 2.3 (Bulwark), 1.5 (Panther). Your unlocks and your pick are saved in the browser,
+and a best score that already clears a mark unlocks that keeper straight away.
+
 ## Scoring
 
 - Save it on your feet — **1 point**

@@ -239,6 +239,14 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
 .seg button.on{background:rgba(61,220,132,.22);color:#fff}
 .seg button:focus-visible{outline:2px solid #fff;outline-offset:-2px}
 .cam-note{font-size:12px;color:rgba(255,255,255,.62);line-height:1.5;margin-top:12px}
+.seg.keepers button{display:inline-flex;align-items:center;gap:5px}
+.seg.keepers button i{font-style:normal;font-size:8.5px;font-weight:700;letter-spacing:.05em;padding:1px 4px;border-radius:6px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75)}
+.seg.keepers button.locked{color:rgba(255,255,255,.38)}
+.seg.keepers button.locked i{background:none;border:1px solid rgba(255,255,255,.2)}
+.seg.keepers button.peek{background:rgba(255,255,255,.08)}
+.keeper-perk{font-size:11.5px;line-height:1.45;color:rgba(255,255,255,.7);margin-top:6px;min-height:33px}
+.keeper-perk b{color:#fff;font-weight:700}
+.keeper-perk em{font-style:normal;color:#ffd23f}
 .cam-actions{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .cam-privacy{font-size:11px;color:rgba(255,255,255,.42);margin-top:10px}
 .pause-btn{margin-top:18px}
@@ -276,6 +284,8 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
   .cam-rules p:nth-child(4)::after{content:"flick to dive"}
   .cam-row{justify-content:center;margin-top:6px}
   .cam-opts{display:flex;flex-wrap:wrap;justify-content:center;column-gap:10px}
+  .keeper-perk{display:none}
+  .seg.keepers button i{display:none}
   .cam-opts .cam-row{gap:5px;letter-spacing:.06em}
   .cam-opts .seg button{padding:4px 8px}
   .cam-actions{margin-top:8px;gap:8px}
@@ -347,6 +357,10 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
               <p><i>↓</i><span>Bend your finger down for the splits.</span></p>
               <p><i>⇆</i><span>Flick it sideways, fast, to dive that way.</span></p>
             </div>
+            <div class="cam-row"><span>KEEPER</span>
+              <div class="seg keepers" id="cam-keeper" role="group" aria-label="Choose your keeper"></div>
+            </div>
+            <p class="keeper-perk" id="keeper-perk" aria-live="polite"></p>
             <div class="cam-row"><span>SENSITIVITY</span>
               <div class="seg" id="cam-sens" role="group" aria-label="Sensitivity">
                 <button data-v="0">Low</button><button data-v="1" class="on">Medium</button><button data-v="2">High</button>
@@ -364,7 +378,7 @@ kbd{background:rgba(255,255,255,.1);border-radius:4px;padding:2px 6px;font-size:
               </div>
             </div>
             </div>
-            <p class="cam-note">Rest your elbow on the desk: small finger movements cover the whole goal. Try a flick to see it register, then hold your finger still wherever feels comfortable to kick off.</p>
+            <p class="cam-note">Rest your elbow on the desk: small movements cover the whole goal. Try a flick, then hold your finger still to kick off.</p>
           </div>
         </div>
         <div class="cam-actions">
@@ -461,7 +475,6 @@ const GROUND_Y = 470;
 /* ── keeper ── */
 const REACH_X = 60, REACH_Y = 68;
 const SPREAD_X = 1.62, SPREAD_Y = .50;
-const CATCH_ZONE = .58;
 const STAND_Y = LINE_Y - 34;
 const CEIL_Y = GOAL.y + 30;
 const MOVE_SPEED = 700, MOVE_TAU = 70;
@@ -486,6 +499,42 @@ const STAM_MAX = 100;
 const SPLIT_DRAIN = 33, DIVE_COST = 27, JUMP_COST = 12, REGEN = 27;
 const REGEN_DELAY = 320, EXHAUST_RECOVER = 32;
 const CATCH_REFUND = 10, PARRY_REFUND = 3;
+
+/* ── the keepers ──
+   Three to play as, better the higher the tier. The two you unlock are
+   only ever better than the Rookie, never worse, at anything: every shot
+   is checked for fairness against the Rookie's reach and speed, so a
+   better keeper can only turn more of them into saves.
+     reach:   how far his save oval stretches (x Rookie)
+     catchZ:  how much of that oval holds the ball instead of parrying it
+     speed:   top speed across the goal (x Rookie)
+     cost:    stamina a jump, dive or the splits takes (x Rookie)
+     regen:   how fast stamina comes back (x Rookie)
+     getup:   time spent on the floor after a dive (x Rookie)   */
+const KEEPERS = [
+  { id: "rookie", name: "ROOKIE", tier: 4, unlockAt: 0, num: "1",
+    title: "Tier 4",
+    perk: "Where everyone starts. No frills.",
+    reach: 1, catchZ: .58, speed: 1, cost: 1, regen: 1, getup: 1,
+    kit: { shirt: "#ffb020", shirtDark: "#e08d00", shirtLight: "#ffd47d", trim: "#1a2540",
+           shorts: "#1a2540", sock: "#1a2540", skin: "#e3aa7f", skinLight: "#f4cd9e", hair: "#2c1d13",
+           glove: "#f2f7ff", gloveShade: "#dfe8f3", gloveEdge: "#4d7fb8", boot: "#141a22" } },
+  { id: "bulwark", name: "BULWARK", tier: 3, unlockAt: 40, num: "1",
+    title: "Tier 3",
+    perk: "Commands his box: 20% more reach, and most parries become catches, so fewer rebounds.",
+    reach: 1.2, catchZ: .72, speed: 1, cost: 1, regen: 1.1, getup: 1,
+    kit: { shirt: "#5b6270", shirtDark: "#3f4550", shirtLight: "#838b99", trim: "#e8c547",
+           shorts: "#16181d", sock: "#16181d", skin: "#f0c7a4", skinLight: "#fbdcc0", hair: "#d7b46a",
+           glove: "#fff6d6", gloveShade: "#eee0b0", gloveEdge: "#b8902a", boot: "#0e0f12" } },
+  { id: "panther", name: "PANTHER", tier: 2, unlockAt: 80, num: "1",
+    title: "Tier 2",
+    perk: "Cat-quick: 25% faster across, 14% more reach, up quicker after a dive, 40% less stamina.",
+    reach: 1.14, catchZ: .66, speed: 1.25, cost: .6, regen: 1.3, getup: .65,
+    kit: { shirt: "#7a3cc9", shirtDark: "#5a2896", shirtLight: "#a574e8", trim: "#b8f35a",
+           shorts: "#1d1233", sock: "#1d1233", skin: "#b07752", skinLight: "#cf9a74", hair: "#1c130e",
+           glove: "#f4fff0", gloveShade: "#d6ecc6", gloveEdge: "#6fae2c", boot: "#101010" } }
+];
+let KP = KEEPERS[0];                   // who's in goal
 
 /* ── streaks ──
    This many saves in a row wins back a ball you've let in (never above
@@ -1032,8 +1081,8 @@ function reachOval() {
   return {
     cx: keeper.x,
     cy: keeper.y - L(24, 4, sp) - up * 13,
-    rx: REACH_X * L(1, SPREAD_X, sp),
-    ry: REACH_Y * L(1, SPREAD_Y, sp) * (1 + up * AIR_REACH),
+    rx: REACH_X * KP.reach * L(1, SPREAD_X, sp),
+    ry: REACH_Y * KP.reach * L(1, SPREAD_Y, sp) * (1 + up * AIR_REACH),
     rot: keeper.tilt * .55 * (1 - sp)
   };
 }
@@ -1062,7 +1111,7 @@ function updateStamina(dt) {
   keeper.lastUse += dt;
   const splitting = keeper.spread > .05 && held.has("split");
   if (!splitting && keeper.lastUse > REGEN_DELAY) {
-    keeper.stamina = Math.min(STAM_MAX, keeper.stamina + REGEN * dt / 1000);
+    keeper.stamina = Math.min(STAM_MAX, keeper.stamina + REGEN * KP.regen * dt / 1000);
   }
   if (keeper.exhausted && keeper.stamina >= EXHAUST_RECOVER) keeper.exhausted = false;
   keeper.denied = Math.max(0, keeper.denied - dt / 280);
@@ -1079,12 +1128,12 @@ function requestJump() {
 
 function doJump() {
   if (keeper.spread > .3) return;
-  if (!canSpend(JUMP_COST)) { keeper.denied = 1; sfx.spent(); return; }
+  if (!canSpend(JUMP_COST * KP.cost)) { keeper.denied = 1; sfx.spent(); return; }
   keeper.airborne = true;
   keeper.vy = -JUMP_V;
   keeper.airT = 0;
   keeper.spread = 0;
-  spendStamina(JUMP_COST);
+  spendStamina(JUMP_COST * KP.cost);
   sfx.jump();
   for (let i = 0; i < 6; i++) {
     particles.push({
@@ -1118,7 +1167,7 @@ function groundYFor(tilt) { return LINE_Y - 12 - 22 * Math.cos(tilt); }
 function launchDive(dir) {
   if (keeper.diving) return;
   if (!inRun()) return;
-  if (!canSpend(DIVE_COST)) { keeper.denied = 1; sfx.spent(); return; }
+  if (!canSpend(DIVE_COST * KP.cost)) { keeper.denied = 1; sfx.spent(); return; }
 
   let dx = dir ? dir.dx : 0, dy = dir ? dir.dy : 0;
   if (dx === 0 && dy === 0) { dx = Math.sign(keeper.vx) || (Math.random() < .5 ? -1 : 1); dy = -.55; }
@@ -1132,7 +1181,7 @@ function launchDive(dir) {
   keeper.vx = ux * DIVE_PUSH;
   keeper.vy = uy * DIVE_PUSH * .6 - DIVE_LEAP;
   keeper.diveTilt = clamp(Math.atan2(ux, -uy), -1.9, 1.9);
-  spendStamina(DIVE_COST);
+  spendStamina(DIVE_COST * KP.cost);
   sfx.dive();
 }
 
@@ -1174,7 +1223,7 @@ function updateKeeper(dt) {
       keeper.vx *= Math.pow(.02, s);
       keeper.x += keeper.vx * s;
       keeper.y += (STAND_Y - keeper.y) * (1 - Math.exp(-dt / 100));
-      if (keeper.getupT > GETUP_MS) {
+      if (keeper.getupT > GETUP_MS * KP.getup) {
         keeper.diving = false; keeper.getup = false;
         keeper.vx = keeper.vy = 0; keeper.y = STAND_Y;
         keeper.landLock = LAND_LOCK_MS;
@@ -1185,7 +1234,7 @@ function updateKeeper(dt) {
       keeper.vx *= Math.pow(.04, s);
       keeper.x += keeper.vx * s;
       keeper.y = groundYFor(keeper.tilt);
-      if (keeper.groundT > GROUND_MS) { keeper.getup = true; keeper.getupT = 0; }
+      if (keeper.groundT > GROUND_MS * KP.getup) { keeper.getup = true; keeper.getupT = 0; }
     } else {
       tiltTarget = keeper.diveTilt;
       keeper.vy += GRAVITY * s;
@@ -1204,7 +1253,7 @@ function updateKeeper(dt) {
     if (wantSplit) {
       if (keeper.spread < .05) sfx.split();
       keeper.spread += (1 - keeper.spread) * (1 - Math.exp(-dt / 95));
-      spendStamina(SPLIT_DRAIN * s);
+      spendStamina(SPLIT_DRAIN * KP.cost * s);
     } else {
       keeper.spread += (0 - keeper.spread) * (1 - Math.exp(-dt / 140));
       if (held.has("split") && keeper.exhausted) keeper.denied = Math.max(keeper.denied, .6);
@@ -1219,9 +1268,9 @@ function updateKeeper(dt) {
     const tau = keeper.airborne ? AIR_TAU : following ? CAM_TAU : MOVE_TAU;
     // (Easing in over a shorter stretch on the ground than in the air: in
     // the air he answers more slowly, and would sail past.)
-    const ease = keeper.airborne ? CAM_EASE_AIR : CAM_EASE;
+    const ease = (keeper.airborne ? CAM_EASE_AIR : CAM_EASE) * KP.speed;   // same settle for a quicker keeper
     const dir = following ? clamp((CAM.targetX - keeper.x) / ease, -1, 1) : 0;
-    keeper.vx += (dir * MOVE_SPEED * authority - keeper.vx) * (1 - Math.exp(-dt / tau));
+    keeper.vx += (dir * MOVE_SPEED * KP.speed * authority - keeper.vx) * (1 - Math.exp(-dt / tau));
     keeper.x += keeper.vx * s;
 
     if (keeper.airborne) {
@@ -1323,7 +1372,7 @@ function onSave(s, depth) {
     cheer = 1;
   }
 
-  const clean = depth < CATCH_ZONE;
+  const clean = depth < KP.catchZ;
   const diving = keeper.diving && !keeper.getup;
   const leaping = keeper.airborne;
   const split = keeper.spread > .5;
@@ -1397,6 +1446,7 @@ function checkMilestone(prevScore) {
     spawnConfetti(150);
     document.getElementById("best").classList.add("beaten");
   }
+  if (KEEPERS.some(k => !unlocked.has(k.id) && G.score >= k.unlockAt)) checkKeeperUnlocks(G.score, false);
 }
 
 /* Why that one went in, in a few words — the fastest way to learn the four
@@ -2251,7 +2301,7 @@ function drawReach() {
   ctx.strokeStyle = `rgba(${tint},${.1 + heatGlow * .22})`;
   ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.ellipse(0, 0, o.rx * CATCH_ZONE, o.ry * CATCH_ZONE, 0, 0, 6.283);
+  ctx.ellipse(0, 0, o.rx * KP.catchZ, o.ry * KP.catchZ, 0, 0, 6.283);
   ctx.stroke();
 
   ctx.strokeStyle = keeper.reachPulse > 0
@@ -2265,11 +2315,7 @@ function drawReach() {
   ctx.restore();
 }
 
-const KIT = {
-  shirt: "#ffb020", shirtDark: "#e08d00", shirtLight: "#ffd47d", trim: "#1a2540",
-  shorts: "#1a2540", sock: "#1a2540", skin: "#e3aa7f", hair: "#2c1d13",
-  glove: "#f2f7ff", gloveEdge: "#4d7fb8", boot: "#141a22"
-};
+let KIT = KP.kit;
 
 // A limb with a dark outline, for silhouettes that read against the net.
 function blob(x1, y1, x2, y2, w, color) {
@@ -2372,8 +2418,8 @@ function drawKeeperBody() {
   ctx.strokeStyle = KIT.trim; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
   ctx.beginPath(); ctx.moveTo(-6, -th + 5); ctx.lineTo(0, -th + 11); ctx.lineTo(6, -th + 5); ctx.stroke();
   ctx.font = "800 16px Inter, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.lineWidth = 3; ctx.strokeStyle = KIT.trim; ctx.strokeText("1", 0, L(-29, -22, sp));
-  ctx.fillStyle = "#fff"; ctx.fillText("1", 0, L(-29, -22, sp));
+  ctx.lineWidth = 3; ctx.strokeStyle = KIT.trim; ctx.strokeText(KP.num, 0, L(-29, -22, sp));
+  ctx.fillStyle = "#fff"; ctx.fillText(KP.num, 0, L(-29, -22, sp));
 
   /* arms: long sleeves, elbow pads, cuffs */
   let gx = L(30, 74, sp), gy = L(-14, -6, sp);
@@ -2401,7 +2447,7 @@ function drawKeeperBody() {
   ctx.fillStyle = KIT.skin;
   ctx.beginPath(); ctx.arc(-11.5, hy + 1, 3, 0, 6.283); ctx.arc(11.5, hy + 1, 3, 0, 6.283); ctx.fill();
   const headGrad = ctx.createRadialGradient(-4, hy - 4, 1, 0, hy, 13);
-  headGrad.addColorStop(0, "#f4cd9e"); headGrad.addColorStop(1, KIT.skin);
+  headGrad.addColorStop(0, KIT.skinLight); headGrad.addColorStop(1, KIT.skin);
   ctx.fillStyle = headGrad;
   ctx.beginPath(); ctx.arc(0, hy, 12, 0, 6.283); ctx.fill();
   ctx.strokeStyle = "rgba(0,0,0,.22)"; ctx.lineWidth = 1.2; ctx.stroke();
@@ -2450,7 +2496,7 @@ function drawKeeperBody() {
     ctx.fillStyle = KIT.gloveEdge;
     ctx.beginPath(); ctx.roundRect(-gr * 1.2, -gr * .6, gr * .9, gr * 1.2, 3); ctx.fill();
     const gg = ctx.createRadialGradient(-3, -3, .5, 0, 0, gr);
-    gg.addColorStop(0, "#ffffff"); gg.addColorStop(1, "#dfe8f3");
+    gg.addColorStop(0, "#ffffff"); gg.addColorStop(1, KIT.gloveShade);
     ctx.fillStyle = gg;
     ctx.beginPath(); ctx.ellipse(0, 0, gr * 1.02, gr * .95, 0, 0, 6.283); ctx.fill();
     ctx.strokeStyle = KIT.gloveEdge; ctx.lineWidth = 2; ctx.stroke();
@@ -2466,8 +2512,8 @@ function drawKeeperBody() {
 function drawKeeperBars() {
   if (keeper.diving && (keeper.grounded || keeper.getup)) {
     const done = keeper.grounded
-      ? keeper.groundT / (GROUND_MS + GETUP_MS)
-      : (GROUND_MS + keeper.getupT) / (GROUND_MS + GETUP_MS);
+      ? keeper.groundT / ((GROUND_MS + GETUP_MS) * KP.getup)
+      : (GROUND_MS * KP.getup + keeper.getupT) / ((GROUND_MS + GETUP_MS) * KP.getup);
     ctx.fillStyle = "rgba(0,0,0,.35)";
     ctx.beginPath(); ctx.roundRect(keeper.x - 23, LINE_Y + 15, 46, 5.5, 3); ctx.fill();
     ctx.fillStyle = "rgba(255,255,255,.75)";
@@ -3021,6 +3067,63 @@ function warmupEnd(finished) {
   G.phase = "count"; G.countT = 0;
   keeper.stamina = STAM_MAX;
   syncCamLive();
+}
+
+/* Keepers: which you've unlocked and who you picked, kept in this browser. */
+const KEEPER_KEY = "shotstopper-keepers";
+const unlocked = new Set(["rookie"]);
+let peekKeeper = null;                  // a locked one you tapped, to read about
+function saveKeepers() {
+  try { localStorage.setItem(KEEPER_KEY, JSON.stringify({ pick: KP.id, unlocked: [...unlocked] })); } catch (e) { /* storage unavailable */ }
+}
+function setKeeper(id, save = true) {
+  const k = KEEPERS.find(k => k.id === id);
+  if (!k || !unlocked.has(id)) return;
+  KP = k; KIT = k.kit; peekKeeper = null;
+  if (save) saveKeepers();
+  renderKeeperPicker();
+}
+function renderKeeperPicker() {
+  const box = document.getElementById("cam-keeper");
+  if (!box) return;
+  if (!box.children.length) {
+    for (const k of KEEPERS) {
+      const b = document.createElement("button");
+      b.dataset.id = k.id;
+      b.innerHTML = `<span>${k.name[0] + k.name.slice(1).toLowerCase()}</span><i>T${k.tier}</i>`;
+      b.addEventListener("click", () => {
+        b.blur();
+        if (unlocked.has(k.id)) setKeeper(k.id);
+        else { peekKeeper = peekKeeper === k.id ? null : k.id; renderKeeperPicker(); }
+      });
+      box.appendChild(b);
+    }
+  }
+  for (const b of box.children) {
+    const k = KEEPERS.find(k => k.id === b.dataset.id), open = unlocked.has(k.id);
+    b.classList.toggle("on", k === KP);
+    b.classList.toggle("locked", !open);
+    b.classList.toggle("peek", peekKeeper === k.id);
+    b.title = open ? `${k.name}: ${k.title}` : `Locked: score ${k.unlockAt} in a run to unlock`;
+    b.setAttribute("aria-pressed", k === KP ? "true" : "false");
+  }
+  const show = KEEPERS.find(k => k.id === peekKeeper) || KP;
+  document.getElementById("keeper-perk").innerHTML = unlocked.has(show.id)
+    ? `<b>${show.name}</b> · ${show.title}. ${show.perk}`
+    : `<em>Score ${show.unlockAt} in a run to unlock.</em> <b>${show.name}</b> · ${show.title}. ${show.perk}`;
+}
+// Score past a keeper's mark in a run (or already have a best that does)
+// and he's yours.
+function checkKeeperUnlocks(score, quiet) {
+  for (const k of KEEPERS) {
+    if (unlocked.has(k.id) || score < k.unlockAt) continue;
+    unlocked.add(k.id);
+    if (!quiet) {
+      showBanner({ title: k.name + " UNLOCKED", sub: `tier ${k.tier} keeper: pick him on the setup screen`, life: 1, color: "#b8f35a" });
+      sfx.record(); spawnConfetti(90);
+    }
+  }
+  saveKeepers(); renderKeeperPicker();
 }
 
 // The shot tracer and its ripple cue can be switched off for the purist
@@ -3700,7 +3803,7 @@ function camApply(out, now) {
   if (out.dive) {
     // A flick up and across can cross the jump line on its way. That
     // jump wasn't meant, so it doesn't cost anything.
-    if (keeper.airborne && now - CAM.jumpAt < 160) refund(JUMP_COST);
+    if (keeper.airborne && now - CAM.jumpAt < 160) refund(JUMP_COST * KP.cost);
     launchDive(out.dive);
     CAM.flash = 1;
   }
@@ -4239,9 +4342,9 @@ async function makeScoreCard(isBest) {
     x.fillStyle = "#241c00"; x.fillText("NEW BEST", 89, 464);
   }
   const st = G.stats, pct = st.faced ? Math.round(G.saves / st.faced * 100) : 0;
-  const rows = [["SAVES", G.saves], ["SAVE RATE", pct + "%"], ["LASTED", fmtTime(G.elapsed)], ["BEST RUN", G.bestRun], ["TWO-POINTERS", st.hard]];
+  const rows = [["KEEPER", KP.name], ["SAVES", G.saves], ["SAVE RATE", pct + "%"], ["LASTED", fmtTime(G.elapsed)], ["BEST RUN", G.bestRun], ["TWO-POINTERS", st.hard]];
   rows.forEach(([k, v], i) => {
-    const y = 170 + i * 78;
+    const y = 160 + i * 72;
     x.font = "700 15px Inter, sans-serif"; x.fillStyle = "rgba(255,255,255,.55)"; x.textAlign = "left";
     x.fillText(k, 700, y);
     x.font = bebas(52); x.fillStyle = "#ffffff"; x.textAlign = "right";
@@ -4333,6 +4436,12 @@ try {
 try { setWarmWanted(localStorage.getItem(WARM_KEY) !== "0"); } catch (e) { /* storage unavailable */ }
 try { setGuides(localStorage.getItem(GUIDES_KEY) !== "0"); } catch (e) { /* storage unavailable */ }
 try {
+  const saved = JSON.parse(localStorage.getItem(KEEPER_KEY) || "null");
+  if (saved && Array.isArray(saved.unlocked)) for (const id of saved.unlocked) if (KEEPERS.some(k => k.id === id)) unlocked.add(id);
+  checkKeeperUnlocks(G.best, true);                  // a best that already clears the mark counts
+  setKeeper(saved && saved.pick || "rookie", false);
+} catch (e) { renderKeeperPicker(); }
+try {
   const s = parseInt(localStorage.getItem(SENS_KEY) || "1", 10);
   if (SENS[s]) setSensitivity(s);
 } catch (e) { /* storage unavailable */ }
@@ -4347,4 +4456,3 @@ window.addEventListener("load", () => {
 </script>
 </body>
 </html>
-
