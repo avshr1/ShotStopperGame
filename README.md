@@ -196,6 +196,15 @@ drawn with canvas paths, and every sound effect is synthesised with the Web Audi
 grass is cached in an offscreen canvas and repainted only when the time of day has visibly shifted,
 which cut the pitch's per-frame cost by about 9×.
 
+**The players are cel-shaded by subtraction.** Every limb is a capsule that tapers from one radius
+to another, and the torsos, heads and boots are shapes of their own. Each part is filled flat, then
+given a shadow and a rim of light by clipping to the shape and filling the shape minus a copy of
+itself nudged toward (or away from) the light, then inked with an outline. No images, and the shading
+follows every pose because it's worked out from the pose. Each keeper has his own kit, hair and
+gloves. When a body is drawn only to make a shadow, the shading is skipped, which keeps the cost of
+the new detail to about a millisecond a frame. A striker fading out after the strike is drawn whole
+into a layer first and faded as one piece, so his limbs don't turn see-through where they overlap.
+
 ## Built with
 
 - HTML, CSS, JavaScript
