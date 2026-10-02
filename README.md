@@ -205,6 +205,14 @@ gloves. When a body is drawn only to make a shadow, the shading is skipped, whic
 the new detail to about a millisecond a frame. A striker fading out after the strike is drawn whole
 into a layer first and faded as one piece, so his limbs don't turn see-through where they overlap.
 
+Pieces that should read as one shape (a glove's fingers and palm, the two legs of a pair of shorts,
+a sock with a calf to it) are inked by stroking all of them first and then filling all of them on
+top, so the outline runs round the outside of the whole thing and never across the joins. Each
+keeper has his own build, jaw, eye colour, shirt pattern and face. The face changes with what he's
+doing: calm when it's quiet, set and focused when a shot's on (the Bulwark grits his teeth), a
+shout at full stretch or after a save, and a grimace when one goes in. He blinks, and bounces on
+his toes when he's set. The strikers have their names on their backs.
+
 ## Built with
 
 - HTML, CSS, JavaScript
