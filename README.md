@@ -20,6 +20,7 @@ Press **Kick off**, allow the camera, and point your index finger up at it:
 | Lift it | Jump. Flick it up for a hop, keep it up for a full leap |
 | Bend it down | The splits |
 | Flick it sideways, fast | Dive that way. Up-and-across for a top corner |
+| Hold two fingers up | Your keeper's special, once it's charged |
 
 The only key is `P`, to pause. Hold your finger still wherever it's comfortable and the game
 kicks off from there. Resting your elbow on the desk works best: small movements cover the whole
@@ -96,6 +97,25 @@ shot is checked for fairness against the Rookie's reach and speed, so a better k
 more of them into saves. With a bot playing the first two minutes of a run, goals let in per minute
 went 3.7 (Rookie), 2.3 (Bulwark), 1.5 (Panther). Your unlocks and your pick are saved in the browser,
 and a best score that already clears a mark unlocks that keeper straight away.
+
+### Specials
+
+Each keeper has one special move. It charges as you make saves (five fills it), and you set it off
+by holding two fingers up, index and middle, with the others curled. The badge in the bottom-left
+corner shows how charged it is, and says TWO FINGERS UP once it's ready.
+
+| Keeper | Special | What it does |
+| --- | --- | --- |
+| Rookie | **Second Wind** | Stamina refills, and for 6 seconds jumps, dives and the splits cost nothing |
+| Bulwark | **The Wall** | For 4 seconds his reach grows by half and every save is a clean catch, so no rebounds |
+| Panther | **Cat Reflexes** | For 4 seconds the whole world slows to 45% speed, but he keeps moving at full speed |
+
+Like the keepers themselves, the specials only ever help, so the fairness checks still hold. Cat
+Reflexes slows the game's own clock (shots, strikers, the shot schedule) while the keeper runs on
+the real one, so everything stays in step with itself. The gesture is read along the hand's own
+axis, from the wrist to the middle knuckle, so it works with your hand tilted. It has to be held
+for a sixth of a second, so a finger flickering up for a frame doesn't set it off. You can try it
+on the setup screen, where the preview shows your special's name when it registers.
 
 ## Scoring
 
