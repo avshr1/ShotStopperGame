@@ -586,7 +586,7 @@ const keeper = {
   x: W / 2, y: STAND_Y, vx: 0, vy: 0,
   tilt: 0, step: 0, reachPulse: 0, spread: 0,
   airborne: false, airT: 0, reachUp: 0,
-  jumpBuffer: 0, landLock: 0, squash: 0,
+  jumpBuffer: 0, jumpHeld: false, landLock: 0, squash: 0,
   stamina: STAM_MAX, lastUse: 0, exhausted: false, denied: 0,
   holding: 0,
   diving: false, grounded: false, getup: false,
@@ -1182,7 +1182,7 @@ function fingersUp(h) {
   const A = CAM.aspect, ax = (h[9].x - h[0].x) * A, ay = h[9].y - h[0].y, al = Math.hypot(ax, ay) || 1;
   const ux = ax / al, uy = ay / al, p = palmOf(h) || 1;
   const ext = (tip, base) => ((h[tip].x - h[base].x) * A * ux + (h[tip].y - h[base].y) * uy) / p;
-  return { middle: ext(12, 9), ring: ext(16, 13) };
+  return { index: ext(8, 5), middle: ext(12, 9), ring: ext(16, 13) };
 }
 const TWO_HOLD_MS = 160;
 
@@ -1304,10 +1304,14 @@ function updateStamina(dt) {
 /* ═════════ jumping ═════════ */
 function requestJump() {
   if (!inRun()) return;
-  if (keeper.diving) return;
-  if (keeper.airborne || keeper.landLock > 0) { keeper.jumpBuffer = JUMP_BUFFER_MS; return; }
+  // Down after a dive: the jump waits until he's back on his feet, as long
+  // as the finger's still up by then. (It used to be thrown away, so with
+  // the finger already up he'd never jump for the follow-up.)
+  if (keeper.diving) { keeper.jumpBuffer = DIVE_JUMP_WAIT; keeper.jumpHeld = true; return; }
+  if (keeper.airborne || keeper.landLock > 0) { keeper.jumpBuffer = JUMP_BUFFER_MS; keeper.jumpHeld = false; return; }
   doJump();
 }
+const DIVE_JUMP_WAIT = 1200;          // ms a jump asked for mid-dive stays wanted
 
 function doJump() {
   if (keeper.spread > .3) return;
@@ -1469,7 +1473,10 @@ function updateKeeper(dt) {
       }
     } else {
       keeper.y = STAND_Y; keeper.vy = 0;
-      if (keeper.jumpBuffer > 0 && keeper.landLock <= 0) { keeper.jumpBuffer = 0; doJump(); }
+      if (keeper.jumpBuffer > 0 && keeper.landLock <= 0) {
+        keeper.jumpBuffer = 0;
+        if (!keeper.jumpHeld || held.has("jump")) doJump();
+      }
     }
 
     tiltTarget = clamp(keeper.vx / 900 * .3, -.3, .3) * (1 - keeper.spread);
@@ -4328,9 +4335,14 @@ function camFeed(hands, now) {
   CAM.coast = false; CAM.loss = L(CAM.loss, 0, .05);
   // Two fingers up, with a little hysteresis so it doesn't flicker on and off.
   const fu = fingersUp(pick);
-  const two = CAM.two ? fu.middle > .4 && fu.ring < .4 : fu.middle > .55 && fu.ring < .3;
+  // Both fingers really up, and the middle about as far up as the index: a
+  // relaxed middle finger hanging half open doesn't count, and neither does
+  // anything while the index is bent down for the splits.
+  const two = CAM.two
+    ? fu.index > .45 && fu.middle > .45 && fu.middle > fu.index * .7 && fu.ring < .4
+    : fu.index > .55 && fu.middle > .55 && fu.middle > fu.index * .85 && fu.ring < .3;
   CAM.two = two;
-  if (two) { if (!CAM.twoSince) CAM.twoSince = now; } else { CAM.twoSince = 0; CAM.twoFired = false; }
+  if (two) { if (!CAM.twoSince) { CAM.twoSince = now; CAM.twoAt = performance.now(); } } else { CAM.twoSince = 0; CAM.twoFired = false; }
 
   const c = fingertip(pick);
   // Back after a gap, or suddenly somewhere else entirely (the tracker lost
@@ -4355,14 +4367,6 @@ function camRead(now) {
   if (CAM.coast) return out;                  // lost for a moment: hold everything as it was
   const S = SENS[CAM.sens], p = CAM.palm, n = CAM.neutral, h = CAM.hist, k = h.length;
 
-  // Across: the smoothed position, so he stands still when you do.
-  // A small dead band on top soaks up the wobble a fingertip has even when
-  // you hold it still; real movement drags the target along with it.
-  const across = (CAM.tip.x - n.x) / p;
-  const want = clamp(W / 2 + across / S.range * (GOAL.w / 2 - 20), GOAL.x - 10, GOAL.x + GOAL.w + 10);
-  const slack = want - CAM.targetX;
-  if (Math.abs(slack) > DEAD_BAND) CAM.targetX = want - Math.sign(slack) * DEAD_BAND;
-
   // Speeds come from the raw positions, in palms per second: smoothing is
   // there to steady the keeper and would only blunt a quick movement.
   let vy = 0, slope = 0, timed = false;
@@ -4375,6 +4379,14 @@ function camRead(now) {
       slope = (c.y - a.y) / (Math.abs(c.x - a.x) || 1e-6);
     }
   }
+
+  // Across: the smoothed position, so he stands still when you do.
+  // A small dead band on top soaks up the wobble a fingertip has even when
+  // you hold it still; real movement drags the target along with it.
+  const across = (CAM.tip.x - n.x) / p;
+  const want = clamp(W / 2 + across / S.range * (GOAL.w / 2 - 20), GOAL.x - 10, GOAL.x + GOAL.w + 10);
+  const slack = want - CAM.targetX;
+  if (Math.abs(slack) > DEAD_BAND) CAM.targetX = want - Math.sign(slack) * DEAD_BAND;
 
   // Up and down, with hysteresis so wobbling on a line doesn't flicker
   // between states. A quick, deliberate movement counts early.
@@ -4486,6 +4498,9 @@ function camCalibrate(now) {
     setCamStatus("Point one finger up at the camera, palm facing it.");
     return;
   }
+  // A frame where the tracker lost the hand for a moment says nothing about
+  // whether it's still: don't count it (it would be the last position again).
+  if (CAM.coast) return;
   // Practice while you're here: a flick shows up on the preview as a dive.
   const tried = camFlick(now);
   if (tried) CAM.practice = { way: tried, until: performance.now() + 800 };
@@ -4514,7 +4529,9 @@ function camCalibrate(now) {
     setCamStatus(problem || "Now hold it still…");
     return;
   }
-  CAM.calibK = clamp((now - c[0].t) / (CALIB_MS - 40), 0, 1);
+  // And enough of them: a hand the tracker keeps losing isn't a steady start.
+  const need = Math.min(12, CALIB_MS / CAM.frameMs * .55);
+  CAM.calibK = clamp(Math.min((now - c[0].t) / (CALIB_MS - 40), n / need), 0, 1);
   setCamStatus(CAM.calibK > .2 ? "Hold it there…" : "Now hold it still…");
   if (CAM.calibK >= 1) {
     CAM.neutral = { x: mx, y: my };
@@ -4920,6 +4937,19 @@ function drawCamView(cv, big) {
     c.beginPath();
     for (let i = 5; i <= 8; i++) { const q = P(i); if (i === 5) c.moveTo(q[0], q[1]); else c.lineTo(q[0], q[1]); }
     c.stroke();
+    // Two fingers up: the middle finger lit too, in the special's colour (red
+    // if it isn't charged yet in a run), with a ring that fills as you hold it.
+    if (CAM.two) {
+      const inPlay = G.phase === "play", ok = !inPlay || G.sp.charge >= 1 || G.sp.left > 0;
+      const col = ok ? spDef().col : "255,90,95";
+      c.strokeStyle = `rgba(${col},.95)`; c.lineWidth = 3.5 * u;
+      c.beginPath();
+      for (let i = 9; i <= 12; i++) { const q = P(i); if (i === 9) c.moveTo(q[0], q[1]); else c.lineTo(q[0], q[1]); }
+      c.stroke();
+      const m = P(12), k = clamp((performance.now() - (CAM.twoAt || performance.now())) / TWO_HOLD_MS, 0, 1);
+      c.lineWidth = 2.5 * u;
+      c.beginPath(); c.arc(m[0], m[1], 9 * u, -Math.PI / 2, -Math.PI / 2 + k * 6.283); c.stroke();
+    }
     const tx = X(CAM.tip.x), ty = Y(CAM.tip.y);
     if (CAM.status === "calib" && CAM.calibK > 0) {             // the hold-still ring
       c.strokeStyle = "#3ddc84"; c.lineWidth = 3.5 * u;
