@@ -551,24 +551,31 @@ let KP = KEEPERS[0];                   // who's in goal
 const LIFE_BACK_RUN = 10;
 
 /* ── the ramp ──
-   One smooth curve from opening pace to full pace. Smoothstep, so the
-   first half-minute is a warm-up, the middle two minutes are the real
-   climb, and it levels off rather than running away from you.        */
-const RAMP_MS = 180000;
+   One smooth curve from opening pace to full pace over five minutes.
+   Smoothstep, so the first minute is a warm-up, the middle three are the
+   real climb, and it levels off rather than running away from you.
+
+   It used to reach full pace in three minutes, at a pace nobody could live
+   with: measured with a simulated player, goals let in went from about one
+   a minute to nearly forty within forty-five seconds, the same for a good
+   player as a casual one. Skill stopped mattering at two minutes. Now it
+   climbs the whole way, and a good player lasts about three times as long
+   as a casual one, instead of both hitting the same wall.            */
+const RAMP_MS = 300000;
 // Finger scores only. (The old keyboard version's record lived under
 // "shotstopper-best"; it was a different game to be good at, so it's left be.)
 const BEST_KEY = "shotstopper-best-cam";
 
 const PACE = {
-  gap:   [2050, 540],    // ms between shots
-  flight:[2100, 700],    // ms of flight time
+  gap:   [2050, 760],    // ms between shots
+  flight:[2100, 860],    // ms of flight time
   bend:  [.45, 1.32],    // how hard curlers curl
   corner:[.16, .72],     // how often they pick a corner over the middle
   spill: [.24, .6]       // how often a parry comes back at you
 };
 
 // When each new kind of shot turns up, in seconds.
-const UNLOCK = { curl: 18, chip: 26, rocket: 55, doubles: 92 };
+const UNLOCK = { curl: 18, chip: 26, rocket: 70, doubles: 130 };
 
 let reducedMotion = false;
 
@@ -578,6 +585,7 @@ const G = {
   lives: 3, paused: false, pauseWhy: null, announced: {}, milestone: 0, overAt: 0,
   lag: 0,                  // ms of extra flight time each shot gets for the tracking delay
   sp: { charge: 0, left: 0, used: 0, denied: 0, readyPulse: 0, ghosts: [], ghostT: 0 },   // the keeper's special
+  spell: { phase: "calm", next: 45000, until: 0, n: 0, saves: 0 },                     // pressure spells
 
   stats: { faced: 0, catches: 0, parries: 0, hard: 0, dives: 0, splits: 0, leaps: 0, conceded: 0, woodwork: 0, lifeBack: 0 }
 };
@@ -649,6 +657,7 @@ function noise(dur, { gain = .18, freq = 1200, q = 1, delay = 0, sweepTo = null 
   s.connect(f).connect(g).connect(a.destination); s.start(t0);
 }
 const sfx = {
+  pressure() { [392, 466, 554].forEach((f, i) => tone(f, .22, { type: "square", gain: .07, delay: i * .11 })); noise(.5, { gain: .06, freq: 300, sweepTo: 900 }); },
   ready()   { tone(880, .09, { type: "sine", gain: .09 }); tone(1320, .14, { type: "sine", gain: .08, delay: .09 }); },
   special() { tone(330, .5, { type: "sawtooth", gain: .05, to: 660 }); [523, 784, 1047].forEach((f, i) => tone(f, .32, { type: "triangle", gain: .11, delay: .08 + i * .07 }));
               noise(.4, { gain: .07, freq: 600, sweepTo: 3000 }); },
@@ -705,8 +714,34 @@ function shotGap() {
   // A slow wave on top of the ramp, so there are lulls and flurries
   // instead of a metronome.
   const wave = 1 + .2 * Math.sin(G.elapsed / 5200);
-  return pace("gap", h) * wave * rnd(.84, 1.18);
+  return pace("gap", h) * wave * rnd(.84, 1.18) * (G.spell.phase === "pressure" ? PRESSURE_GAP : 1);
 }
+
+/* Pressure spells: every fifty seconds or so the strikers pile it on for
+   ten, with saves worth double while it lasts. Then a breather: a few
+   seconds with nothing new struck, and the crowd's applause. A climb with
+   peaks and rests in it, instead of one long grind, and a reason to want
+   the hard bits. (Every shot still goes through the same fairness check.) */
+const SPELL_FIRST = 45000, SPELL_EVERY = 50000, SPELL_MS = 10000, BREATHER_MS = 3500;
+const PRESSURE_GAP = .72, CONCEDE_BEAT = 1200;
+function updateSpell() {
+  const sp = G.spell;
+  if (sp.phase === "calm" && G.elapsed >= sp.next) {
+    sp.phase = "pressure"; sp.until = G.elapsed + SPELL_MS; sp.n++; sp.saves = 0;
+    G.nextShot = Math.min(G.nextShot, 500);
+    showBanner({ title: "PRESSURE", sub: "saves count double for ten seconds", life: 1, color: "#ff8a3d" });
+    sfx.pressure(); cheer = Math.max(cheer, .6);
+  } else if (sp.phase === "pressure" && G.elapsed >= sp.until) {
+    sp.phase = "breather"; sp.until = G.elapsed + BREATHER_MS;
+    showBanner({ title: "BREATHER", sub: sp.saves ? `${sp.saves} saved under pressure` : "catch your breath", life: 1, color: "#9ad7ff" });
+    cheer = Math.max(cheer, sp.saves >= 4 ? .9 : .5);
+  } else if (sp.phase === "breather" && G.elapsed >= sp.until) {
+    sp.phase = "calm"; sp.next = G.elapsed + SPELL_EVERY - SPELL_MS - BREATHER_MS;
+    G.nextShot = Math.min(G.nextShot, 300);
+  }
+}
+const inBreather = () => G.spell.phase === "breather";
+const underPressure = () => G.spell.phase === "pressure";
 
 function maxShots() { return secs() > UNLOCK.doubles ? 3 : 2; }
 
@@ -753,12 +788,19 @@ function stanceBase(fromY, toY) {
   return .18;
 }
 
+// "Reachable" used to mean reachable by a keeper with no reaction time at
+// all, and at full pace the shots got packed right up to that line: fair
+// on paper, impossible in practice. Now there's room left for a person to
+// see it and react: a generous third of a second early on, never under a
+// sixth even at full pace.
+const humanSlack = () => L(.32, .17, heat());
+
 // Could a keeper who just dealt with A be in position for B?
 function travelOK(ax, ay, at, bx, by, bt) {
   const dt = Math.abs(bt - at);
   if (dt < MIN_ARRIVAL_GAP) return false;
   const earlierY = at < bt ? ay : by, laterY = at < bt ? by : ay;
-  const budget = dt / 1000 - stanceCost(earlierY, laterY);
+  const budget = dt / 1000 - stanceCost(earlierY, laterY) - humanSlack();
   if (budget <= 0) return false;
   const need = Math.max(0, Math.abs(bx - ax) - REACH_SLACK);
   return need <= MOVE_SPEED * budget;
@@ -1269,6 +1311,26 @@ function drawSpecialGhosts() {
   });
   Object.assign(keeper, real);
 }
+// A pressure spell: the edges of the screen glow orange and pulse, and a bar
+// along the top runs down the time left on it.
+function drawSpellOverlay() {
+  if (G.phase !== "play") return;
+  const sp = G.spell;
+  if (sp.phase !== "pressure") return;
+  const left = clamp((sp.until - G.elapsed) / SPELL_MS, 0, 1), now = performance.now();
+  const inK = clamp((SPELL_MS - (sp.until - G.elapsed)) / 400, 0, 1);
+  const pulse = reducedMotion ? .7 : .6 + .4 * Math.sin(now / 140);
+  ctx.save();
+  const g = ctx.createRadialGradient(W / 2, H * .5, H * .38, W / 2, H * .5, H * .95);
+  g.addColorStop(0, "rgba(255,120,40,0)"); g.addColorStop(1, `rgba(255,110,30,${.32 * pulse * inK})`);
+  ctx.fillStyle = g; ctx.fillRect(-30, -30, W + 60, H + 60);
+  ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.fillRect(W / 2 - 110, 6, 220, 6);
+  ctx.fillStyle = "#ff8a3d"; ctx.fillRect(W / 2 - 110, 6, 220 * left, 6);
+  ctx.font = "700 9px Inter, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "top";
+  ctx.fillStyle = `rgba(255,214,180,${.7 + .3 * pulse})`;
+  ctx.fillText("PRESSURE · SAVES ×2", W / 2, 15);
+  ctx.restore();
+}
 function drawSpecialScreen() {
   if (!spOn("cat")) return;
   const k = spK();
@@ -1570,7 +1632,9 @@ function onSave(s, depth) {
 
   // The whole scoring system: one point on your feet, two if you earned it.
   const hard = diving || leaping || split;
-  const pts = hard ? 2 : 1;
+  const pressed = underPressure();
+  const pts = (hard ? 2 : 1) * (pressed ? 2 : 1);
+  if (pressed) G.spell.saves++;
   const prevScore = G.score;
   G.score += pts;
   if (hard) G.stats.hard++;
@@ -1590,7 +1654,7 @@ function onSave(s, depth) {
              : split ? (clean ? pick(["BIG SPREAD!", "SMOTHERED!"]) : pick(["STRONG LEG!", "BLOCKED WITH THE BOOT!"]))
              : clean ? pick(["CAUGHT IT!", "SAFE HANDS!", "GOT IT!"]) : pick(["SAVED!", "PARRIED!", "BEATEN AWAY!"]);
   pops.push({ text, x: s.bx, y: s.by - 14, color: hard ? "#ffd23f" : "#3ddc84", size: hard ? 30 : 24, life: 1 });
-  pops.push({ text: "+" + pts, x: s.bx, y: s.by + 18, color: "#ffffff", size: hard ? 24 : 18, life: 1 });
+  pops.push({ text: "+" + pts, x: s.bx, y: s.by + 18, color: pressed ? "#ffb070" : "#ffffff", size: hard ? 24 : 18, life: 1 });
   burst(s.bx, s.by, clean ? 14 : 22, hard ? ["#ffffff", "#ffd23f", "#fff4c4"] : ["#ffffff", "#3ddc84", "#d9fbe6"]);
   rings.push({ x: s.bx, y: s.by, r: s.br, grow: hard ? 70 : 44, life: 1, color: hard ? "255,210,63" : "61,220,132" });
   cheer = Math.max(cheer, hard ? 1 : .55);
@@ -1668,6 +1732,10 @@ function onConcede(s, depth) {
   rings.push({ x: s.bx, y: s.by, r: s.br, grow: 110, life: 1, color: "255,90,95" });
   cheer = Math.max(cheer, .8);
   sfx.goal();
+  // A beat to pick yourself up: nothing new is struck for a moment (shots
+  // already on their way still come). Goals used to arrive in clumps, the
+  // next shot already coming while he was still looking at the net.
+  G.nextShot = Math.max(G.nextShot, CONCEDE_BEAT);
   updateHUD();
   if (G.lives <= 0) gameOver();
 }
@@ -3617,6 +3685,7 @@ function drawOverlayText() {
     band.addColorStop(.75, "rgba(0,0,0,.45)"); band.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = band; ctx.fillRect(0, GOAL.y - 54, W, banner.sub ? 70 : 54);
     ctx.font = "52px 'Bebas Neue', Impact, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     ctx.lineWidth = 5; ctx.strokeStyle = "rgba(0,0,0,.5)";
     ctx.strokeText(banner.title, W / 2 - slide, GOAL.y - 12);
     ctx.fillStyle = banner.color;
@@ -3881,7 +3950,8 @@ function frame(now) {
       const wdt = dt * worldRate();
       G.elapsed += wdt;
       checkUnlocks();
-      G.nextShot -= wdt;
+      updateSpell();
+      if (!inBreather()) G.nextShot -= wdt;
       if (G.nextShot <= 0) { spawnShot(); G.nextShot = shotGap(); }
       updateKeeper(dt); updateStamina(dt); updateShots(wdt);
       updateSpecial(real);
@@ -3946,6 +4016,7 @@ function render() {
 
   drawNightGrade();
   drawSpecialScreen();
+  drawSpellOverlay();
   drawBloom();
 
   // Feedback sits above the night grade so it never gets dimmed.
@@ -4040,6 +4111,7 @@ function startGame() {
   G.lives = 3; G.paused = false; G.pauseWhy = null; G.announced = {}; G.milestone = 0;
   G.lag = camDelayBudget();
   G.sp = { charge: 0, left: 0, used: 0, denied: 0, readyPulse: 0, ghosts: [], ghostT: 0 };
+  G.spell = { phase: "calm", next: SPELL_FIRST, until: 0, n: 0, saves: 0 };
   held.clear();
   warm = null;
   stopAllWhooshes();

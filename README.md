@@ -113,15 +113,28 @@ corner shows how charged it is, and says TWO FINGERS UP once it's ready.
 Like the keepers themselves, the specials only ever help, so the fairness checks still hold. Cat
 Reflexes slows the game's own clock (shots, strikers, the shot schedule) while the keeper runs on
 the real one, so everything stays in step with itself. The gesture is read along the hand's own
-axis, from the wrist to the middle knuckle, so it works with your hand tilted. It has to be held
-for a sixth of a second, so a finger flickering up for a frame doesn't set it off. You can try it
-on the setup screen, where the preview shows your special's name when it registers.
+axis, from the wrist to the middle knuckle, so it works with your hand tilted. Both fingers have to
+be up, with the middle about as far up as the index, so a relaxed middle finger hanging half open
+doesn't count, and nothing counts while the index is bent down for the splits. It has to be held
+for a sixth of a second, so a finger flickering up for a frame doesn't set it off. The camera
+picture lights up your middle finger as it registers (red if the special isn't charged yet), and on
+the setup screen the preview shows your special's name.
 
 ## Scoring
 
 - Save it on your feet — **1 point**
 - Save it with a leap, a dive or the splits — **2 points**
 - Ten saves in a row wins back a ball you've let in
+- Saves during a **pressure spell** count double
+
+### How it gets harder
+
+The pace climbs steadily over five minutes: shots come quicker and fly faster, and curlers, chips,
+rockets and three shots in the air at once arrive along the way. About every fifty seconds there's
+a **pressure spell**: ten seconds of the strikers piling it on, with an orange glow round the edge of
+the screen, a bar counting it down, and saves worth double. Then a **breather**: a few seconds with
+nothing new struck while the crowd applauds. After you let a goal in there's also a moment before
+the next new shot, so goals don't come in clumps.
 
 Three goals conceded ends the run. Your best score and a few all-time totals (games, saves, longest
 run) are saved in the browser.
@@ -158,6 +171,18 @@ before getting down into the splits, which costs about 0.7s before he's moved si
 types have different flight times, so a rocket struck after a chip can overtake it; shots are
 therefore scheduled by when they *land*, with the striker's run-up absorbing the slack. Impossible
 pairs went from 43% to zero, with no measurable loss of variety.
+
+**The difficulty curve is measured, not guessed.** A simulated player, at a casual and a good skill
+level, plays hundreds of runs at sped-up speed, and the game logs goals let in for each half-minute
+of a run. The old curve had a wall: a good player let in about one goal a minute for the first
+ninety seconds, then nearly forty a minute within the next forty-five, the same as a casual player.
+Skill stopped mattering after two minutes. Two things fixed it. The ramp is now five minutes long and
+tops out at a pace a good player can live with. And "reachable" now leaves time for a person to
+react (a third of a second early on, a sixth at full pace): before, at full pace the shots were
+packed right up to what a keeper with no reaction time at all could manage. Now goals let in climb
+steadily the whole way. A good player's median run went from 113 to 174 seconds and their median
+score from 113 to 200, while a casual player's runs stayed about the same length. So a good player
+now scores about four times what a casual one does, instead of two and a half.
 
 **Shadows are real silhouettes.** The sun sits low behind the far stand, so the goal frame and the
 keeper cast shadows toward the camera that lengthen into the evening, then split into faint twin
@@ -199,6 +224,13 @@ light, since that's nearly always the cause.
 the spot over the last 40 px (it was 70), so small corrections land about 20% sooner without him
 sailing past. In the air he still eases over the longer stretch, because he answers more slowly
 there.
+
+**A jump asked for mid-dive isn't thrown away.** Lift your finger for a high ball while the keeper's
+still getting up from a dive and he jumps as soon as he's back on his feet, about a tenth of a second
+after, as long as your finger's still up. It used to be ignored, and since your finger was already
+up you'd have had to drop it and lift it again. Kick-off also only counts frames where the tracker
+actually saw your hand, so a hand it keeps losing can't set the middle of the goal from a stale
+position.
 
 **Arms sink.** Over a few minutes most people's resting hand drifts down a little, which would
 creep the splits line toward it. While your finger rests near the middle, the centre follows it
